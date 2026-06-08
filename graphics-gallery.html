@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Graphics Gallery — Marius Bejinariu</title>
+<meta name="description" content="Graphics gallery by Marius Bejinariu — graphic design, photography and digital media work."/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════════════
+   BASE
+══════════════════════════════════════════ */
+:root {
+  --red:#ff1a3c; --pink:#ff4d7a;
+  --bg:#070707; --surf:#0f0f0f; --border:#1e1e1e;
+  --text:#e2e2e2; --muted:#aaa; --body-lh:1.72;
+  --paper:#f5f0e8; --paper2:#ede8dc; --ink:#1a1a1a;
+  --serif:'Playfair Display',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --sans:'Space Grotesk',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--sans);}
+
+/* ══════════════════════════════════════════
+   GALLERY LIST VIEW
+══════════════════════════════════════════ */
+#gallery-view {
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  background:var(--bg);z-index:1;overflow-y:auto;
+}
+header.gh {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:60px;border-bottom:1px solid var(--border);
+  background:var(--nav-bg);position:sticky;top:0;z-index:10;flex-shrink:0;
+}
+.back-link{font-family:var(--mono);font-size:12px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s;}
+.back-link:hover{color:var(--red);}
+.gh-title{font-family:var(--mono);font-size:13px;color:var(--red);letter-spacing:1px;}
+.gh-counter{font-family:var(--mono);font-size:12px;color:var(--muted);}
+.gallery-main{flex:1;padding:48px;}
+.gallery-intro{text-align:center;margin-bottom:48px;}
+.gallery-intro h1{font-family:var(--serif);font-size:clamp(28px,4vw,52px);color:var(--text-strong);margin-bottom:12px;font-style:italic;}
+.gallery-intro p{font-size:14px;color:var(--muted);max-width:500px;margin:0 auto;line-height:var(--body-lh);}
+/* ── MAGAZINE COVER CARDS ── */
+.gallery-grid{
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  max-width:1100px;
+  margin:0 auto;
+  padding:60px 0 80px;
+  position:relative;
+  height:460px;
+  perspective:900px;
+}
+
+/* outer wrapper */
+.gallery-card{
+  flex:0 0 auto;
+  width:240px;
+  cursor:pointer;
+  position:absolute;
+  transition:transform .45s cubic-bezier(.23,1,.32,1), filter .45s;
+  transform-style:preserve-3d;
+}
+
+/* LEFT card — rotated left, pulled back, lower */
+.gallery-card:nth-child(1){
+  transform: translateX(-170px) translateY(28px) rotateY(18deg) rotateZ(-4deg) scale(0.88);
+  filter:drop-shadow(-8px 20px 32px rgba(0,0,0,.75));
+  z-index:1;
+}
+.gallery-card:nth-child(1):hover{
+  transform: translateX(-170px) translateY(8px) rotateY(18deg) rotateZ(-4deg) scale(0.93);
+  filter:drop-shadow(-12px 28px 44px rgba(0,0,0,.85));
+  z-index:4;
+}
+
+/* CENTRE card — upright, forward, highest */
+.gallery-card:nth-child(2){
+  transform: translateX(0px) translateY(0px) rotateY(0deg) rotateZ(0deg) scale(1.0);
+  filter:drop-shadow(0 28px 48px rgba(0,0,0,.85));
+  z-index:3;
+}
+.gallery-card:nth-child(2):hover{
+  transform: translateX(0px) translateY(-18px) rotateY(0deg) rotateZ(0deg) scale(1.05);
+  filter:drop-shadow(0 40px 64px rgba(0,0,0,.9));
+  z-index:4;
+}
+
+/* RIGHT card — rotated right, pulled back, lower */
+.gallery-card:nth-child(3){
+  transform: translateX(170px) translateY(28px) rotateY(-18deg) rotateZ(4deg) scale(0.88);
+  filter:drop-shadow(8px 20px 32px rgba(0,0,0,.75));
+  z-index:2;
+}
+.gallery-card:nth-child(3):hover{
+  transform: translateX(170px) translateY(8px) rotateY(-18deg) rotateZ(4deg) scale(0.93);
+  filter:drop-shadow(12px 28px 44px rgba(0,0,0,.85));
+  z-index:4;
+}
+
+/* the cover itself — portrait A4-ish ratio */
+.mag-cover-wrap{
+  width:260px;
+  height:360px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border-radius:3px;
+  background:#fff;
+  position:relative;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+/* top white header band */
+.mag-cover-header{
+  background:#fff;
+  padding:10px 12px 6px;
+  flex-shrink:0;
+  border-bottom:3px solid #111;
+  position:relative;
+  z-index:2;
+}
+.mag-cover-title{
+  font-family:var(--serif);
+  font-size:22px;
+  font-weight:900;
+  color:#111;
+  line-height:1;
+  letter-spacing:-0.5px;
+  text-transform:uppercase;
+}
+.mag-cover-subtitle{
+  font-family:var(--sans);
+  font-size:9px;
+  font-weight:600;
+  color:#111;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-top:3px;
+  opacity:.7;
+}
+
+/* photo zone — clickable/droppable */
+.mag-cover-photo{
+  flex:1;
+  position:relative;
+  overflow:hidden;
+  background:#1a1a1a;
+  cursor:pointer;
+}
+.mag-cover-photo img{
+  position:absolute;inset:0;z-index:1;
+  width:100%;height:100%;object-fit:cover;
+  display:block;
+  transition:transform .4s;
+}
+.gallery-card:hover .mag-cover-photo img{ transform:scale(1.04); }
+.mag-cover-ph{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:10px;
+  background:repeating-linear-gradient(135deg,#1c1c1c,#1c1c1c 10px,#161616 10px,#161616 20px);
+  position:relative;
+}
+.mag-cover-ph-upload{
+  width:48px;height:48px;
+  border:1.5px dashed rgba(255,26,60,.4);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,background .2s;
+}
+.mag-cover-photo:hover .mag-cover-ph-upload{
+  border-color:var(--red);
+  background:rgba(255,26,60,.06);
+}
+.mag-cover-ph-upload svg{ width:18px;height:18px;stroke:rgba(255,26,60,.5);transition:stroke .2s; }
+.mag-cover-photo:hover .mag-cover-ph-upload svg{ stroke:var(--red); }
+.mag-cover-ph-label{
+  font-family:var(--mono);font-size:8px;color:#555;letter-spacing:1.5px;text-transform:uppercase;
+}
+.mag-cover-ph-hint{
+  font-family:var(--mono);font-size:7px;color:#333;
+  border:1px dashed #2a2a2a;padding:3px 8px;
+}
+/* hidden file input — removed: static placeholders only */
+
+/* bottom dark band */
+.mag-cover-footer{
+  background:#111;
+  padding:10px 12px;
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  border-top:3px solid var(--red);
+}
+.mag-cover-footer-title{
+  font-family:var(--sans);
+  font-size:11px;
+  font-weight:600;
+  color:#fff;
+  letter-spacing:.5px;
+}
+.mag-cover-footer-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.mag-cover-footer-tags{
+  display:flex;gap:4px;flex-wrap:wrap;
+}
+.mag-cover-footer-tag{
+  font-family:var(--mono);font-size:7px;color:#666;
+  letter-spacing:.5px;
+}
+.mag-cover-footer-tag + .mag-cover-footer-tag::before{ content:'·';margin-right:4px; }
+/* barcode SVG */
+.mag-cover-barcode{ opacity:.35;flex-shrink:0; }
+
+/* bottom label strip */
+.mag-cover-open{
+  text-align:center;padding:10px 0 0;
+  font-family:var(--mono);font-size:9px;color:rgba(255,26,60,.5);
+  letter-spacing:1px;transition:color .2s;
+}
+.gallery-card:hover .mag-cover-open{ color:var(--red); }
+
+/* ══════════════════════════════════════════
+   MAGAZINE VIEWER OVERLAY
+══════════════════════════════════════════ */
+#mag-overlay {
+  position:fixed;inset:0;z-index:100;
+  background:var(--overlay-bg);backdrop-filter:blur(20px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .4s,background-color .35s ease;
+}
+#mag-overlay.open{opacity:1;pointer-events:auto;}
+
+/* chrome */
+.mag-chrome{
+  position:absolute;top:0;left:0;right:0;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px 0 84px;z-index:10;
+}
+.mag-back{font-family:var(--mono);font-size:12px;color:var(--muted);cursor:pointer;transition:color .2s;background:none;border:none;display:flex;align-items:center;gap:8px;}
+.mag-back:hover{color:var(--red);}
+.mag-issue-label{font-family:var(--serif);font-size:13px;color:var(--muted);font-style:italic;}
+.mag-progress-wrap{display:flex;align-items:center;gap:12px;}
+.mag-page-num{font-family:var(--mono);font-size:11px;color:var(--muted);}
+.mag-progress{width:100px;height:2px;background:var(--track);border-radius:2px;overflow:hidden;}
+.mag-progress-fill{height:100%;background:var(--red);transition:width .4s;}
+
+/* ── ZOOM TOOLBAR ── */
+.mag-zoom-bar{
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:0;z-index:20;
+  background:var(--bar-bg);border:1px solid var(--bar-border);
+  backdrop-filter:blur(12px);
+}
+.mag-zoom-btn{
+  width:40px;height:40px;border:none;background:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--muted);transition:color .2s,background .2s;
+  font-family:var(--mono);font-size:18px;line-height:1;
+}
+.mag-zoom-btn:hover:not(:disabled){color:var(--red);background:rgba(255,26,60,.06);}
+.mag-zoom-btn:disabled{opacity:.25;cursor:default;}
+.mag-zoom-divider{width:1px;height:24px;background:var(--bar-border);flex-shrink:0;}
+.mag-zoom-level{
+  font-family:var(--mono);font-size:10px;color:var(--muted);
+  min-width:42px;text-align:center;letter-spacing:1px;
+  padding:0 4px;user-select:none;
+}
+/* zoom/pan — transform driven entirely by JS rAF loop, no CSS transition */
+.p-image img{ transform-origin:0 0; will-change:transform; }
+.p-image.zoomed{ cursor:grab; }
+.p-image.zoomed.dragging{ cursor:grabbing; }
+
+/* ── MAGNIFIER LENS BUTTON ACTIVE STATE ── */
+.mag-lens-toggle.lens-active{
+  color:var(--red);
+  background:rgba(255,26,60,.10);
+  box-shadow:inset 0 0 0 1px rgba(255,26,60,.3);
+}
+
+/* ── MAGNIFIER LENS CANVAS ── */
+#lensCanvas{
+  position:fixed;
+  pointer-events:none;
+  border-radius:50%;
+  border:2px solid var(--red);
+  box-shadow:
+    0 0 0 1px rgba(255,26,60,.25),
+    0 8px 32px rgba(0,0,0,.8),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+  display:none;
+  z-index:9999;
+  /* subtle red glow */
+  filter:drop-shadow(0 0 8px rgba(255,26,60,.35));
+}
+
+/* book stage */
+.mag-stage{
+  width:min(900px,94vw);height:min(620px,80vh);
+  position:relative;perspective:2000px;
+}
+
+/* nav arrows */
+.mag-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:48px;height:48px;border:1px solid var(--bar-border);background:var(--bar-bg);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  z-index:20;transition:border-color .2s,background .2s;
+}
+.mag-arrow:hover{border-color:var(--red);background:rgba(255,26,60,.06);}
+.mag-arrow svg{stroke:var(--text-faint);width:18px;height:18px;transition:stroke .2s;}
+.mag-arrow:hover svg{stroke:var(--red);}
+.mag-arrow.prev{left:-64px;}
+.mag-arrow.next{right:-64px;}
+.mag-arrow:disabled{opacity:.2;pointer-events:none;}
+
+/* book container */
+.book{
+  width:100%;height:100%;position:relative;transform-style:preserve-3d;
+}
+
+/* pages */
+.page{
+  position:absolute;inset:0;
+  transform-origin:left center;
+  transform-style:preserve-3d;
+  transition:transform .7s cubic-bezier(.645,.045,.355,1);
+  backface-visibility:hidden;
+}
+.page-front,.page-back{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  overflow:hidden;
+  box-shadow:4px 0 24px rgba(0,0,0,.5);
+}
+.page-back{transform:rotateY(180deg);}
+
+/* page shadow overlay during flip */
+.page-shadow{
+  position:absolute;inset:0;
+  background:linear-gradient(to right,rgba(0,0,0,0),rgba(0,0,0,.35));
+  pointer-events:none;opacity:0;transition:opacity .35s;
+  z-index:5;
+}
+.page.flipping .page-shadow{opacity:1;}
+
+/* ══════════════════════════════════════════
+   MAGAZINE PAGE CONTENT LAYOUTS
+══════════════════════════════════════════ */
+/* ── UNIFIED IMAGE PAGE ── */
+.p-image{width:100%;height:100%;position:relative;overflow:hidden;background:#111;}
+.p-image img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1;}
+.p-image-fallback{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:repeating-linear-gradient(135deg,#161616,#161616 10px,#121212 10px,#121212 20px);}
+.p-image-fallback svg{opacity:.3;}
+.p-image-file{font-family:var(--mono);font-size:11px;color:rgba(255,26,60,.35);border:1px dashed rgba(255,26,60,.2);padding:5px 14px;}
+.p-image-size{font-family:var(--mono);font-size:9px;color:#444;letter-spacing:1px;}
+
+
+/* page num at corner */
+.page-num-corner{position:absolute;bottom:10px;right:14px;font-family:var(--mono);font-size:9px;color:#bbb;z-index:3;}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media(max-width:900px){
+  .mag-arrow.prev{left:-8px;}
+  .mag-arrow.next{right:-8px;}
+  .gallery-main{padding:24px;}
+  header.gh{padding:0 20px;}
+}
+@media(max-width:600px){
+  .mag-stage{width:96vw;height:70vh;}
+}
+
+/* ══════════════════════════════════════════
+   ZOOM HELP POP-UP  (modelled on the
+   "Information" card from the UI kit)
+══════════════════════════════════════════ */
+.zoom-help{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-46%) scale(.94);
+  width:min(360px,92vw);
+  background:#26262b;                       /* dark surface, like the kit card */
+  border:1px solid #34343b;
+  border-radius:16px;
+  padding:26px 24px 22px;
+  z-index:60;
+  box-shadow:0 30px 70px rgba(0,0,0,.7);
+  opacity:0;pointer-events:none;
+  transition:opacity .35s ease, transform .35s cubic-bezier(.23,1,.32,1);
+}
+.zoom-help.show{
+  opacity:1;pointer-events:auto;
+  transform:translate(-50%,-50%) scale(1);
+}
+
+/* X close — top right */
+.zoom-help-x{
+  position:absolute;top:14px;right:14px;
+  width:24px;height:24px;border:none;background:none;cursor:pointer;
+  color:#8a8a90;transition:color .2s,transform .2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.zoom-help-x:hover{color:var(--red);transform:rotate(90deg);}
+.zoom-help-x svg{width:16px;height:16px;}
+
+/* hero magnifier icon */
+.zoom-help-hero{
+  display:flex;align-items:center;justify-content:center;
+  margin:4px 0 6px;
+}
+.zoom-help-hero svg{width:42px;height:42px;color:var(--red);}
+
+.zoom-help-title{
+  font-family:var(--sans);font-weight:600;font-size:18px;
+  color:var(--red);text-align:center;letter-spacing:.3px;margin-bottom:16px;
+}
+
+/* instruction rows */
+.zoom-help-list{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+.zoom-help-row{display:flex;align-items:flex-start;gap:13px;}
+.zoom-help-ic{
+  flex:0 0 auto;width:34px;height:34px;border-radius:9px;
+  background:var(--red);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(255,26,60,.3);
+}
+.zoom-help-ic svg{width:18px;height:18px;stroke:#fff;color:#fff;}
+.zoom-help-txt{font-family:var(--sans);font-size:12.5px;line-height:1.5;color:#cfcfcf;padding-top:1px;}
+.zoom-help-txt b{color:#fff;font-weight:600;}
+.zoom-help-txt kbd{
+  font-family:var(--mono);font-size:10px;color:#fff;
+  background:#3a3a42;border:1px solid #4a4a52;border-radius:4px;
+  padding:1px 5px;margin:0 1px;
+}
+
+/* close button — full width, like the kit */
+.zoom-help-btn{
+  width:100%;border:none;cursor:pointer;
+  background:var(--red);color:#fff;
+  font-family:var(--sans);font-weight:600;font-size:13px;letter-spacing:.5px;
+  padding:13px 0;border-radius:11px;
+  transition:background .2s,transform .1s;
+}
+.zoom-help-btn:hover{background:var(--pink);}
+.zoom-help-btn:active{transform:scale(.98);}
+
+/* auto-dismiss countdown bar */
+.zoom-help-timer{
+  position:absolute;left:0;bottom:0;height:3px;width:100%;
+  background:var(--red);border-radius:0 0 16px 16px;
+  transform-origin:left center;transform:scaleX(1);
+}
+.zoom-help.show .zoom-help-timer{
+  transition:transform 15s linear;transform:scaleX(0);
+}
+
+/* ══════════════════════════════════════════
+   ZOOM HELP BUBBLE
+   — Floating button that "stores" the pop-up.
+     Click it any time to bring the guide back.
+══════════════════════════════════════════ */
+.zoom-bubble{
+  position:absolute;bottom:24px;right:24px;
+  width:52px;height:52px;border-radius:50%;
+  background:var(--red);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  z-index:55;
+  box-shadow:0 8px 24px rgba(0,0,0,.5), 0 0 0 1px rgba(255,26,60,.25);
+  transition:transform .25s cubic-bezier(.23,1,.32,1), box-shadow .25s, background .2s;
+}
+.zoom-bubble:hover{
+  background:var(--pink);transform:scale(1.08);
+  box-shadow:0 10px 30px rgba(0,0,0,.6), 0 0 16px rgba(255,26,60,.55);
+}
+.zoom-bubble:active{transform:scale(.96);}
+.zoom-bubble svg{width:24px;height:24px;stroke:#fff;color:#fff;}
+
+/* tooltip */
+.zoom-bubble::after{
+  content:'Zoom & navigation help';
+  position:absolute;right:64px;top:50%;
+  transform:translateY(-50%) translateX(6px);
+  background:#26262b;border:1px solid #34343b;color:#dcdcdc;
+  font-family:var(--mono);font-size:10px;letter-spacing:.5px;white-space:nowrap;
+  padding:6px 10px;border-radius:6px;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+}
+.zoom-bubble:hover::after{opacity:1;transform:translateY(-50%) translateX(0);}
+
+/* pulse when the pop-up is tucked back into the bubble */
+@keyframes bubblePulse{
+  0%  { box-shadow:0 8px 24px rgba(0,0,0,.5), 0 0 0 0   rgba(255,26,60,.55); }
+  70% { box-shadow:0 8px 24px rgba(0,0,0,.5), 0 0 0 18px rgba(255,26,60,0); }
+  100%{ box-shadow:0 8px 24px rgba(0,0,0,.5), 0 0 0 0   rgba(255,26,60,0); }
+}
+.zoom-bubble.pulse{animation:bubblePulse .7s ease-out 2;}
+
+@media(max-width:600px){
+  .zoom-bubble{bottom:80px;right:16px;width:46px;height:46px;}
+  .zoom-bubble::after{display:none;}
+}
+
+/* ════════ LIGHT / DARK THEME TOGGLE (added) ════════ */
+:root{
+  --bg:#ffffff; --surf:#f5f5f7; --surf2:#ececef; --border:#e4e4e8;
+  --text:#2b2b30; --muted:#6c6c73;
+  --text-strong:#15151a; --text-2:#48484f; --text-faint:#74747c;
+  --border-2:#d3d3d9; --nav-bg:rgba(255,255,255,0.88); --panel-bg:rgba(255,255,255,0.85);
+  --overlay-bg:rgba(250,250,252,0.94); --chrome-bg:rgba(255,255,255,0.82); --bar-bg:rgba(255,255,255,0.9); --bar-border:#d3d3d9; --track:#dcdce1;
+}
+body.dark-theme{
+  --bg:#070707; --surf:#0f0f0f; --surf2:#141414; --border:#1e1e1e;
+  --text:#e2e2e2; --muted:#aaa;
+  --text-strong:#ffffff; --text-2:#cccccc; --text-faint:#888888;
+  --border-2:#444444; --nav-bg:rgba(7,7,7,0.92); --panel-bg:rgba(7,7,7,0.75);
+  --overlay-bg:rgba(0,0,0,0.95); --chrome-bg:rgba(7,7,7,0.8); --bar-bg:rgba(7,7,7,0.85); --bar-border:#2a2a2a; --track:#1e1e1e;
+}
+*,*::before,*::after{transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease,stroke .35s ease;}
+.theme-toggle{position:fixed;top:12px;left:14px;z-index:1000;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;background:var(--panel-bg);border:1px solid var(--border);color:var(--text);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:background-color .35s ease,color .2s ease,border-color .2s ease,transform .2s ease;}
+.theme-toggle:hover{border-color:var(--red);color:var(--red);transform:scale(1.06);}
+.theme-toggle svg{width:17px;height:17px;display:block;}
+.theme-toggle .ic-sun{display:none;}
+body.dark-theme .theme-toggle .ic-sun{display:block;}
+body.dark-theme .theme-toggle .ic-moon{display:none;}
+header.gh{padding-left:84px;}
+@media (max-width:560px){header.gh{padding-left:66px;}}
+@media (max-width:560px){.mag-chrome{padding-left:66px;}}
+</style>
+</head>
+<body class="dark-theme">
+<script>(function(){try{if(localStorage.getItem('mb-theme')==='light')document.body.classList.remove('dark-theme');}catch(e){}})();</script>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch colour theme" title="Switch colour theme">
+<svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+<svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>
+</button>
+
+
+<!-- ══════ GALLERY LIST VIEW ══════ -->
+<div id="gallery-view">
+  <header class="gh">
+    <a href="portfolio.html" class="back-link">← Back to Portfolio</a>
+    <span class="gh-title">GRAPHICS GALLERY</span>
+    <span class="gh-counter" id="galleryCounter">3 issues</span>
+  </header>
+  <div class="gallery-main">
+    <div class="gallery-intro">
+      <h1>Editorial Spreads &amp; Visual Work</h1>
+      <p>Click any issue to open the magazine viewer.</p>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</div>
+
+<!-- ══════ MAGAZINE OVERLAY ══════ -->
+<div id="mag-overlay">
+  <div class="mag-chrome">
+    <button class="mag-back" id="magBack">← Close Magazine</button>
+    <span class="mag-issue-label" id="magIssueLabel"></span>
+    <div class="mag-progress-wrap">
+      <span class="mag-page-num" id="magPageNum"></span>
+      <div class="mag-progress"><div class="mag-progress-fill" id="magProgressFill"></div></div>
+    </div>
+  </div>
+
+  <div class="mag-stage">
+    <button class="mag-arrow prev" id="magPrev" aria-label="Previous page">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <div class="book" id="book"></div>
+    <button class="mag-arrow next" id="magNext" aria-label="Next page">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
+  </div>
+
+  <!-- ZOOM TOOLBAR -->
+  <div class="mag-zoom-bar">
+    <button class="mag-zoom-btn mag-lens-toggle" id="lensToggle" title="Magnifier lens (L)">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        <circle cx="11" cy="11" r="3" stroke-width="1.2" opacity="0.5"/>
+        <line x1="11" y1="6" x2="11" y2="8" stroke-width="1.2"/>
+        <line x1="11" y1="14" x2="11" y2="16" stroke-width="1.2"/>
+        <line x1="6" y1="11" x2="8" y2="11" stroke-width="1.2"/>
+        <line x1="14" y1="11" x2="16" y2="11" stroke-width="1.2"/>
+      </svg>
+    </button>
+    <div class="mag-divider" style="width:1px;height:24px;background:#2a2a2a;flex-shrink:0;"></div>
+    <button class="mag-zoom-btn" id="zoomOut" title="Zoom out (-)">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+    </button>
+    <div class="mag-divider" style="width:1px;height:24px;background:#2a2a2a;flex-shrink:0;"></div>
+    <span class="mag-zoom-level" id="zoomLevel">100%</span>
+    <div class="mag-divider" style="width:1px;height:24px;background:#2a2a2a;flex-shrink:0;"></div>
+    <button class="mag-zoom-btn" id="zoomReset" title="Reset zoom">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.51 9a9 9 0 1 1-.5 3.5"/><polyline points="3 3 3 9 9 9"/></svg>
+    </button>
+    <div class="mag-divider" style="width:1px;height:24px;background:#2a2a2a;flex-shrink:0;"></div>
+    <button class="mag-zoom-btn" id="zoomIn" title="Zoom in (+)">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+    </button>
+  </div>
+
+  <!-- MAGNIFIER LENS CANVAS -->
+  <canvas id="lensCanvas"></canvas>
+
+  <!-- ══════ ZOOM HELP POP-UP ══════ -->
+  <div class="zoom-help" id="zoomHelp" role="dialog" aria-label="How to zoom">
+    <button class="zoom-help-x" id="zoomHelpClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+
+    <div class="zoom-help-hero">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+      </svg>
+    </div>
+    <div class="zoom-help-title">How to Explore the Pages</div>
+
+    <div class="zoom-help-list">
+      <!-- ZOOM -->
+      <div class="zoom-help-row">
+        <span class="zoom-help-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        </span>
+        <span class="zoom-help-txt"><b>Zoom</b> — scroll the mouse wheel, pinch on touch, or use the <kbd>+</kbd> / <kbd>−</kbd> buttons in the toolbar. Press <kbd>0</kbd> to reset.</span>
+      </div>
+      <!-- PAN -->
+      <div class="zoom-help-row">
+        <span class="zoom-help-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+        </span>
+        <span class="zoom-help-txt"><b>Pan</b> — once zoomed in, click and drag (or swipe with one finger) to move around the page.</span>
+      </div>
+      <!-- LENS -->
+      <div class="zoom-help-row">
+        <span class="zoom-help-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><circle cx="11" cy="11" r="3" stroke-width="1.3"/></svg>
+        </span>
+        <span class="zoom-help-txt"><b>Zoom Lens</b> — tap the magnifying glass button (far left of the toolbar) or press <kbd>L</kbd>, then hover the page for a magnified close-up.</span>
+      </div>
+    </div>
+
+    <button class="zoom-help-btn" id="zoomHelpGotIt">Got it</button>
+    <div class="zoom-help-timer" id="zoomHelpTimer"></div>
+  </div>
+
+  <!-- ══════ ZOOM HELP BUBBLE (stores the pop-up) ══════ -->
+  <button class="zoom-bubble" id="zoomBubble" aria-label="Open zoom & navigation help">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+    </svg>
+  </button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DATA — MAGAZINES
+   Each magazine has: title, issue, tags, thumb (optional)
+   and pages[] array. Push new pages freely.
+
+   Page types:
+     cover        — hero cover with footer bar
+     full-bleed   — full image + overlay text
+     editorial    — 2-col image + text
+     article      — text-heavy article spread
+     split        — top image + bottom text
+
+   For images: set src to your file path (relative to this file).
+   Drop files into assets/images/gallery/ — if missing, a placeholder shows automatically.
+══════════════════════════════════════════ */
+const magazines = [
+  {
+    id: 'graphic-design',
+    title: 'Graphic Design',
+    issue: 'Issue 01',
+    tags: ['Illustrator','Photoshop','Branding'],
+    thumb: 'assets/images/gallery/graphic_cover_01.jpg',
+    thumbFile: 'graphic_cover_01.jpg',
+    pages: [
+        { type: 'image', src: 'assets/images/gallery/graphic_001.jpg', file: 'graphic_001.jpg' },
+        { type: 'image', src: 'assets/images/gallery/graphic_002.jpg', file: 'graphic_002.jpg' },
+        { type: 'image', src: 'assets/images/gallery/graphic_003.jpg', file: 'graphic_003.jpg' },
+        { type: 'image', src: 'assets/images/gallery/graphic_004.jpg', file: 'graphic_004.jpg' }
+      ],
+  },
+  {
+
+    id: 'social-media',
+    title: 'Social Media &amp; Digital',
+    issue: 'Issue 02',
+    tags: ['Photoshop','Social Media','Digital'],
+    tags: ['Illustrator','Vectors','Retouching'],
+    thumb: 'assets/images/gallery/photo_cover_01.jpg',
+    thumbFile: 'photo_cover_01.jpg',
+    pages: [
+        { type: 'image', src: 'assets/images/gallery/photo_001.jpg', file: 'photo_001.jpg' },
+        { type: 'image', src: 'assets/images/gallery/photo_002.jpg', file: 'photo_002.jpg' },
+        { type: 'image', src: 'assets/images/gallery/photo_003.jpg', file: 'photo_003.jpg' },
+        { type: 'image', src: 'assets/images/gallery/photo_004.jpg', file: 'photo_004.jpg' }
+      ],
+  },
+  {
+    id: 'Marketing Print',
+    title: 'Marketing Print',
+    issue: 'Issue 03',
+    tags: ['Illustrator','Lightroom','Retouching'],
+    thumb: 'assets/images/gallery/social_cover_01.jpg',
+    thumbFile: 'social_cover_01.jpg',
+    pages: [
+        { type: 'image', src: 'assets/images/gallery/social_001.jpg', file: 'social_001.jpg' },
+        { type: 'image', src: 'assets/images/gallery/social_002.jpg', file: 'social_002.jpg' }
+      ],
+  },
+];
+
+/* ══════════════════════════════════════════
+   BUILD GALLERY GRID
+══════════════════════════════════════════ */
+const grid = document.getElementById('galleryGrid');
+document.getElementById('galleryCounter').textContent = magazines.length + ' issues';
+
+/* Barcode SVG generator */
+function barcodesvg() {
+  const bars = [];
+  let x = 0;
+  const widths = [2,1,3,1,2,1,1,2,3,1,2,1,1,3,1,2,1,2,3,1,1,2,1,3,2,1,1,2,1,3,1,2,2,1,3,1,1,2,3,1,2];
+  widths.forEach((w,i) => {
+    if (i%2===0) bars.push(`<rect x="${x}" y="0" width="${w}" height="28" fill="#111"/>`);
+    x += w;
+  });
+  return `<svg width="${x}" height="28" viewBox="0 0 ${x} 28" xmlns="http://www.w3.org/2000/svg">${bars.join('')}</svg>`;
+}
+
+magazines.forEach((mag, mi) => {
+  const card = document.createElement('div');
+  card.className = 'gallery-card';
+
+  /* Build magazine cover HTML */
+  card.innerHTML = `
+    <div class="mag-cover-wrap">
+      <!-- TOP HEADER BAND -->
+      <div class="mag-cover-header">
+        <div class="mag-cover-title">${mag.title.toUpperCase()}</div>
+        <div class="mag-cover-subtitle">${mag.issue} &nbsp;·&nbsp; ${mag.tags[0]}</div>
+      </div>
+
+      <!-- PHOTO ZONE — drop assets/images/gallery/${mag.thumbFile} to display -->
+      <div class="mag-cover-photo" id="photo-zone-${mi}">
+        <img src="${mag.thumb}" alt="${mag.title}" onerror="this.style.display='none'" />
+        <div class="mag-cover-ph">
+          <div class="mag-cover-ph-upload">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="M21 15l-5-5L5 21"/>
+            </svg>
+          </div>
+          <div class="mag-cover-ph-label">Add </div>
+          <div class="mag-cover-ph-hint">[ ${mag.thumbFile} ]</div>
+        </div>
+      </div>
+
+      <!-- BOTTOM DARK BAND -->
+      <div class="mag-cover-footer">
+        <div class="mag-cover-footer-title">${mag.tags.join(' · ')}</div>
+        <div class="mag-cover-footer-meta">
+          <div class="mag-cover-footer-tags">
+            <span class="mag-cover-footer-tag">MARIUS BEJINARIU</span>
+            <span class="mag-cover-footer-tag">MEDIA DEV</span>
+          </div>
+          <div class="mag-cover-barcode">${barcodesvg()}</div>
+        </div>
+      </div>
+    </div>
+    <div class="mag-cover-open">OPEN MAGAZINE →</div>`;
+
+  /* clicking card opens magazine */
+  card.addEventListener('click', () => openMagazine(mi));
+  grid.appendChild(card);
+});
+
+/* ══════════════════════════════════════════
+   MAGAZINE VIEWER
+══════════════════════════════════════════ */
+let currentMag = null;
+let currentPage = 0;
+let isFlipping = false;
+
+const overlay   = document.getElementById('mag-overlay');
+const book      = document.getElementById('book');
+const magBack   = document.getElementById('magBack');
+const magPrev   = document.getElementById('magPrev');
+const magNext   = document.getElementById('magNext');
+const magLabel  = document.getElementById('magIssueLabel');
+const magNum    = document.getElementById('magPageNum');
+const magFill   = document.getElementById('magProgressFill');
+
+function buildPageEl(pageData, idx) {
+  const el = document.createElement('div');
+  el.className = 'page';
+  el.dataset.idx = idx;
+
+  const front = document.createElement('div');
+  front.className = 'page-front';
+  front.appendChild(renderPageContent(pageData));
+
+  // page number corner
+  const num = document.createElement('div');
+  num.className = 'page-num-corner';
+  num.textContent = idx + 1;
+  front.appendChild(num);
+
+  const shadow = document.createElement('div');
+  shadow.className = 'page-shadow';
+  front.appendChild(shadow);
+
+  el.appendChild(front);
+  return el;
+}
+
+/* Standardised image fallback SVG */
+const imgFallbackSVG = '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="24" height="20" rx="2" stroke="rgba(255,26,60,0.5)" stroke-width="1.5" fill="none"/><circle cx="12" cy="14" r="3" stroke="rgba(255,26,60,0.4)" stroke-width="1.2" fill="none"/><path d="M4 22l6-5 4 3 6-7 8 9" stroke="rgba(255,26,60,0.4)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
+
+function renderPageContent(p) {
+  const wrap = document.createElement('div');
+  wrap.className = 'p-image';
+  wrap.style.height = '100%';
+  wrap.innerHTML = `
+    <img src="${p.src}" alt="${p.file}" onerror="this.style.display='none'" />
+    <div class="p-image-fallback">
+      ${imgFallbackSVG}
+      <span class="p-image-file">[ ${p.file} ]</span>
+      <span class="p-image-size">900 × 620 px</span>
+    </div>`;
+  return wrap;
+}
+
+function openMagazine(mi) {
+  currentMag  = magazines[mi];
+  currentPage = +(localStorage.getItem('mag-'+currentMag.id) || 0);
+  if (currentPage >= currentMag.pages.length) currentPage = 0;
+
+  // build pages
+  book.innerHTML = '';
+  currentMag.pages.forEach((p, i) => {
+    const el = buildPageEl(p, i);
+    // stack pages — each sits on top, z-index by reverse order
+    el.style.zIndex = currentMag.pages.length - i;
+    book.appendChild(el);
+  });
+
+  magLabel.textContent = currentMag.title + ' · ' + currentMag.issue;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  goToPage(currentPage, false);
+}
+
+function closeMagazine() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function goToPage(idx, animate = true) {
+  if (isFlipping) return;
+  const pages = book.querySelectorAll('.page');
+  const total = currentMag.pages.length;
+  idx = Math.max(0, Math.min(idx, total - 1));
+
+  if (animate && idx !== currentPage) {
+    isFlipping = true;
+    const goingForward = idx > currentPage;
+
+    if (goingForward) {
+      // flip current page away
+      const pageEl = pages[currentPage];
+      pageEl.classList.add('flipping');
+      pageEl.style.transform = 'rotateY(-180deg)';
+      setTimeout(() => { pageEl.classList.remove('flipping'); isFlipping = false; }, 720);
+    } else {
+      // un-flip target page
+      const pageEl = pages[idx];
+      pageEl.classList.add('flipping');
+      pageEl.style.transform = 'rotateY(0deg)';
+      setTimeout(() => { pageEl.classList.remove('flipping'); isFlipping = false; }, 720);
+    }
+  } else {
+    // instant: set all pages
+    pages.forEach((p, i) => {
+      p.style.transition = 'none';
+      p.style.transform = i < idx ? 'rotateY(-180deg)' : 'rotateY(0deg)';
+      setTimeout(() => { p.style.transition = ''; }, 50);
+    });
+  }
+
+  currentPage = idx;
+  localStorage.setItem('mag-'+currentMag.id, idx);
+
+  // update chrome
+  const total2 = currentMag.pages.length;
+  magNum.textContent = (idx + 1) + ' / ' + total2;
+  magFill.style.width = ((idx + 1) / total2 * 100) + '%';
+  magPrev.disabled = idx === 0;
+  magNext.disabled = idx === total2 - 1;
+}
+
+magBack.addEventListener('click', closeMagazine);
+magPrev.addEventListener('click', () => goToPage(currentPage - 1));
+magNext.addEventListener('click', () => goToPage(currentPage + 1));
+
+document.addEventListener('keydown', e => {
+  if (!overlay.classList.contains('open')) return;
+  if (e.key === 'ArrowRight') goToPage(currentPage + 1);
+  if (e.key === 'ArrowLeft')  goToPage(currentPage - 1);
+  if (e.key === 'Escape')     closeMagazine();
+});
+
+// swipe
+let tx = 0;
+overlay.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive:true });
+overlay.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 40) goToPage(dx < 0 ? currentPage + 1 : currentPage - 1);
+});
+
+// click page edges — only navigate when not zoomed
+book.addEventListener('click', e => {
+  if (zoomScale > 1) return;
+  const rect = book.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  if (x < rect.width * 0.25) goToPage(currentPage - 1);
+  else if (x > rect.width * 0.75) goToPage(currentPage + 1);
+});
+
+/* ══════════════════════════════════════════
+   ZOOM SYSTEM — v3
+   Uses transform-origin:0 0 so pan offsets are
+   always plain screen pixels with no division
+   by scale. Zooms toward image centre (buttons)
+   or cursor (wheel). Pan is clamped to the true
+   overflow area of the rendered image.
+══════════════════════════════════════════ */
+const ZOOM_MIN  = 1;
+const ZOOM_MAX  = 4;
+const ZOOM_STEP = 0.05;
+const ZOOM_EASE = 0.12;
+
+// zoomScale  : current rendered scale (animated)
+// zoomTarget : desired scale (set instantly)
+// panX/panY  : screen-pixel translation from top-left of container
+let zoomScale  = 1;
+let zoomTarget = 1;
+let panX = 0, panY = 0;
+let zoomRAF = null;
+
+const zoomInBtn    = document.getElementById('zoomIn');
+const zoomOutBtn   = document.getElementById('zoomOut');
+const zoomResetBtn = document.getElementById('zoomReset');
+const zoomLevelEl  = document.getElementById('zoomLevel');
+
+function getActiveImg() {
+  const pages = book.querySelectorAll('.page');
+  const page  = pages[currentPage];
+  return page ? page.querySelector('.p-image img') : null;
+}
+
+/* Rect of the image's rendered content.
+   With object-fit:cover the image fills the entire container,
+   so the rendered rect is simply the container itself.          */
+function getRenderedRect(img) {
+  const wrap = img.closest('.p-image');
+  const cW   = wrap.clientWidth;
+  const cH   = wrap.clientHeight;
+  return { x: 0, y: 0, w: cW, h: cH };
+}
+
+/* Clamp pan so the scaled image always covers the full container */
+function clampPan(img, s) {
+  const wrap = img.closest('.p-image');
+  const cW   = wrap.clientWidth;
+  const cH   = wrap.clientHeight;
+  const r    = getRenderedRect(img);
+  const sW   = r.w * s;
+  const sH   = r.h * s;
+  // if scaled dimension < container: centre; else clamp
+  if (sW <= cW) { panX = (cW - sW) / 2 - r.x; }
+  else { panX = Math.max(cW - r.x - sW, Math.min(-r.x, panX)); }
+  if (sH <= cH) { panY = (cH - sH) / 2 - r.y; }
+  else { panY = Math.max(cH - r.y - sH, Math.min(-r.y, panY)); }
+}
+
+/* Write transform to DOM */
+function commitZoom() {
+  const img = getActiveImg();
+  if (!img) return;
+  clampPan(img, zoomScale);
+  img.style.transform = `translate(${panX}px,${panY}px) scale(${zoomScale})`;
+  img.closest('.p-image').classList.toggle('zoomed', zoomScale > 1.005);
+}
+
+/* Update toolbar chrome */
+function updateZoomChrome() {
+  zoomLevelEl.textContent = Math.round(zoomTarget * 100) + '%';
+  zoomInBtn.disabled  = zoomTarget >= ZOOM_MAX;
+  zoomOutBtn.disabled = zoomTarget <= ZOOM_MIN;
+  const zoomed = zoomTarget > 1.005;
+  magPrev.style.pointerEvents = zoomed ? 'none' : '';
+  magNext.style.pointerEvents = zoomed ? 'none' : '';
+  magPrev.style.opacity       = zoomed ? '0'    : '';
+  magNext.style.opacity       = zoomed ? '0'    : '';
+}
+
+/* rAF loop — lerp toward zoomTarget, keeping anchor point fixed */
+function zoomTick() {
+  const diff = zoomTarget - zoomScale;
+  if (Math.abs(diff) < 0.0003) {
+    zoomScale = zoomTarget;
+    commitZoom();
+    zoomRAF = null;
+    return;
+  }
+  const img = getActiveImg();
+  if (img) {
+    const wrap = img.closest('.p-image');
+    const cW = wrap.clientWidth, cH = wrap.clientHeight;
+    // image point currently at container centre
+    const anchorX = (cW / 2 - panX) / zoomScale;
+    const anchorY = (cH / 2 - panY) / zoomScale;
+    zoomScale += diff * ZOOM_EASE;
+    // re-derive pan to keep that point centred
+    panX = cW / 2 - anchorX * zoomScale;
+    panY = cH / 2 - anchorY * zoomScale;
+  } else {
+    zoomScale += diff * ZOOM_EASE;
+  }
+  commitZoom();
+  zoomRAF = requestAnimationFrame(zoomTick);
+}
+
+/* Set zoom target, optionally anchoring to a focal screen point */
+function setZoomTarget(t, focalClientX, focalClientY) {
+  zoomTarget = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(t * 100) / 100));
+
+  if (focalClientX !== undefined) {
+    const img = getActiveImg();
+    if (img) {
+      const wrap = img.closest('.p-image');
+      const rect = wrap.getBoundingClientRect();
+      const lx = focalClientX - rect.left;
+      const ly = focalClientY - rect.top;
+      // image-space point under cursor
+      const imgPtX = (lx - panX) / zoomScale;
+      const imgPtY = (ly - panY) / zoomScale;
+      // set pan so that point stays under cursor at new scale
+      panX = lx - imgPtX * zoomTarget;
+      panY = ly - imgPtY * zoomTarget;
+    }
+  }
+
+  if (zoomTarget <= ZOOM_MIN) { panX = 0; panY = 0; }
+  updateZoomChrome();
+  if (!zoomRAF) zoomRAF = requestAnimationFrame(zoomTick);
+}
+
+function resetZoom() {
+  panX = 0; panY = 0;
+  setZoomTarget(1);
+}
+
+/* Buttons */
+zoomInBtn.addEventListener('click',  () => setZoomTarget(zoomTarget + ZOOM_STEP));
+zoomOutBtn.addEventListener('click', () => setZoomTarget(zoomTarget - ZOOM_STEP));
+zoomResetBtn.addEventListener('click', resetZoom);
+
+/* Hold-to-repeat */
+let holdTimer = null, holdInterval = null;
+function startHold(fn) {
+  fn();
+  holdTimer = setTimeout(() => { holdInterval = setInterval(fn, 80); }, 400);
+}
+function stopHold() {
+  clearTimeout(holdTimer); clearInterval(holdInterval);
+  holdTimer = holdInterval = null;
+}
+zoomInBtn.addEventListener('mousedown',  () => startHold(() => setZoomTarget(zoomTarget + ZOOM_STEP)));
+zoomOutBtn.addEventListener('mousedown', () => startHold(() => setZoomTarget(zoomTarget - ZOOM_STEP)));
+['mouseup','mouseleave'].forEach(ev => {
+  zoomInBtn.addEventListener(ev, stopHold);
+  zoomOutBtn.addEventListener(ev, stopHold);
+});
+
+/* Keyboard */
+document.addEventListener('keydown', e => {
+  if (!overlay.classList.contains('open')) return;
+  if (e.key === '=' || e.key === '+') { e.preventDefault(); setZoomTarget(zoomTarget + ZOOM_STEP); }
+  if (e.key === '-')                   { e.preventDefault(); setZoomTarget(zoomTarget - ZOOM_STEP); }
+  if (e.key === '0')                   { e.preventDefault(); resetZoom(); }
+});
+
+/* Mouse wheel — zoom toward cursor position */
+let wheelCooldown = false;
+overlay.addEventListener('wheel', e => {
+  if (!overlay.classList.contains('open')) return;
+  e.preventDefault();
+  if (wheelCooldown) return;
+  wheelCooldown = true;
+  setTimeout(() => { wheelCooldown = false; }, 50);
+  const dir = e.deltaY < 0 ? 1 : -1;
+  setZoomTarget(zoomTarget + dir * ZOOM_STEP, e.clientX, e.clientY);
+}, { passive: false });
+
+/* Drag-to-pan when zoomed */
+let isDragging = false;
+let dragStartX = 0, dragStartY = 0;
+let dragOriginPanX = 0, dragOriginPanY = 0;
+
+overlay.addEventListener('mousedown', e => {
+  if (zoomScale <= 1.005) return;
+  if (e.target.closest('.mag-zoom-bar')) return;
+  isDragging     = true;
+  dragStartX     = e.clientX;
+  dragStartY     = e.clientY;
+  dragOriginPanX = panX;
+  dragOriginPanY = panY;
+  const wrap = getActiveImg()?.closest('.p-image');
+  if (wrap) wrap.classList.add('dragging');
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  panX = dragOriginPanX + (e.clientX - dragStartX);
+  panY = dragOriginPanY + (e.clientY - dragStartY);
+  commitZoom();
+});
+
+document.addEventListener('mouseup', () => {
+  if (!isDragging) return;
+  isDragging = false;
+  const wrap = getActiveImg()?.closest('.p-image');
+  if (wrap) wrap.classList.remove('dragging');
+});
+
+/* Touch pinch + single-finger pan */
+let lastTouchDist = 0, lastPinchScale = 1;
+let touchPanStartX = 0, touchPanStartY = 0;
+let touchOriginPanX = 0, touchOriginPanY = 0;
+
+overlay.addEventListener('touchstart', e => {
+  if (e.touches.length === 2) {
+    lastTouchDist  = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    lastPinchScale = zoomScale;
+  } else if (e.touches.length === 1 && zoomScale > 1.005) {
+    touchPanStartX  = e.touches[0].clientX;
+    touchPanStartY  = e.touches[0].clientY;
+    touchOriginPanX = panX;
+    touchOriginPanY = panY;
+  }
+}, { passive: true });
+
+overlay.addEventListener('touchmove', e => {
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    setZoomTarget(lastPinchScale * (dist / lastTouchDist), midX, midY);
+  } else if (e.touches.length === 1 && zoomScale > 1.005) {
+    e.preventDefault();
+    panX = touchOriginPanX + (e.touches[0].clientX - touchPanStartX);
+    panY = touchOriginPanY + (e.touches[0].clientY - touchPanStartY);
+    commitZoom();
+  }
+}, { passive: false });
+
+/* Silent reset on page-change / close */
+function resetZoomSilent() {
+  if (zoomRAF) { cancelAnimationFrame(zoomRAF); zoomRAF = null; }
+  zoomScale = 1; zoomTarget = 1; panX = 0; panY = 0;
+  const img = getActiveImg();
+  if (img) {
+    img.style.transform = '';
+    img.closest('.p-image').classList.remove('zoomed','dragging');
+  }
+  zoomLevelEl.textContent = '100%';
+  zoomInBtn.disabled  = false;
+  zoomOutBtn.disabled = true;
+  magPrev.style.pointerEvents = '';
+  magPrev.style.opacity       = '';
+  magNext.style.pointerEvents = '';
+  magNext.style.opacity       = '';
+}
+
+// patch closeMagazine to reset zoom
+const _origClose = closeMagazine;
+closeMagazine = function() { resetZoomSilent(); _origClose(); };
+
+// reset zoom on page change (patch goToPage)
+const _origGoTo = goToPage;
+goToPage = function(idx, animate) {
+  resetZoomSilent();
+  _origGoTo(idx, animate);
+};
+
+/* ══════════════════════════════════════════
+   MAGNIFIER LENS SYSTEM
+   — Canvas-based circular loupe that follows
+     the cursor over the active page image.
+   — Independent of the existing zoom/pan system.
+══════════════════════════════════════════ */
+const lensCanvas   = document.getElementById('lensCanvas');
+const lensCtx      = lensCanvas.getContext('2d');
+const lensToggleBtn = document.getElementById('lensToggle');
+
+const LENS_RADIUS   = 110;   // px — diameter of the loupe circle
+const LENS_MAGNIFY  = 2.8;   // magnification factor inside loupe
+const LENS_DIAMETER = LENS_RADIUS * 2;
+
+lensCanvas.width  = LENS_DIAMETER;
+lensCanvas.height = LENS_DIAMETER;
+
+let lensActive = false;
+let lensMouseX = 0;
+let lensMouseY = 0;
+let lensRAF    = null;
+
+/* Toggle the lens on/off */
+lensToggleBtn.addEventListener('click', () => {
+  lensActive = !lensActive;
+  lensToggleBtn.classList.toggle('lens-active', lensActive);
+  if (!lensActive) {
+    lensCanvas.style.display = 'none';
+    cancelAnimationFrame(lensRAF);
+  }
+});
+
+/* Track mouse position over the overlay */
+overlay.addEventListener('mousemove', e => {
+  if (!lensActive) return;
+  lensMouseX = e.clientX;
+  lensMouseY = e.clientY;
+  scheduleLensDraw();
+});
+
+overlay.addEventListener('mouseleave', () => {
+  lensCanvas.style.display = 'none';
+});
+
+overlay.addEventListener('mouseenter', () => {
+  if (lensActive) scheduleLensDraw();
+});
+
+/* Keyboard shortcut: L */
+document.addEventListener('keydown', e => {
+  if (!overlay.classList.contains('open')) return;
+  if (e.key === 'l' || e.key === 'L') lensToggleBtn.click();
+});
+
+function scheduleLensDraw() {
+  if (lensRAF) cancelAnimationFrame(lensRAF);
+  lensRAF = requestAnimationFrame(drawLens);
+}
+
+function drawLens() {
+  /* Find the image element for the current page */
+  const img = getActiveImg();
+  if (!img || !img.complete || img.naturalWidth === 0) {
+    lensCanvas.style.display = 'none';
+    return;
+  }
+
+  const imgRect = img.getBoundingClientRect();
+
+  /* Only show lens when cursor is over the image */
+  const inBounds =
+    lensMouseX >= imgRect.left &&
+    lensMouseX <= imgRect.right  &&
+    lensMouseY >= imgRect.top    &&
+    lensMouseY <= imgRect.bottom;
+
+  if (!inBounds) {
+    lensCanvas.style.display = 'none';
+    return;
+  }
+
+  /* Position canvas — offset so lens centre tracks cursor */
+  lensCanvas.style.display = 'block';
+  lensCanvas.style.left = (lensMouseX - LENS_RADIUS) + 'px';
+  lensCanvas.style.top  = (lensMouseY - LENS_RADIUS) + 'px';
+
+  /* With object-fit:cover the natural image is scaled so both dimensions
+     meet or exceed the element box, then centre-cropped.
+     Compute the scale factor and crop offsets in natural pixels.         */
+  const scaleX  = imgRect.width  / img.naturalWidth;
+  const scaleY  = imgRect.height / img.naturalHeight;
+  const coverScale = Math.max(scaleX, scaleY);   // cover = max, not min
+
+  // rendered size of the full natural image at cover scale
+  const rendW = img.naturalWidth  * coverScale;
+  const rendH = img.naturalHeight * coverScale;
+
+  // pixel offset of the natural image's top-left relative to element box
+  const cropOffsetX = (imgRect.width  - rendW) / 2;   // negative = cropped left
+  const cropOffsetY = (imgRect.height - rendH) / 2;   // negative = cropped top
+
+  // cursor position within the element
+  const elX = lensMouseX - imgRect.left;
+  const elY = lensMouseY - imgRect.top;
+
+  // map to natural image coordinates
+  const srcX = (elX - cropOffsetX) / coverScale;
+  const srcY = (elY - cropOffsetY) / coverScale;
+
+  /* How many natural pixels fit in the lens at this magnification */
+  const srcW = LENS_DIAMETER / LENS_MAGNIFY / coverScale;
+  const srcH = LENS_DIAMETER / LENS_MAGNIFY / coverScale;
+
+  /* Clear canvas */
+  lensCtx.clearRect(0, 0, LENS_DIAMETER, LENS_DIAMETER);
+
+  /* Clip to circle */
+  lensCtx.save();
+  lensCtx.beginPath();
+  lensCtx.arc(LENS_RADIUS, LENS_RADIUS, LENS_RADIUS - 1, 0, Math.PI * 2);
+  lensCtx.clip();
+
+  /* Dark fill behind image */
+  lensCtx.fillStyle = '#0f0f0f';
+  lensCtx.fillRect(0, 0, LENS_DIAMETER, LENS_DIAMETER);
+
+  /* Draw magnified image section */
+  lensCtx.drawImage(
+    img,
+    srcX - srcW / 2,   /* source x */
+    srcY - srcH / 2,   /* source y */
+    srcW,              /* source width */
+    srcH,              /* source height */
+    0,                 /* dest x */
+    0,                 /* dest y */
+    LENS_DIAMETER,     /* dest width */
+    LENS_DIAMETER      /* dest height */
+  );
+
+  /* Crosshair — red, thin, subtle */
+  lensCtx.strokeStyle = 'rgba(255,26,60,0.55)';
+  lensCtx.lineWidth   = 1;
+  lensCtx.setLineDash([4, 4]);
+  lensCtx.beginPath();
+  lensCtx.moveTo(LENS_RADIUS, LENS_RADIUS - 12);
+  lensCtx.lineTo(LENS_RADIUS, LENS_RADIUS + 12);
+  lensCtx.moveTo(LENS_RADIUS - 12, LENS_RADIUS);
+  lensCtx.lineTo(LENS_RADIUS + 12, LENS_RADIUS);
+  lensCtx.stroke();
+  lensCtx.setLineDash([]);
+
+  /* Inner ring accent */
+  lensCtx.strokeStyle = 'rgba(255,26,60,0.18)';
+  lensCtx.lineWidth = 1;
+  lensCtx.beginPath();
+  lensCtx.arc(LENS_RADIUS, LENS_RADIUS, LENS_RADIUS - 8, 0, Math.PI * 2);
+  lensCtx.stroke();
+
+  lensCtx.restore();
+
+  /* Magnification label — bottom of lens */
+  lensCtx.save();
+  lensCtx.font = '700 9px "Space Mono", monospace';
+  lensCtx.fillStyle = 'rgba(255,26,60,0.7)';
+  lensCtx.textAlign = 'center';
+  lensCtx.fillText(LENS_MAGNIFY + '×', LENS_RADIUS, LENS_DIAMETER - 10);
+  lensCtx.restore();
+}
+
+/* Reset lens when closing magazine */
+const _origClose2 = closeMagazine;
+closeMagazine = function() {
+  if (lensActive) {
+    lensActive = false;
+    lensToggleBtn.classList.remove('lens-active');
+    lensCanvas.style.display = 'none';
+  }
+  _origClose2();
+};
+
+/* ══════════════════════════════════════════
+   ZOOM HELP POP-UP  +  STORAGE BUBBLE
+   — Auto-shows ONCE (the first time any magazine
+     is opened — remembered via localStorage).
+   — On dismiss it collapses INTO the floating
+     bubble, which "stores" it.
+   — Click the bubble any time to bring the
+     three-instruction guide back.
+   — Auto-dismisses after 15s; also closeable via
+     the X, the "Got it" button, or Escape.
+══════════════════════════════════════════ */
+const zoomHelp       = document.getElementById('zoomHelp');
+const zoomHelpTimer  = document.getElementById('zoomHelpTimer');
+const zoomBubble     = document.getElementById('zoomBubble');
+const AUTO_DISMISS_MS = 15000;
+const HELP_SEEN_KEY   = 'zoomHelpSeen';
+let zoomHelpTO = null;
+let zoomHelpCollapseTO = null;
+
+function showZoomHelp() {
+  clearTimeout(zoomHelpTO);
+  clearTimeout(zoomHelpCollapseTO);
+
+  // clear any leftover inline styles from a previous collapse
+  zoomHelp.style.transition = '';
+  zoomHelp.style.transform  = '';
+  zoomHelp.style.opacity    = '';
+  zoomHelp.classList.remove('show');
+
+  // restart the countdown bar cleanly
+  zoomHelpTimer.style.transition = 'none';
+  zoomHelpTimer.style.transform  = 'scaleX(1)';
+  void zoomHelpTimer.offsetWidth;            // force reflow
+  zoomHelpTimer.style.transition = '';
+  zoomHelpTimer.style.transform  = '';
+
+  zoomHelp.classList.add('show');
+  zoomHelpTO = setTimeout(() => hideZoomHelp(true), AUTO_DISMISS_MS);
+}
+
+/* collapse = true  → animate the card shrinking into the bubble
+   collapse = false → hide instantly (used when the whole magazine closes) */
+function hideZoomHelp(collapse = false) {
+  clearTimeout(zoomHelpTO);
+  clearTimeout(zoomHelpCollapseTO);
+  zoomHelpTO = null;
+
+  if (!zoomHelp.classList.contains('show')) return;
+
+  if (collapse) {
+    // measure card + bubble centres and animate toward the bubble
+    const h = zoomHelp.getBoundingClientRect();
+    const b = zoomBubble.getBoundingClientRect();
+    const dx = (b.left + b.width / 2)  - (h.left + h.width / 2);
+    const dy = (b.top  + b.height / 2) - (h.top  + h.height / 2);
+
+    zoomHelp.style.transition =
+      'transform .42s cubic-bezier(.55,0,.85,.3), opacity .4s ease';
+    zoomHelp.style.transformOrigin = 'center center';
+    zoomHelp.style.transform =
+      `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.06)`;
+    zoomHelp.style.opacity = '0';
+
+    // bubble "catches" it
+    zoomBubble.classList.remove('pulse');
+    void zoomBubble.offsetWidth;
+    zoomBubble.classList.add('pulse');
+
+    zoomHelpCollapseTO = setTimeout(() => {
+      zoomHelp.classList.remove('show');
+      zoomHelp.style.transition = '';
+      zoomHelp.style.transform  = '';
+      zoomHelp.style.opacity    = '';
+      zoomBubble.classList.remove('pulse');
+    }, 440);
+  } else {
+    zoomHelp.classList.remove('show');
+    zoomHelp.style.transition = '';
+    zoomHelp.style.transform  = '';
+    zoomHelp.style.opacity    = '';
+  }
+}
+
+/* X, "Got it" and the bubble all collapse into the bubble */
+document.getElementById('zoomHelpClose').addEventListener('click', () => hideZoomHelp(true));
+document.getElementById('zoomHelpGotIt').addEventListener('click', () => hideZoomHelp(true));
+
+/* Bubble click → bring the guide back (toggle) */
+zoomBubble.addEventListener('click', () => {
+  if (zoomHelp.classList.contains('show')) hideZoomHelp(true);
+  else showZoomHelp();
+});
+
+/* closing the magazine just hides instantly (no collapse needed) */
+magBack.addEventListener('click', () => hideZoomHelp(false));
+
+/* Escape closes the pop-up first (without closing the magazine) */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && zoomHelp.classList.contains('show')) {
+    e.stopImmediatePropagation();
+    hideZoomHelp(true);
+  }
+}, true);
+
+/* Show automatically ONLY the first time a magazine is ever opened.
+   After that the guide lives in the bubble. */
+const _origOpenForHelp = openMagazine;
+openMagazine = function(mi) {
+  _origOpenForHelp(mi);
+  if (!localStorage.getItem(HELP_SEEN_KEY)) {
+    localStorage.setItem(HELP_SEEN_KEY, '1');
+    setTimeout(showZoomHelp, 450);
+  }
+};
+
+/* Never let it linger after the magazine is closed */
+const _origCloseForHelp = closeMagazine;
+closeMagazine = function() {
+  hideZoomHelp(false);
+  _origCloseForHelp();
+};
+</script>
+
+
+<script>(function(){var b=document.getElementById('themeToggle');if(!b)return;function s(){var d=document.body.classList.contains('dark-theme');var l=d?'Switch to light mode':'Switch to dark mode';b.setAttribute('aria-label',l);b.title=l;}s();b.addEventListener('click',function(){document.body.classList.toggle('dark-theme');var d=document.body.classList.contains('dark-theme');try{localStorage.setItem('mb-theme',d?'dark':'light');}catch(e){}s();window.dispatchEvent(new Event('mb-theme-change'));});})();</script>
+</body></html>
