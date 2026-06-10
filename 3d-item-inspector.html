@@ -44,6 +44,21 @@ iframe.webgl-frame{width:100%;height:100%;border:none;position:absolute;inset:0;
 /* CSS fullscreen fallback */
 .webgl-container.is-fullscreen{position:fixed;inset:0;z-index:1000;border-radius:0;}
 
+/* ── MOBILE FULLSCREEN (added): fill the viewport, show a close button, and
+     rotate the view to landscape when the phone is held in portrait ── */
+body.fs-lock{ overflow:hidden; }
+@media (max-width: 900px){
+  .webgl-container.is-fullscreen{ position:fixed; inset:0; width:100vw; height:100vh; z-index:2000; }
+  .webgl-container.is-fullscreen .fs-btn{ display:block; min-height:44px; padding:11px 16px; font-size:12px; }
+}
+@media (max-width: 900px) and (orientation: portrait){
+  .webgl-container.is-fullscreen{
+    top:0; left:100vw; right:auto; bottom:auto;
+    width:100vh; height:100vw;
+    transform-origin:0 0; transform:rotate(90deg);
+  }
+}
+
 /* ── RESPONSIVE — stack vertically on small screens ── */
 @media(max-width:800px){
   .main{flex-direction:column;}
@@ -137,31 +152,67 @@ function loadWebGL() {
   fsBtn.style.display = 'block';
 }
 
+/* True on phones / small touch screens, where requestFullscreen() on a
+   <div>/<iframe> is unreliable (iOS Safari doesn't support it at all). */
+function isMobileFS() { return window.matchMedia('(max-width: 900px)').matches; }
+
+function setFsLabel(on) {
+  const b = document.getElementById('fsBtn');
+  if (b) b.textContent = on ? '\u2715 Close Fullscreen' : '\u26F6 Fullscreen';
+}
+function lockLandscape() {
+  try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{}); } catch (e) {}
+}
+function unlockOrientation() {
+  try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
+}
+
+/* CSS-driven fullscreen (used on mobile): the .is-fullscreen rules fill the
+   viewport and, on a portrait phone, rotate the view to landscape. */
+function enterCssFullscreen(container) {
+  container.classList.add('is-fullscreen');
+  document.body.classList.add('fs-lock');
+  setFsLabel(true);
+  lockLandscape();
+}
+function exitCssFullscreen(container) {
+  container.classList.remove('is-fullscreen');
+  document.body.classList.remove('fs-lock');
+  setFsLabel(false);
+  unlockOrientation();
+}
+
 function toggleFullscreen() {
   const container = document.getElementById('container');
-  if (!document.fullscreenElement) {
-    container.requestFullscreen().catch(() => {
-      /* fallback: CSS fullscreen */
-      container.classList.toggle('is-fullscreen');
-    });
+
+  /* currently in CSS fullscreen -> close it */
+  if (container.classList.contains('is-fullscreen')) { exitCssFullscreen(container); return; }
+  /* currently in native fullscreen -> exit it */
+  if (document.fullscreenElement) { document.exitFullscreen(); return; }
+
+  /* Desktop: native Fullscreen API. Mobile: CSS fullscreen + landscape. */
+  if (!isMobileFS() && container.requestFullscreen) {
+    container.requestFullscreen().then(lockLandscape).catch(() => enterCssFullscreen(container));
   } else {
-    document.exitFullscreen();
+    enterCssFullscreen(container);
   }
 }
 
+/* keep the native (desktop) fullscreen state in sync with the button label */
 document.addEventListener('fullscreenchange', () => {
   const container = document.getElementById('container');
   const isFS = !!document.fullscreenElement;
   container.classList.toggle('is-fullscreen', isFS);
-  document.getElementById('fsBtn').textContent = isFS ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
+  setFsLabel(isFS);
+  if (!isFS) unlockOrientation();
 });
 
-/* ESC key exits CSS fallback fullscreen */
+/* ESC exits CSS fallback fullscreen (desktop keyboards) */
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     const container = document.getElementById('container');
     if (container.classList.contains('is-fullscreen') && !document.fullscreenElement) {
-      container.classList.remove('is-fullscreen');
+      exitCssFullscreen(container);
     }
   }
 });

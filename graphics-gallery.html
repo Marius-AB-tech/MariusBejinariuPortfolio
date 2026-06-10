@@ -541,15 +541,17 @@ header.gh {
   .gallery-main { padding: 20px 16px; }
   .gallery-intro { margin-bottom: 24px; }
 
-  /* — bigger zoom-toolbar tap targets — */
-  .mag-zoom-btn { width: 44px; height: 44px; }
+  /* — show the FULL magazine page (no crop); pinch-to-zoom + drag-to-pan
+       are handled in JS and operate on the element box, so contain is safe — */
+  .p-image { background: #000; }
+  .p-image img { object-fit: contain !important; }
 
-  /* — magnifier lens can't work without hover: hide its button + leading divider
-       (pinch-to-zoom covers magnification on touch) — */
-  #lensToggle { display: none; }
-  .mag-zoom-bar .mag-divider:first-of-type { display: none; }
-  /* drop the lens row from the help popup so it doesn't reference a missing button */
-  #zoomHelp .zoom-help-list .zoom-help-row:nth-child(3) { display: none; }
+  /* — use NATIVE-style pinch & drag only: hide the whole zoom toolbar,
+       the magnifier-lens button, and the help bubble/popup on touch — */
+  .mag-zoom-bar { display: none; }
+  #lensCanvas { display: none !important; }
+  .zoom-bubble { display: none; }
+  .zoom-help { display: none !important; }
 
   /* — theme toggle a touch larger — */
   .theme-toggle { width: 40px; height: 40px; }
@@ -813,7 +815,7 @@ magazines.forEach((mag, mi) => {
               <path d="M21 15l-5-5L5 21"/>
             </svg>
           </div>
-          <div class="mag-cover-ph-label">Add </div>
+          <div class="mag-cover-ph-label">Load</div>
           <div class="mag-cover-ph-hint">[ ${mag.thumbFile} ]</div>
         </div>
       </div>

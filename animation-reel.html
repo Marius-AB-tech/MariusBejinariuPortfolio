@@ -429,13 +429,18 @@ header.gh{display:flex;align-items:center;justify-content:space-between;padding:
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  .p-showcase .sh-video { height: 42vh; min-height: 200px; }
+  .p-showcase .sh-video { height: 42vh; min-height: 200px; background: #000; }
   .p-showcase .sh-info {
     display: flex !important;
     border-left: none;
     border-top: 1px solid #1a1a1a;
     padding: 22px 20px;
   }
+
+  /* — show the FULL video/frame (no crop) in the viewer — */
+  .p-showcase .sh-video video,
+  .p-cover .cover-video-wrap video { object-fit: contain !important; background: #000; }
+  .p-cover .cover-video-wrap { background: #000; }
 }
 
 /* ════════ LIGHT / DARK THEME TOGGLE (added) ════════ */
@@ -711,7 +716,7 @@ reels.forEach((reel, ri) => {
         <video src="${reel.thumbSrc}" muted loop playsinline preload="metadata" onerror="this.style.display='none'"></video>
         <div class="film-frame-ph">
           <div class="film-play-btn"></div>
-          <div class="film-frame-ph-label"></div>
+          <div class="film-frame-ph-label">Load</div>
           <div class="film-frame-ph-file">[ ${reel.thumbFile} ]</div>
         </div>
       </div>
@@ -751,6 +756,28 @@ reels.forEach((reel, ri) => {
   card.addEventListener('click', () => openReel(ri));
   grid.appendChild(card);
 });
+
+/* ══════════════════════════════════════════
+   MOBILE: autoplay the film-strip preview videos.
+   On touch there is no hover, so the cards would otherwise sit on the
+   placeholder forever. Play each preview (muted/looping/inline) while it is
+   on screen, pause it when it scrolls away. Desktop keeps hover-to-play.
+══════════════════════════════════════════ */
+if (window.matchMedia('(max-width: 700px)').matches) {
+  const previewVids = grid.querySelectorAll('.film-frame video');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(en => {
+        const v = en.target;
+        if (en.isIntersecting) { v.play().catch(()=>{}); }
+        else { v.pause(); }
+      });
+    }, { threshold: 0.4 });
+    previewVids.forEach(v => io.observe(v));
+  } else {
+    previewVids.forEach(v => v.play().catch(()=>{}));
+  }
+}
 
 /* ══════════════════════════════════════════
    VIEWER ENGINE
@@ -803,7 +830,7 @@ function renderPage(p) {
         <video src="${p.src}" autoplay muted loop playsinline style="z-index:1;" onerror="this.style.display='none'"></video>
         <div class="cover-ph" style="height:100%">
           ${videoFallbackSVG}
-          <div class="cover-ph-label"></div>
+          <div class="cover-ph-label">Load</div>
           <div class="cover-ph-file">[ ${p.file} ]</div>
         </div>
         <div class="cover-overlay"></div>
@@ -826,7 +853,7 @@ function renderPage(p) {
         <video src="${p.src}" controls playsinline preload="metadata" style="z-index:1;" onerror="this.style.display='none'"></video>
         <div class="sh-ph" style="height:100%">
           ${videoFallbackSVG}
-          <div class="sh-ph-label">Add Video</div>
+          <div class="sh-ph-label">Load</div>
           <div class="sh-ph-file">[ ${p.file} ]</div>
         </div>
       </div>
