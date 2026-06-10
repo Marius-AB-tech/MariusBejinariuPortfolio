@@ -387,6 +387,57 @@ header.gh{display:flex;align-items:center;justify-content:space-between;padding:
   .mag-stage{width:96vw;height:72vh;}
 }
 
+/* ════════ MOBILE OPTIMISATION (added — small-screen / touch only) ════════ */
+@media (max-width: 700px) {
+  /* — un-fan the film-strip rack into a vertical scrollable stack —
+       (note: the grid element also carries an inline height:520px, so height
+        is overridden with !important here) — */
+  .gallery-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: auto !important;
+    perspective: none;
+    padding: 24px 0 48px;
+    gap: 32px;
+  }
+  .gallery-card,
+  .gallery-card:hover,
+  .gallery-card:nth-child(1), .gallery-card:nth-child(2), .gallery-card:nth-child(3),
+  .gallery-card:nth-child(1):hover, .gallery-card:nth-child(2):hover, .gallery-card:nth-child(3):hover {
+    position: relative !important;
+    transform: none !important;
+    filter: drop-shadow(0 18px 34px rgba(0,0,0,.8)) !important;
+    width: min(300px, 88vw);
+    z-index: auto !important;
+  }
+  .film-strip { width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .gallery-main { padding: 20px 16px; }
+  .gallery-intro { margin-bottom: 24px; }
+  .theme-toggle { width: 40px; height: 40px; }
+
+  /* — SHOWCASE viewer: stack the info panel BELOW the video instead of hiding it —
+       (the existing max-width:900px rule sets .sh-info{display:none}; this re-shows
+        and stacks it on phones, with the page scrolling internally) — */
+  .p-showcase {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .p-showcase .sh-video { height: 42vh; min-height: 200px; }
+  .p-showcase .sh-info {
+    display: flex !important;
+    border-left: none;
+    border-top: 1px solid #1a1a1a;
+    padding: 22px 20px;
+  }
+}
+
 /* ════════ LIGHT / DARK THEME TOGGLE (added) ════════ */
 :root{
   --bg:#ffffff; --surf:#f5f5f7; --surf2:#ececef; --border:#e4e4e8;
@@ -425,7 +476,7 @@ header.gh{padding-left:84px;}
 <!-- ══════ REEL LIST VIEW ══════ -->
 <div id="gallery-view">
   <header class="gh">
-    <a href="portfolio.html" class="back-link">← Back to Portfolio</a>
+    <a href="index.html" class="back-link">← Back to Portfolio</a>
     <span class="gh-title">ANIMATION REELS</span>
     <span class="gh-counter" id="galleryCounter"></span>
   </header>
@@ -614,8 +665,8 @@ const reels = [
         type: 'showcase',
         src: 'assets/videos/training_004.mp4', file: 'training_004.mp4',
         kicker: 'Process',
-        title: 'End-to-End Video Production',
-        body: 'Pre-production defines success — scripts, shot lists and storyboards developed with Training Designers and SMEs. On-site filming at Defence establishments requires coordination with site teams and compliance with security protocols. Post-production in Premiere Pro covers assembly edit, colour grade, audio mix and integration of motion graphics from After Effects.',
+        title: 'Ozone Layer Depletion',
+        body: 'The atmosphere is constructed from nested solids with radial masks defining each concentric band, with the ozone layer isolated in its own pre-composition to drive opacity-based depletion. Earth sits on a masked layer revealing the left-half cross-section. UV radiation is rendered via trim-path strokes, colour-coded by wavelength and staggered through delay expressions. CFC molecules are pre-composed, animated with a gradual positional drift before a sharper scale break on photodissociation. The catalytic cycle is driven by a single looped composition annotated "~100,000×." Eight phases are sequenced on the master timeline using markers and cross-dissolved narration, then exported to ProRes for broadcast and H.264 for social.',
         meta: [
           { label: 'Clients', val: 'MoD / DSAT' },
           { label: 'Editing', val: 'After Effects' },

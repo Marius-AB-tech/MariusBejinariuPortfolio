@@ -169,21 +169,14 @@ section { padding: 100px 0; position: relative; overflow: hidden; }
 
 /* ── CONTACT ── */
 #contact { background: var(--surf); border-top: 1px solid var(--border); }
-.contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 80px; align-items: start; }
-.contact-left h3 { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
-.contact-left p { font-size: 14px; color: var(--text-2); line-height: var(--body-lh); margin-bottom: 28px; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+.contact-left h3, .contact-right h3 { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+.contact-left p, .contact-right p { font-size: 14px; color: var(--text-2); line-height: var(--body-lh); margin-bottom: 28px; }
 .contact-links { display: flex; flex-direction: column; gap: 12px; }
 .contact-link-item { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--muted); font-size: 13px; transition: color 0.2s; }
 .contact-link-item:hover { color: var(--red); }
 .contact-link-icon { width: 36px; height: 36px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: border-color 0.2s; }
 .contact-link-item:hover .contact-link-icon { border-color: rgba(255,26,60,0.4); }
-.contact-form { display: flex; flex-direction: column; gap: 16px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.form-group { display: flex; flex-direction: column; gap: 7px; }
-.form-group label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-.form-group input, .form-group textarea { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 14px; padding: 12px 14px; outline: none; transition: border-color 0.2s; resize: none; }
-.form-group input:focus, .form-group textarea:focus { border-color: rgba(255,26,60,0.4); }
-.form-group textarea { height: 120px; }
 
 /* ── FOOTER ── */
 footer { padding: 28px 48px; background: var(--bg); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
@@ -192,8 +185,7 @@ footer p { font-family: var(--mono); font-size: 11px; color: var(--text-faint); 
 .footer-links a { font-family: var(--mono); font-size: 11px; color: var(--text-faint); text-decoration: none; transition: color 0.2s; }
 .footer-links a:hover { color: var(--red); }
 
-/* ── TOOLTIP ── */
-#wire-tooltip { position: fixed; pointer-events: none; z-index: 200; font-family: var(--mono); font-size: 10px; color: var(--red); letter-spacing: 1px; background: var(--nav-bg); border: 1px solid rgba(255,26,60,0.3); padding: 4px 10px; opacity: 0; transition: opacity 0.15s; white-space: nowrap; }
+/* ── TOOLTIP (removed) ── */
 
 /* ── ACCORDION ── */
 .timeline-item .timeline-bullets { overflow: hidden; max-height: 0; transition: max-height 0.38s ease; }
@@ -213,7 +205,6 @@ footer p { font-family: var(--mono); font-size: 11px; color: var(--text-faint); 
   .about-grid { grid-template-columns: 1fr; gap: 40px; }
   .about-visual { flex-direction: row; flex-wrap: wrap; }
   .contact-grid { grid-template-columns: 1fr; gap: 40px; }
-  .form-row { grid-template-columns: 1fr; }
   footer { flex-direction: column; align-items: flex-start; padding: 24px; }
   section { padding: 72px 0; }
 }
@@ -245,6 +236,31 @@ body.dark-theme .theme-toggle .ic-sun{display:block;}
 body.dark-theme .theme-toggle .ic-moon{display:none;}
 nav{padding-left:84px;}
 @media (max-width: 900px){nav{padding-left:66px;}}
+
+/* ════════ MOBILE OPTIMISATION (added — small-screen / touch only) ════════ */
+@media (max-width: 600px) {
+  /* — larger touch targets for nav controls — */
+  .nav-hamburger { min-width: 44px; min-height: 44px; padding: 11px 8px; justify-content: center; align-items: center; }
+  .theme-toggle { width: 40px; height: 40px; }
+  .mobile-menu { padding: 16px 24px; gap: 2px; }
+  .mobile-menu a { padding: 12px 2px; font-size: 17px; }
+
+  /* — hero: comfortable buttons, swap the hover hint for a tap hint — */
+  .hero-content { padding: 0 20px; }
+  .hero-btns .btn { padding: 14px 26px; min-height: 46px; }
+  .hero-hint { bottom: 88px; font-size: 0; }
+  .hero-hint::after { content: 'TAP TO INTERACT'; font-size: 9px; letter-spacing: 2px; }
+
+  /* — tighten section rhythm — */
+  section { padding: 60px 0; }
+  .section-title { margin-bottom: 40px; }
+  .container { padding: 0 20px; }
+
+  /* — cards & links: a little more breathing room / tap padding — */
+  .project-body { padding: 18px 18px 20px; }
+  .project-link { display: inline-block; padding: 6px 0; }
+  .contact-link-item { padding: 6px 0; }
+}
 </style>
 </head>
 <body class="dark-theme">
@@ -254,8 +270,6 @@ nav{padding-left:84px;}
 <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>
 </button>
 
-
-<div id="wire-tooltip"></div>
 
 <!-- ── NAV ── -->
 <nav>
@@ -549,28 +563,27 @@ nav{padding-left:84px;}
           <a href="mailto:mariusandrei210@yahoo.com" class="contact-link-item">
             <div class="contact-link-icon">✉</div><span>mariusandrei210@yahoo.com</span>
           </a>
-          <a href="https://www.linkedin.com/in/marius-bejinariu-329267153/" target="_blank" class="contact-link-item">
-            <div class="contact-link-icon">in</div><span>LinkedIn Profile</span>
-          </a>
-          <a href="https://mariusbejinariuportfolio.github.io/assets/cv/marius-bejinariu-media-developer-cv.pdf" target="_blank" class="contact-link-item">
+          <a href="assets/cv/Marius_Bejinariu_CV.pdf" target="_blank" rel="noopener" download class="contact-link-item">
             <div class="contact-link-icon">↓</div><span>Download CV (PDF)</span>
           </a>
         </div>
       </div>
-      <form class="contact-form" id="contactForm">
-        <!-- ✉ FORM SUBMISSIONS go to mariusandrei210@yahoo.com via Web3Forms -->
-        <!-- Get your free access key at https://web3forms.com — enter your email and paste the key below -->
-        <input type="hidden" name="access_key" id="w3f-key" value="YOUR_WEB3FORMS_KEY"/>
-        <input type="hidden" name="subject" value="New message from portfolio — Marius Bejinariu"/>
-        <input type="hidden" name="redirect" value="false"/>
-        <div class="form-row">
-          <div class="form-group"><label>Your Name</label><input type="text" name="name" placeholder="Enter your name" required=""/></div>
-          <div class="form-group"><label>Your Email</label><input type="email" name="email" placeholder="Enter your email" required=""/></div>
+      <div class="contact-right">
+        <h3>Find Me Online</h3>
+        <p>Connect with me on social media for the latest work, projects and updates.</p>
+        <div class="contact-links">
+          <a href="https://www.instagram.com/mariusab/" target="_blank" rel="noopener" class="contact-link-item">
+            <div class="contact-link-icon">ig</div><span>Instagram</span>
+          </a>
+          <!-- TODO: replace with Marius's real Facebook profile URL when available -->
+          <a href="https://www.facebook.com" target="_blank" rel="noopener" class="contact-link-item">
+            <div class="contact-link-icon">f</div><span>Facebook</span>
+          </a>
+          <a href="https://www.linkedin.com/in/marius-bejinariu-329267153/" target="_blank" rel="noopener" class="contact-link-item">
+            <div class="contact-link-icon">in</div><span>LinkedIn</span>
+          </a>
         </div>
-        <div class="form-group"><label>Message</label><textarea name="message" placeholder="Write your message here…" required=""></textarea></div>
-        <button type="submit" class="btn btn-primary" id="submitBtn">Send Message →</button>
-        <div id="form-status" style="font-family:var(--mono);font-size:12px;margin-top:8px;display:none;"></div>
-      </form>
+      </div>
     </div>
   </div>
 </section>
@@ -674,52 +687,7 @@ nav{padding-left:84px;}
   });
 })();
 
-/* ════════════════════════════════
-   CONTACT FORM — Web3Forms
-   Get your free key at https://web3forms.com
-   Enter mariusandrei210@yahoo.com → copy key → paste below
-════════════════════════════════ */
-(function() {
-  const form = document.getElementById('contactForm');
-  const btn  = document.getElementById('submitBtn');
-  const status = document.getElementById('form-status');
-
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const key = document.getElementById('w3f-key').value;
-    if (!key || key === 'YOUR_WEB3FORMS_KEY') {
-      status.style.display = 'block';
-      status.style.color = '#ff4d7a';
-      status.textContent = '⚠ Add your Web3Forms access key to activate sending. Get one free at web3forms.com';
-      return;
-    }
-
-    btn.textContent = 'Sending…';
-    btn.disabled = true;
-    status.style.display = 'none';
-
-    const data = new FormData(form);
-    try {
-      const res  = await fetch('https://api.web3forms.com/submit', { method:'POST', body: data });
-      const json = await res.json();
-      if (json.success) {
-        status.style.color = '#39ff8a';
-        status.textContent = '✓ Message sent — I\'ll get back to you soon.';
-        form.reset();
-      } else {
-        throw new Error(json.message || 'Send failed');
-      }
-    } catch(err) {
-      status.style.color = '#ff4d7a';
-      status.textContent = '✕ Something went wrong. Try emailing directly: mariusandrei210@yahoo.com';
-    } finally {
-      status.style.display = 'block';
-      btn.textContent = 'Send Message →';
-      btn.disabled = false;
-    }
-  });
-})();
+/* CONTACT FORM removed — replaced with social links */
 
 /* ════════════════════════════════
    MOBILE MENU
@@ -881,8 +849,6 @@ document.getElementById('wire-contact').innerHTML  = wireGridFloor(wireColor);
   camera.fov = 80;
   camera.updateProjectionMatrix();
 
-  const tooltip = document.getElementById('wire-tooltip');
-
   /* Materials */
   const matRed  = () => new THREE.LineBasicMaterial({ color: 0xff1a3c, transparent: true, opacity: 0.6 });
   const matPink = () => new THREE.LineBasicMaterial({ color: 0xff4d7a, transparent: true, opacity: 0.4 });
@@ -1033,18 +999,8 @@ document.getElementById('wire-contact').innerHTML  = wireGridFloor(wireColor);
       if (isH) anyHovered = true;
     });
 
-    /* Tooltip */
-    if (anyHovered && hoveredHitbox) {
-      const obj = objects.find(o => o.hitbox === hoveredHitbox);
-      tooltip.textContent = obj.name;
-      tooltip.style.left = (mouseScreen.x + 14) + 'px';
-      tooltip.style.top  = (mouseScreen.y - 28) + 'px';
-      tooltip.style.opacity = '1';
-      canvas.style.cursor = 'pointer';
-    } else {
-      tooltip.style.opacity = '0';
-      canvas.style.cursor = 'default';
-    }
+    /* Hover cursor feedback (geometry name label removed) */
+    canvas.style.cursor = (anyHovered && hoveredHitbox) ? 'pointer' : 'default';
 
     /* Camera parallax */
     camera.position.x += (mx - camera.position.x) * 0.04;
