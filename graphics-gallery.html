@@ -546,6 +546,12 @@ header.gh {
   .p-image { background: #000; }
   .p-image img { object-fit: contain !important; }
 
+  /* — hide the dev image-placeholder (icon / [ filename ] / px / stripes) so
+       only real portfolio images show; missing pages read as clean dark pages — */
+  .p-image-fallback { display: none !important; }
+  /* hide the dev image-placeholder (icon / [filename] / px) — show only real images */
+  .p-image-fallback { display: none !important; }
+
   /* — use NATIVE-style pinch & drag only: hide the whole zoom toolbar,
        the magnifier-lens button, and the help bubble/popup on touch — */
   .mag-zoom-bar { display: none; }
@@ -974,10 +980,18 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape')     closeMagazine();
 });
 
-// swipe
-let tx = 0;
-overlay.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive:true });
+// swipe — only flip pages when NOT zoomed (panning a zoomed page must not navigate)
+let tx = 0, swipeArmed = false;
+overlay.addEventListener('touchstart', e => {
+  // arm a swipe only if the gesture starts with one finger and unzoomed
+  swipeArmed = (e.touches.length === 1 && zoomScale <= 1.005);
+  if (swipeArmed) tx = e.touches[0].clientX;
+}, { passive:true });
+overlay.addEventListener('touchmove', e => {
+  if (e.touches.length > 1) swipeArmed = false;   // a second finger = pinch, not a swipe
+}, { passive:true });
 overlay.addEventListener('touchend', e => {
+  if (!swipeArmed || zoomScale > 1.005) return;    // never navigate while/after zooming
   const dx = e.changedTouches[0].clientX - tx;
   if (Math.abs(dx) > 40) goToPage(dx < 0 ? currentPage + 1 : currentPage - 1);
 });
@@ -1063,10 +1077,14 @@ function updateZoomChrome() {
   zoomInBtn.disabled  = zoomTarget >= ZOOM_MAX;
   zoomOutBtn.disabled = zoomTarget <= ZOOM_MIN;
   const zoomed = zoomTarget > 1.005;
-  magPrev.style.pointerEvents = zoomed ? 'none' : '';
-  magNext.style.pointerEvents = zoomed ? 'none' : '';
-  magPrev.style.opacity       = zoomed ? '0'    : '';
-  magNext.style.opacity       = zoomed ? '0'    : '';
+  /* Desktop hides the arrows while zoomed; on mobile we KEEP them tappable so
+     there's always a way to change pages during zoom (the toolbar is hidden on
+     phones, and panning no longer flips pages). */
+  const hideArrows = zoomed && !window.matchMedia('(max-width: 600px)').matches;
+  magPrev.style.pointerEvents = hideArrows ? 'none' : '';
+  magNext.style.pointerEvents = hideArrows ? 'none' : '';
+  magPrev.style.opacity       = hideArrows ? '0'    : '';
+  magNext.style.opacity       = hideArrows ? '0'    : '';
 }
 
 /* rAF loop — lerp toward zoomTarget, keeping anchor point fixed */
