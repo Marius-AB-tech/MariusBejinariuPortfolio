@@ -24,8 +24,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--san
 ══════════════════════════════════════════ */
 #gallery-view{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:1;overflow-y:auto;}
 header.gh{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:60px;border-bottom:1px solid var(--border);background:var(--nav-bg);position:sticky;top:0;z-index:10;flex-shrink:0;}
-.back-link{font-family:var(--mono);font-size:12px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s;}
-.back-link:hover{color:var(--red);}
+.back-link{font-family:var(--mono);font-size:11px;letter-spacing:.5px;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:11px;border:1px solid transparent;background:linear-gradient(135deg,var(--pink),var(--red));box-shadow:0 6px 16px rgba(255,26,60,.32);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:color .2s,border-color .2s,background .25s,transform .2s,box-shadow .25s;}
+.back-link svg{width:14px;height:14px;stroke:currentColor;fill:none;transition:transform .2s;}
+.back-link:hover{color:var(--text-2,#ccc);border-color:var(--bar-border,#2a2a2a);background:var(--bar-bg,rgba(7,7,7,.85));box-shadow:none;transform:translateY(0);}
+.back-link:hover svg{transform:translateX(-3px);}
 .gh-title{font-family:var(--mono);font-size:13px;color:var(--red);letter-spacing:1px;}
 .gh-counter{font-family:var(--mono);font-size:12px;color:var(--muted);}
 .gallery-main{flex:1;padding:48px;}
@@ -295,8 +297,10 @@ header.gh{display:flex;align-items:center;justify-content:space-between;padding:
   padding:0 32px 0 84px;z-index:10;border-bottom:1px solid var(--border);
   background:var(--chrome-bg);backdrop-filter:blur(8px);
 }
-.mag-back{font-family:var(--mono);font-size:12px;color:var(--muted);cursor:pointer;transition:color .2s;background:none;border:none;display:flex;align-items:center;gap:8px;}
-.mag-back:hover{color:var(--red);}
+.mag-back{font-family:var(--mono);font-size:11px;letter-spacing:.5px;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--pink),var(--red));border:1px solid transparent;border-radius:11px;padding:8px 14px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 16px rgba(255,26,60,.32);transition:color .2s,border-color .2s,background .25s,transform .2s,box-shadow .25s;}
+.mag-back svg{width:14px;height:14px;stroke:currentColor;fill:none;transition:transform .2s;}
+.mag-back:hover{color:var(--text-2,#ccc);border-color:var(--bar-border,#2a2a2a);background:var(--bar-bg,rgba(7,7,7,.85));box-shadow:none;transform:translateY(0);}
+.mag-back:hover svg{transform:translateX(-3px);}
 .mag-issue-label{font-family:var(--serif);font-size:13px;color:var(--muted);font-style:italic;}
 .mag-progress-wrap{display:flex;align-items:center;gap:12px;}
 .mag-page-num{font-family:var(--mono);font-size:11px;color:var(--muted);}
@@ -309,16 +313,21 @@ header.gh{display:flex;align-items:center;justify-content:space-between;padding:
   position:relative;perspective:2000px;
 }
 
-/* nav arrows */
+/* nav arrows — UI-kit rounded button, visible red glyph, gradient hover */
 .mag-arrow{
   position:absolute;top:50%;transform:translateY(-50%);
-  width:48px;height:48px;border:1px solid var(--bar-border);background:var(--bar-bg);
+  width:48px;height:48px;border-radius:13px;
+  border:1px solid var(--bar-border);background:var(--bar-bg);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   display:flex;align-items:center;justify-content:center;cursor:pointer;
-  z-index:20;transition:border-color .2s,background .2s;
+  z-index:20;box-shadow:0 6px 18px rgba(0,0,0,.35);
+  transition:border-color .2s,background .25s,box-shadow .25s,transform .2s;
 }
-.mag-arrow:hover{border-color:var(--red);background:rgba(255,26,60,.06);}
-.mag-arrow svg{stroke:var(--text-faint);width:18px;height:18px;transition:stroke .2s;}
-.mag-arrow:hover svg{stroke:var(--red);}
+.mag-arrow svg{stroke:var(--red);width:18px;height:18px;transition:stroke .2s,transform .2s;}
+.mag-arrow:hover{border-color:transparent;background:linear-gradient(135deg,var(--pink),var(--red));box-shadow:0 10px 26px rgba(255,26,60,.4),0 0 0 1px rgba(255,26,60,.3);transform:translateY(-50%) scale(1.07);}
+.mag-arrow:hover svg{stroke:#fff;}
+.mag-arrow.prev:hover svg{transform:translateX(-2px);}
+.mag-arrow.next:hover svg{transform:translateX(2px);}
 .mag-arrow[disabled]{opacity:.2;pointer-events:none;}
 .mag-arrow.prev{left:-64px;}
 .mag-arrow.next{right:-64px;}
@@ -459,8 +468,8 @@ body.dark-theme{
   --overlay-bg:rgba(0,0,0,0.97); --chrome-bg:rgba(7,7,7,0.8); --bar-bg:rgba(7,7,7,0.85); --bar-border:#2a2a2a; --track:#1e1e1e;
 }
 *,*::before,*::after{transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease,stroke .35s ease;}
-.theme-toggle{position:fixed;top:12px;left:14px;z-index:1000;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;background:var(--panel-bg);border:1px solid var(--border);color:var(--text);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:background-color .35s ease,color .2s ease,border-color .2s ease,transform .2s ease;}
-.theme-toggle:hover{border-color:var(--red);color:var(--red);transform:scale(1.06);}
+.theme-toggle{position:fixed;top:12px;left:14px;z-index:1000;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;background:var(--panel-bg);border:1px solid var(--border);color:var(--text);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.3);transition:background-color .35s ease,color .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease;}
+.theme-toggle:hover{border-color:var(--red);color:var(--red);transform:scale(1.08);box-shadow:0 6px 18px rgba(255,26,60,.28),0 0 0 1px rgba(255,26,60,.25);}
 .theme-toggle svg{width:17px;height:17px;display:block;}
 .theme-toggle .ic-sun{display:none;}
 body.dark-theme .theme-toggle .ic-sun{display:block;}
@@ -481,7 +490,7 @@ header.gh{padding-left:84px;}
 <!-- ══════ REEL LIST VIEW ══════ -->
 <div id="gallery-view">
   <header class="gh">
-    <a href="index.html" class="back-link">← Back to Portfolio</a>
+    <a href="index.html" class="back-link"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to Portfolio</a>
     <span class="gh-title">ANIMATION REELS</span>
     <span class="gh-counter" id="galleryCounter"></span>
   </header>
@@ -497,7 +506,7 @@ header.gh{padding-left:84px;}
 <!-- ══════ VIEWER OVERLAY ══════ -->
 <div id="mag-overlay">
   <div class="mag-chrome">
-    <button class="mag-back" id="magBack">← Close Reel</button>
+    <button class="mag-back" id="magBack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Close Reel</button>
     <span class="mag-issue-label" id="magIssueLabel"></span>
     <div class="mag-progress-wrap">
       <span class="mag-page-num" id="magPageNum"></span>
