@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Animation Reel — Marius Bejinariu</title>
 <meta name="description" content="Motion graphics and 3D animation reel by Marius Bejinariu."/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<!-- STAGE 4 (CHANGED): the list of typefaces this page asks Google Fonts for.
+     • Space Grotesk gained its bold weight (the 700 at the end): the headings use it now.
+     • Playfair Display used to be asked for in five styles. Only its heaviest one (900) is
+       still used, for the titles on the film strips, so the other four are no longer downloaded. -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root {
   --red:#ff1a3c; --pink:#ff4d7a;
@@ -361,10 +365,23 @@ header.gh{display:flex;align-items:center;justify-content:space-between;padding:
 .p-cover .cover-ph-label{font-family:var(--mono);font-size:9px;color:#777;letter-spacing:1px;}
 .p-cover .cover-ph-file{font-family:var(--mono);font-size:11px;color:rgba(255,26,60,.3);border:1px dashed rgba(255,26,60,.15);padding:6px 14px;}
 .p-cover .cover-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,transparent 50%);pointer-events:none;}
-.p-cover .cover-footer{position:absolute;bottom:0;left:0;right:0;padding:24px 28px;}
+/* FIXED: the words on a cover page (small red label, title, and the line under it) were dim.
+   Why: the cover's video is given layer number 1 (the style="z-index:1" on its <video> tag,
+   further down in renderPage). This block of words had no layer number, so the see-through
+   video was drawn ON TOP of the words and dimmed them.
+   What changed: two things were added at the end of the next rule.
+   • z-index:2 puts the words one layer in front of the video. The video itself is not
+     touched. The page number (layer 3) and the page-turn shadow (layer 5) are still on top.
+   • pointer-events:none makes clicks and taps pass straight through the words to the video
+     underneath, exactly as before, so clicking or swiping on a cover behaves as it always did. */
+.p-cover .cover-footer{position:absolute;bottom:0;left:0;right:0;padding:24px 28px;z-index:2;pointer-events:none;}
 .p-cover .cover-issue{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--red);margin-bottom:8px;}
 .p-cover .cover-title{font-family:var(--serif);font-size:clamp(20px,3vw,38px);font-style:italic;line-height:1.2;margin-bottom:6px;}
-.p-cover .cover-sub{font-family:var(--sans);font-size:12px;color:var(--muted);}
+/* FIXED: the colour in the next rule was var(--muted), the theme's grey. In the light theme
+   that is a dark grey meant for white backgrounds, but a cover page is black in both themes,
+   so the line under the title stayed hard to read there. It now always uses #aaa, the light
+   grey of the dark theme. In the dark theme this is the same colour as before. */
+.p-cover .cover-sub{font-family:var(--sans);font-size:12px;color:#aaa;}
 
 /* SHOWCASE — video hero + side info */
 .p-showcase{background:#060606;color:#fff;display:grid;grid-template-columns:1fr 320px;height:100%;overflow:hidden;}
@@ -430,21 +447,44 @@ header.gh{display:flex;align-items:center;justify-content:space-between;padding:
 
   /* — SHOWCASE viewer: stack the info panel BELOW the video instead of hiding it —
        (the existing max-width:900px rule sets .sh-info{display:none}; this re-shows
-        and stacks it on phones, with the page scrolling internally) — */
+        and stacks it on phones)
+       CHANGED: the panel used to be squeezed into whatever space was left under the
+       video with its overflow hidden, so most of each description was cut off and
+       could not be reached. Now the video keeps its place at the top and the panel
+       underneath scrolls on its own. — */
   .p-showcase {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    display: flex;               /* a simple column: video first, then the text */
+    flex-direction: column;
     height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
   }
-  .p-showcase .sh-video { height: 42vh; min-height: 200px; background: #000; }
+  /* the video box: 42% of the screen height on older phones... */
+  .p-showcase .sh-video { flex: 0 0 auto; height: 42vh; min-height: 0; background: #000; }
+  /* ...and on current phones it takes the shape of the video itself (the page script sets
+     --video-shape once the video's size is known), but never more than 46% of the page,
+     so the text always keeps its share */
+  @supports (aspect-ratio: 1 / 1) {
+    .p-showcase .sh-video { height: auto; aspect-ratio: var(--video-shape, 16 / 9); max-height: 46%; }
+  }
   .p-showcase .sh-info {
     display: flex !important;
+    flex: 1 1 0;                 /* fill the rest of the page... */
+    min-height: 0;
+    overflow-y: auto;            /* ...and scroll when the text is longer than that */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     border-left: none;
     border-top: 1px solid #1a1a1a;
-    padding: 22px 20px;
+    padding: 20px 20px 40px;
+    gap: 14px;
+    /* fade the last few pixels as a hint that there is more text to scroll to */
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent);
+            mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent);
   }
+  .p-showcase .sh-kicker { font-size: 9px; }
+  .p-showcase .sh-body { flex: none; font-size: 13px; }       /* a little larger, easier to read */
+  .p-showcase .sh-meta { margin-top: 4px; }
+  .p-showcase .sh-meta-label { font-size: 9px; }
 
   /* — show the FULL video/frame (no crop) in the viewer — */
   .p-showcase .sh-video video,
@@ -477,6 +517,512 @@ body.dark-theme .theme-toggle .ic-moon{display:none;}
 header.gh{padding-left:84px;}
 @media (max-width:560px){header.gh{padding-left:66px;}}
 @media (max-width:560px){.mag-chrome{padding-left:66px;}}
+
+/* ════════ PHONE LAYOUT v2 (added) ════════
+   In plain words, this block does three things on phones (screens up to 600px wide):
+   1. Tidies the top bars: an arrow-only back/close button, a one-line title, no counter.
+   2. Lays the viewer out as: top bar, the page filling the middle, and a controls
+      bar underneath with previous / page count / next.
+   3. Moves the arrows into that bar. They used to sit on top of the video and its controls.
+   None of it applies to desktop-sized screens. */
+
+/* — the phone controls bar exists only for phones; hidden everywhere else — */
+.mag-mbar { display: none; }
+
+/* — while the viewer is open, a sideways swipe means "turn the page". This tells the browser
+     not to use sideways touch movements for its own gestures (such as swipe-to-go-back)
+     inside the viewer. Scrolling up and down and pinch-zoom still work. It only affects
+     touch screens; a mouse is not affected. — */
+#mag-overlay { touch-action: pan-y; touch-action: pan-y pinch-zoom; }
+
+@media (max-width: 600px) {
+  /* — LIST PAGE HEADER: arrow-only back button, one-line title, no counter —
+     "font-size: 0" hides the words "Back to Portfolio" but keeps the arrow;
+     the link still carries the full name for screen readers (aria-label in the HTML). */
+  header.gh { justify-content: flex-start; gap: 12px; padding: 0 16px 0 66px; }
+  .back-link { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; gap: 0; justify-content: center; font-size: 0; letter-spacing: 0; border-radius: 12px; }
+  .back-link svg { width: 18px; height: 18px; }
+  .gh-title { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gh-counter { display: none; }
+
+  /* — VIEWER TOP BAR: arrow-only close button and a one-line title — */
+  .mag-chrome { justify-content: flex-start; gap: 12px; padding: 0 16px 0 66px; }
+  .mag-back { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; gap: 0; justify-content: center; font-size: 0; letter-spacing: 0; border-radius: 12px; }
+  .mag-back svg { width: 18px; height: 18px; }
+  .mag-issue-label { flex: 1 1 auto; min-width: 0; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mag-progress-wrap { display: none; }            /* the page count moves to the bar under the page */
+
+  /* — VIEWER LAYOUT: top bar (56px), the page fills the middle, controls bar (76px) at the bottom — */
+  #mag-overlay { justify-content: flex-start; }
+  .mag-stage { width: 100vw; height: calc(100% - 132px); margin-top: 56px; }
+  .page-front { box-shadow: none; }                /* the page now spans the screen, so its edge shadow is not needed */
+  .mag-arrow { display: none; }                    /* the side arrows are replaced by the bar below */
+  .page-num-corner { display: none; }              /* the small page number in the corner is repeated in the bar below */
+
+  /* — CONTROLS BAR under the page — */
+  .mag-mbar { display: flex; position: absolute; left: 0; right: 0; bottom: 0; height: 76px; padding: 0 16px; align-items: center; justify-content: space-between; z-index: 20; }
+  .mag-mbtn { width: 52px; height: 52px; padding: 0; border-radius: 14px; border: 1px solid var(--bar-border); background: var(--bar-bg); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.35); -webkit-tap-highlight-color: transparent; }
+  .mag-mbtn svg { width: 20px; height: 20px; stroke: var(--red); fill: none; }
+  .mag-mbtn:active { background: linear-gradient(135deg, var(--pink), var(--red)); border-color: transparent; }   /* lights up while pressed */
+  .mag-mbtn:active svg { stroke: #fff; }
+  .mag-mbtn:disabled { opacity: .25; }             /* first / last page */
+  .mag-mcount { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+  .mag-mcount .mag-page-num { font-size: 12px; letter-spacing: 1px; }
+  .mag-mcount .mag-progress { width: 120px; }
+}
+
+/* ════════ STAGE 4 (ADDED): VISUAL POLISH ════════
+   This block is the whole of Stage 4 for the look of this page. In plain words it does five things:
+   1. LARGER TEXT. Running text is at least 16px, supporting text at least 14px, and no label
+      is smaller than 12px. (Before, running text was 13 to 15px and some labels were 7px.)
+   2. ONE HEADING STYLE. Every heading uses Space Grotesk in bold, the typeface of the body text.
+   3. ONE BUTTON STYLE. Rounded corners and soft shadows on every page. There is one look for
+      the MAIN button of a screen (filled red, white label) and one for PLAIN buttons (a soft panel).
+   4. RED ON THE MAIN ACTION ONLY. Red now marks the one thing a visitor is meant to press on
+      each screen. Everything else that used to be red is black, white or grey.
+   5. LIGHT THEME FINISHED. Colours that were too faint on a white page are darker there.
+   WHY THE BLOCK IS AT THE END OF THE STYLE SHEET: when two rules set the same thing, the browser
+   follows the one that comes later. So the rules here replace the older ones above them, and
+   the older ones did not have to be rewritten. To undo a part of Stage 4, delete that part of
+   this block. The same block, with the same colours, is at the end of all five pages. */
+
+/* — THE COLOURS AND THE TYPEFACE used by the rules below. The first list is for the light theme,
+     the second for the dark theme. Changing a colour here changes it everywhere on this page. — */
+:root {
+  --heading: 'Space Grotesk', sans-serif;          /* the typeface of every heading */
+  --action: #c8102e;                               /* red for the WORDS of a main action; deep enough to read on white */
+  --action-a: #e6103a;                             /* the fill of a main button runs from this red... */
+  --action-b: #c40027;                             /* ...to this one. Both are dark enough for a white label. */
+  --action-glow: rgba(200,16,46,.26);              /* the soft glow under a main button */
+  --panel: #ffffff;                                /* the fill of a plain button */
+  --panel-edge: #d3d3d9;                           /* its outline */
+  --panel-shadow: 0 4px 14px rgba(20,20,30,.10);   /* its soft shadow */
+  --line: #85858c;                                 /* a stronger outline, for example a plain button under the mouse */
+  --quiet: #6a6a71;                                /* grey for small secondary words */
+  --ring: #15151a;                                 /* the outline around a button or box reached with the Tab key */
+  --text-faint: #6a6a71;                           /* was #74747c, slightly too faint to read on the grey sections */
+}
+body.dark-theme {
+  --action: #ff1a3c;
+  --action-glow: rgba(255,26,60,.30);
+  --panel: #151517;
+  --panel-edge: #303034;
+  --panel-shadow: 0 6px 18px rgba(0,0,0,.35);
+  --line: #6a6a6a;
+  --quiet: #aaaaaa;
+  --ring: #ffffff;
+  --text-faint: #888888;                           /* unchanged in the dark theme */
+}
+
+/* ── 1. LARGER TEXT ── (the old size is given after each new one) */
+.gh-title { font-size: 14px; }                                          /* "ANIMATION REELS" in the top bar: was 13px */
+.gh-counter { font-size: 13px; }                                        /* "3 reels": was 12px */
+.gallery-intro p { max-width: 560px; font-size: 16px; }                 /* the line under the page title: was 14px */
+.mag-cover-open { padding-top: 12px; font-size: 12px; }                 /* "OPEN REEL →" under each film strip: was 9px */
+.mag-issue-label { font-size: 15px; }                                   /* the reel's name in the viewer's top bar: was 13px */
+.mag-page-num { font-size: 13px; }                                      /* "1 / 4": was 11px */
+/* the page number in the corner of a page: was 9px, in a dark grey that could not be read over a film.
+   It is now light grey on a small dark patch. On the dark text panel the patch cannot be seen; over a film it
+   shows as a small tag. Either way the number can be read (at least 5 to 1, even on a white film picture).
+   "pointer-events: none" = clicks go straight through it to whatever is underneath (the film's own buttons). */
+.page-num-corner { right: 8px; bottom: 7px; padding: 0 7px; border-radius: 7px; background: rgba(10,10,12,.66); color: #e6e6e6; font-size: 12px; line-height: 20px; pointer-events: none; }
+/* the lettering on the three film strips (their title typeface is part of the artwork and stays as it was) */
+.film-header-brand { font-size: 12px; letter-spacing: 0.5px; line-height: 1.3; }   /* "MARIUS BEJINARIU · MEDIA DEV": was 7px */
+.film-header-sub { margin-top: 4px; font-size: 12px; letter-spacing: 0; word-spacing: -3px; }   /* "Reel 01 · Maya": was 7px. The gaps between the words are 3px narrower, so the longest of these lines still fits on one line */
+.film-meta-tag { font-size: 12px; letter-spacing: 0; }                  /* the three tool names: was 7px */
+/* a reel's first kind of page: a film with words over it */
+.p-cover .cover-issue { font-size: 12px; letter-spacing: 2px; }         /* "REEL 01 · 3D ANIMATION": was 9px */
+.p-cover .cover-sub { font-size: 15px; }                                /* the line under the title: was 12px */
+/* These two small lines lie over a moving film, and a bright part of the picture can pass behind them
+   (measured: 3.2 to 1 where a white streak crossed the label). A soft dark edge around the letters keeps them
+   readable on any film picture. On a dark picture the edge cannot be seen. */
+.p-cover .cover-issue, .p-cover .cover-sub { text-shadow: 0 0 2px #000, 0 0 5px rgba(0,0,0,.9), 0 0 12px rgba(0,0,0,.75); }
+/* a reel's second kind of page: a film with a text panel beside it */
+.p-showcase .sh-kicker { font-size: 12px; }                             /* "FEATURED WORK": was 8px */
+.p-showcase .sh-body { font-size: 16px; line-height: 1.6; }             /* the description: was 12px */
+.p-showcase .sh-meta-label { font-size: 12px; color: #999; }            /* "SOFTWARE", "RENDERER"...: was 8px, in a grey too dark to read */
+.p-showcase .sh-meta-val { font-size: 13px; color: #aaa; }              /* "Blender", "Cycles"...: was 10px (and too dark in the light theme) */
+
+/* THE TEXT PANEL ON A COMPUTER. At the old 12px a long description already ran past the bottom of
+   this panel on laptop-sized screens, and its last lines were cut off. With larger text that would
+   happen more often. So, as it already does on phones, the panel now scrolls when the text is longer
+   than the panel. It is also 20px wider. "min-width: 901px" = screens where the panel is beside the film. */
+@media (min-width: 901px) {
+  .p-showcase { grid-template-columns: 1fr 340px; }                     /* was 320px */
+  .p-showcase .sh-info { padding: 30px 26px 36px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #555 transparent;
+    /* the last few pixels fade out: a hint that there is more text to scroll to (the same idea as on phones) */
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+            mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent); }
+  .p-showcase .sh-body { flex: none; }                                  /* the description takes the height of its own text... */
+  .p-showcase .sh-meta { margin-top: auto; }                            /* ...and the facts stay at the bottom when there is room to spare */
+}
+
+/* ── 2. ONE HEADING STYLE ── */
+.gallery-intro h1 { font-family: var(--heading); font-style: normal; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05; text-wrap: balance; }   /* the page title was in Playfair Display italic; "balance" = lines of similar length when it wraps */
+.mag-issue-label { font-family: var(--heading); font-style: normal; font-weight: 500; }   /* the reel's name in the viewer's top bar */
+.p-cover .cover-title, .p-showcase .sh-title { font-family: var(--heading); font-style: normal; font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; text-wrap: balance; }   /* the titles inside a reel */
+.p-cover .cover-title { font-size: clamp(22px, 3vw, 38px); }             /* was 20 to 38px */
+.p-showcase .sh-title { font-size: clamp(20px, 2vw, 26px); }             /* was 16 to 26px: on a phone it was no larger than the text under it */
+
+/* ── 3. ONE BUTTON STYLE ──
+   PLAIN buttons: "Back to Portfolio" and "Close Reel" used to be filled red, although neither is
+   the main action of its screen. They are soft panels now. */
+.back-link, .mag-back { color: var(--text); background: var(--panel); border-color: var(--panel-edge); border-radius: 12px; box-shadow: var(--panel-shadow); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.back-link:hover, .mag-back:hover { color: var(--text-strong); background: var(--panel); border-color: var(--line); box-shadow: var(--panel-shadow); }
+/* their lettering, on screens wider than a phone. (On phones these two buttons show only an arrow:
+   the older phone rules hide the words by setting their size to 0, and that must not be undone here.) */
+@media (min-width: 601px) {
+  .back-link, .mag-back { min-height: 38px; padding: 9px 16px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }   /* was 11px */
+  /* the viewer's top bar must stay on one line: the button and the page count never break in two,
+     and if the window is too narrow for the reel's name, the name is shortened with "…" */
+  .back-link, .mag-back, .mag-progress-wrap { flex: 0 0 auto; white-space: nowrap; }
+  .mag-issue-label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+/* NARROW WINDOWS AND SMALL TABLETS (601 to 760px wide). The larger lettering needs more room than the
+   viewer's top bar has at this width: "Close Reel", the reel's name and "1 / 4" each broke onto
+   two lines. So here the same three things are a little more compact. Nothing is left out. */
+@media (min-width: 601px) and (max-width: 760px) {
+  .mag-chrome { gap: 12px; padding-right: 20px; }                       /* the bar's right-hand margin: was 32px */
+  .mag-back { padding: 9px 12px; font-size: 12px; }                     /* 1px smaller than on wider screens, still larger than the old 11px */
+  .mag-issue-label { font-size: 13px; }                                 /* the old size */
+  .mag-progress-wrap { gap: 10px; }
+  .mag-progress { width: 56px; }                                        /* the thin "how far through" line: was 100px wide */
+}
+/* a button reached with the Tab key gets a clear outline, in black or white */
+.back-link:focus-visible, .mag-back:focus-visible, .mag-arrow:focus-visible, .mag-mbtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+
+/* NOTE (9 October 2026): PART 4 BELOW IS REVERSED FURTHER DOWN. The block "RED ACCENTS RESTORED" at the end of
+   this style sheet puts the red back on the things listed in part 4, and on the headings and buttons that
+   parts 2 and 3 had turned black, white or grey. The rules of part 4 are still here, but wherever that later
+   block names the same thing it has the last word. The other parts of Stage 4 (larger text, the heading
+   typeface, the shape of the buttons, the light theme) are not affected. */
+/* ── 4. RED ON THE MAIN ACTION ONLY ──
+   What stays red on this page: "OPEN REEL →" under each film strip, the main action of the list.
+   The films themselves are untouched. Everything below used to be red or pink and is now black,
+   white or grey. */
+.gh-title { color: var(--text-strong); }                                 /* "ANIMATION REELS" in the top bar */
+.theme-toggle:hover { border-color: var(--line); color: var(--text-strong); box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+.mag-cover-open, .gallery-card:hover .mag-cover-open { color: var(--action); }   /* STAYS RED, and is now full strength instead of half see-through */
+.gallery-card:hover .mag-cover-open { text-decoration: underline; text-underline-offset: 4px; }
+.film-header { border-bottom-color: #fff; }                              /* the two lines across each film strip */
+.film-meta { border-top-color: #fff; }
+.film-header-sub { color: #bbb; }                                        /* "Reel 01 · Maya" */
+.film-thumb-cell::after { background: none; }
+.mag-progress-fill { background: var(--text-strong); }                   /* the thin "how far through" line */
+/* the two page arrows: a white or black arrow; the button turns to that colour under the mouse */
+.mag-arrow svg { stroke: var(--text-strong); }
+.mag-arrow:hover { border-color: transparent; background: var(--text-strong); box-shadow: 0 10px 26px rgba(0,0,0,.35); }
+.mag-arrow:hover svg { stroke: var(--bg); }
+/* inside a reel (these pages are dark in both themes) */
+.p-cover .cover-issue { color: #d0d0d0; }                                /* "REEL 01 · 3D ANIMATION" */
+.p-showcase .sh-kicker { color: #bbb; }                                  /* "FEATURED WORK" */
+.p-showcase .sh-rule { background: #fff; }                               /* the short line under a title */
+/* the stand-ins behind each film (a play ring, a small drawing and a file name). They are only seen where a
+     film is missing or a phone has not drawn its first picture: the same faint look as before, in grey instead of red */
+.film-play-btn { border-color: rgba(255,255,255,.3); }
+.film-play-btn::after { border-color: transparent transparent transparent rgba(255,255,255,.4); }
+.film-frame:hover .film-play-btn { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.06); }
+.p-cover .cover-ph svg *, .p-showcase .sh-ph svg * { stroke: rgba(255,255,255,.4); }
+.p-cover .cover-ph-file { border-color: rgba(255,255,255,.12); color: rgba(255,255,255,.25); }
+.p-showcase .sh-ph-file { border-color: rgba(255,255,255,.1); color: rgba(255,255,255,.22); }
+
+/* ── 5. LIGHT THEME ──
+   The shadows under the three film strips were made for a black page. On a white page they were
+   a heavy black cloud that hid the "OPEN REEL" labels. In the light theme they are lighter and
+   stay close to the film strips, so that each label stands on a clean white background. */
+body:not(.dark-theme) .gallery-card:nth-child(1) { filter: drop-shadow(-4px 5px 8px rgba(20,20,30,.20)); }
+body:not(.dark-theme) .gallery-card:nth-child(1):hover { filter: drop-shadow(-5px 7px 11px rgba(20,20,30,.22)); }
+body:not(.dark-theme) .gallery-card:nth-child(2) { filter: drop-shadow(0 5px 9px rgba(20,20,30,.22)); }
+body:not(.dark-theme) .gallery-card:nth-child(2):hover { filter: drop-shadow(0 8px 12px rgba(20,20,30,.24)); }
+body:not(.dark-theme) .gallery-card:nth-child(3) { filter: drop-shadow(4px 5px 8px rgba(20,20,30,.20)); }
+body:not(.dark-theme) .gallery-card:nth-child(3):hover { filter: drop-shadow(5px 7px 11px rgba(20,20,30,.22)); }
+/* The OPENED reel had the same kind of shadow: a black glow all round the page, made for the black
+   backdrop of the dark theme. On the pale backdrop of the light theme it is now a soft grey shadow under
+   the page. "min-width: 601px" = screens wider than a phone (on a phone the page fills the screen and
+   has no shadow at all). */
+@media (min-width: 601px) {
+  body:not(.dark-theme) .page-front { box-shadow: 0 8px 24px rgba(20,20,30,.20); }
+}
+
+/* ── DARK THEME: THE TWO OUTER FILM STRIPS ──
+   The middle film strip throws its shadow over the inner half of its two neighbours. That shadow
+   also dims their "OPEN REEL" labels: measured on the finished picture they came to 4.4 to 1, just
+   under the 4.5 that small text needs. Their red is a little lighter to make up for it, so under
+   the shadow all three labels look alike and read at least 4.5 to 1.
+   "min-width: 701px" = the fanned-out layout; on phones the strips are stacked and nothing overlaps. */
+@media (min-width: 701px) {
+  body.dark-theme .gallery-card:nth-child(1) .mag-cover-open,
+  body.dark-theme .gallery-card:nth-child(3) .mag-cover-open { color: #ff5572; }
+}
+
+/* ── PHONES ──
+   The older phone rules sit higher up in this style sheet, so the new rules above would win over
+   them. Where a phone needs its own value, it is given again here. */
+@media (max-width: 700px) {
+  /* the stacked film strips: one lighter shadow in the light theme ("!important" because the older rule it replaces uses it) */
+  body:not(.dark-theme) .gallery-card,
+  body:not(.dark-theme) .gallery-card:hover,
+  body:not(.dark-theme) .gallery-card:nth-child(1), body:not(.dark-theme) .gallery-card:nth-child(2), body:not(.dark-theme) .gallery-card:nth-child(3),
+  body:not(.dark-theme) .gallery-card:nth-child(1):hover, body:not(.dark-theme) .gallery-card:nth-child(2):hover, body:not(.dark-theme) .gallery-card:nth-child(3):hover {
+    filter: drop-shadow(0 5px 9px rgba(20,20,30,.22)) !important;
+  }
+}
+@media (max-width: 600px) {
+  .mag-mcount .mag-page-num { font-size: 13px; }                         /* "1 / 4" in the bar under the page: was 12px */
+  .p-showcase .sh-kicker, .p-showcase .sh-meta-label { font-size: 12px; }   /* was 9px on phones */
+  .p-showcase .sh-body { font-size: 16px; }                              /* was 13px on phones */
+  /* the two arrow buttons in the bar under the page: a white or black arrow; the button lights up in that colour while pressed */
+  .mag-mbtn svg { stroke: var(--text-strong); }
+  .mag-mbtn:active { border-color: transparent; background: var(--text-strong); }
+  .mag-mbtn:active svg { stroke: var(--bg); }
+}
+/* ════════ END OF STAGE 4 ════════ */
+
+/* ════════ STAGE 5 (ADDED): ACCESSIBILITY ════════
+   This block is the style-sheet part of Stage 5 for this page. In plain words:
+   • KEYBOARD. Whatever can be pressed gets a clear outline when it is reached with the Tab key.
+     The outline is near-black in the light theme and white in the dark theme, so it always
+     stands out. A mouse click or a tap does not show it.
+   • REDUCE MOTION. Phones and computers have a setting called "Reduce motion" (people who get
+     dizzy or distracted by moving pictures switch it on). Every rule inside
+     "@media (prefers-reduced-motion: reduce) { ... }" applies only to those visitors.
+     Everybody else sees the page exactly as before.
+   Like the Stage 4 block, this one sits at the end of the style sheet so that its rules win over
+   the older ones above them. To undo a part of Stage 5, delete that part of this block. */
+
+/* ── 1. KEYBOARD ──
+   ":focus-visible" means: the link, button or film strip the keyboard is on right now.
+   var(--ring) is the outline colour from the Stage 4 list above: near-black in the light theme, white in the dark theme. */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+/* THE VIEWER ITSELF. After a click or a tap on a film strip, the page script puts the keyboard on the viewer as a whole
+   and not on one of its buttons (search for "IN AND OUT OF THE VIEWER" there). The viewer fills the screen, so an
+   outline around it would only be a stray line along the edges. This rule makes sure none is drawn. */
+#mag-overlay:focus { outline: none; }
+
+/* THE THREE FILM STRIPS. The page script makes each strip a stop for the Tab key (search for "KEYBOARD: THE FILM STRIPS" there).
+   The outline is drawn around the strip, 4px away from it. The gap between the two is filled with the colour of the page
+   (the "box-shadow" line), so the outline can be told apart even where it crosses a neighbouring strip. */
+.gallery-card:focus-visible { outline: none; }
+.gallery-card:focus-visible .film-strip { outline: 2px solid var(--ring); outline-offset: 4px; box-shadow: 0 0 0 4px var(--bg); }
+/* when the list has to scroll to show the strip the keyboard has moved to (a small window), the strip stops clear
+   of the top bar, which stays in place over the top 60px of the list */
+.gallery-card:focus-visible { scroll-margin-top: 76px; scroll-margin-bottom: 16px; }
+.gallery-card:focus-visible .mag-cover-open { text-decoration: underline; text-underline-offset: 4px; }   /* "OPEN REEL" is underlined, as it is under the mouse */
+/* the spoken name of a film strip: one sentence that only a screen reader gets (the page script writes it into each strip:
+   search for "spoken name" there). These lines shrink it to a single point and cut off everything outside that point,
+   so it takes no room and cannot be seen. It must not be "display: none": a screen reader skips text that is switched off. */
+.spoken-name { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+/* the strip the keyboard is on also comes forward, exactly as a strip does under the mouse (the same three positions as
+   the ":hover" rules near the top of this style sheet). "min-width: 701px" = the fanned-out layout; phones stack the strips. */
+@media (min-width: 701px) {
+  .gallery-card:nth-child(1):focus-visible { transform: translateX(-180px) translateY(8px) rotateY(18deg) rotateZ(-4deg) scale(0.93); z-index: 4; }
+  .gallery-card:nth-child(2):focus-visible { transform: translateX(0px) translateY(-20px) scale(1.06); z-index: 4; }
+  .gallery-card:nth-child(3):focus-visible { transform: translateX(180px) translateY(8px) rotateY(-18deg) rotateZ(4deg) scale(0.93); z-index: 4; }
+}
+
+/* the two page arrows of the viewer. On tablets and small windows they lie over the edges of the page, where a white
+   outline could vanish against a white part of a film. A 3px band in the colour of the theme is put between the
+   button and its outline (the first part of "box-shadow"; the second part is the button's usual shadow), so the
+   outline always has a contrasting edge. */
+.mag-arrow:focus-visible { box-shadow: 0 0 0 3px var(--bg), 0 6px 18px rgba(0,0,0,.35); }
+
+/* INSIDE A REEL the pages are dark in both themes, so the outline there is always white. It is drawn just inside the
+   film or the text panel ("outline-offset: -4px"), because anything outside them would be cut off at the edge of the page. */
+.p-showcase .sh-video video:focus-visible, .p-showcase .sh-info:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
+/* the text panel fades out at its bottom edge, as a hint that there is more to scroll to. While the keyboard is on the
+   panel that fade is switched off, otherwise it would also fade the bottom of the outline. */
+.p-showcase .sh-info:focus-visible { -webkit-mask-image: none; mask-image: none; }
+/* A film can be any colour, and a plain white outline would not show on a white film (the engine film has a white
+   background). So, in browsers that know ":has" (all current ones), the frame around a film is drawn by an extra box
+   on top of the film instead: a white line with a black line on each side of it, which shows on any picture.
+   ".sh-video:has(video:focus-visible)" = the box that holds the film, while the keyboard is on the film.
+   Older browsers keep the plain white outline from the rule above. */
+@supports selector(:has(a)) {
+  .p-showcase .sh-video video:focus-visible { outline: none; }
+  .p-showcase .sh-video:has(video:focus-visible)::after { content: ''; position: absolute; top: 2px; right: 2px; bottom: 2px; left: 2px; z-index: 2; border: 2px solid #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.85), inset 0 0 0 2px rgba(0,0,0,.85); pointer-events: none; }
+}
+
+/* THE CLOSED VIEWER. It used to be only see-through while closed ("opacity: 0"), so its buttons were still there: the
+   Tab key walked through buttons nobody could see, and a screen reader read them out. "visibility: hidden" takes the
+   closed viewer out of reach completely. The last part of each "transition" line (visibility 0s linear .4s) delays that
+   until the fade-out has finished, so opening and closing look exactly as before. */
+#mag-overlay { visibility: hidden; transition: opacity .4s, background-color .35s ease, visibility 0s linear .4s; }
+#mag-overlay.open { visibility: visible; transition: opacity .4s, background-color .35s ease, visibility 0s; }
+
+/* ── 2. THE STAND-INS BEHIND THE FILMS ──
+   Behind every film lies a stand-in (a play ring or a small drawing, the word "Load" and the file name) for the case
+   that a film is missing. The films on the three strips are 15% see-through and the large films on a reel's title
+   pages 30%, so those words showed faintly through the picture. The page script now adds "has-film" as soon as a
+   film has a picture to show, and these two rules then hide the words behind it. A film that is missing, or has
+   not loaded yet, never gets "has-film", so its stand-in shows as before. */
+.film-frame.has-film .film-frame-ph > *,
+.p-cover .cover-video-wrap.has-film .cover-ph > * { visibility: hidden; }
+
+/* ── 3. REDUCE MOTION ──
+   Only for visitors whose phone or computer asks for less motion (see the note at the top of this block).
+   The page script has its own part for the same visitors: search for "calmMotion" there. */
+/* the "Play film" button on a reel's title pages. For these visitors the film there does not start by itself; it waits
+   for this button. Everybody else never sees the button ("display: none"), because for them the film plays by itself. */
+.cover-play { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .cover-play { position: absolute; top: 14px; left: 14px; z-index: 4; display: inline-flex; align-items: center; gap: 9px; min-height: 40px; padding: 9px 15px; border: 1px solid rgba(255,255,255,.45); border-radius: 12px; background: rgba(10,10,12,.78); color: #fff; font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; cursor: pointer; }
+  .cover-play:hover { border-color: #fff; background: rgba(10,10,12,.92); }
+  .cover-play svg { width: 12px; height: 12px; fill: currentColor; }
+  /* its outline is white in both themes, on a dark band 7px wide around the button (the "box-shadow"), so that it shows on any film */
+  .cover-play:focus-visible { outline: 2px solid #fff; outline-offset: 3px; box-shadow: 0 0 0 7px rgba(10,10,12,.78); }
+  /* A film that waits for the button may have no picture yet: an iPhone does not fetch a film until play is pressed.
+     The stand-in behind it (a small drawing, the word "Load" and the file name) would then look like a missing film.
+     So on a title page that has the button ("waits-for-play", set by the page script) the stand-in is hidden. A film
+     that really is missing loses the button and the mark, and its stand-in shows as before. */
+  .p-cover .cover-video-wrap.waits-for-play .cover-ph > * { visibility: hidden; }
+  /* a film strip under the mouse (or reached with the Tab key) stays where it is: it still comes to the front, but it does
+     not slide up or grow. The three lines repeat the resting position of each strip. Phones are not affected: their strips never move. */
+  .gallery-card:nth-child(1):hover, .gallery-card:nth-child(1):focus-visible { transform: translateX(-180px) translateY(32px) rotateY(18deg) rotateZ(-4deg) scale(0.88); }
+  .gallery-card:nth-child(2):hover, .gallery-card:nth-child(2):focus-visible { transform: translateX(0px) translateY(0px) scale(1.0); }
+  .gallery-card:nth-child(3):hover, .gallery-card:nth-child(3):focus-visible { transform: translateX(180px) translateY(32px) rotateY(-18deg) rotateZ(4deg) scale(0.88); }
+  .gallery-card:hover .film-frame video, .gallery-card:hover .film-frame img { transform: none; }   /* the picture on the strip does not zoom either */
+  .page { transition: none; }                                             /* no page-turn: the next page simply appears (the page script does the same) */
+  /* buttons no longer grow or nudge under the mouse */
+  .mag-arrow:hover { transform: translateY(-50%); }
+  .mag-arrow.prev:hover svg, .mag-arrow.next:hover svg, .back-link:hover svg, .mag-back:hover svg { transform: none; }
+  .theme-toggle:hover { transform: none; }
+}
+
+/* ── 4. TABLETS, SMALL WINDOWS AND PHONES HELD SIDEWAYS (601 to 900px wide): THE TEXT IS SHOWN ──
+   At these widths the text panel of a film (its title, description and facts) was simply left out. It is shown now.
+   WIDER THAN TALL (a phone held sideways, a small window): the film on the left and the text beside it, as on a
+   computer but with a narrower panel. The panel keeps 48px free on its right, where the "next page" arrow sits. */
+@media (min-width: 601px) and (max-width: 900px) and (orientation: landscape) {
+  .p-showcase { grid-template-columns: 1fr 300px; }
+  .p-showcase .sh-info { display: flex; gap: 12px; padding: 22px 48px 30px 20px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #555 transparent;
+    /* the last few pixels fade out: a hint that there is more text to scroll to (the same idea as on computers and phones) */
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent);
+            mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent); }
+  .p-showcase .sh-body { flex: none; }                                    /* the description takes the height of its own text... */
+  .p-showcase .sh-meta { margin-top: auto; }                              /* ...and the facts stay at the bottom when there is room to spare */
+}
+/* TALLER THAN WIDE (a tablet held upright): the film on top, shown whole, and the text underneath, where it scrolls
+   by itself. This is the layout phones already have. 48px stay free on both sides of the text, where the two page arrows sit. */
+@media (min-width: 601px) and (max-width: 900px) and (orientation: portrait) {
+  .p-showcase { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+  /* the film's box is never more than 56% of the page, so the text always keeps its share... */
+  .p-showcase .sh-video { flex: 0 0 auto; height: 42vh; max-height: 56%; min-height: 0; background: #000; }
+  /* ...and in current browsers it takes the shape of the film itself (the page script sets --video-shape once it knows the film's size) */
+  @supports (aspect-ratio: 1 / 1) {
+    .p-showcase .sh-video { height: auto; aspect-ratio: var(--video-shape, 16 / 9); }
+  }
+  .p-showcase .sh-video video { object-fit: contain; background: #000; }  /* the whole film, not cut off */
+  .p-showcase .sh-info { display: flex; flex: 1 1 0; min-height: 0; gap: 14px; padding: 24px 48px 40px; border-left: none; border-top: 1px solid #1a1a1a; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent);
+            mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent); }
+  .p-showcase .sh-body { flex: none; }
+  .p-showcase .sh-meta { margin-top: 4px; }
+  /* The two page arrows sit half-way down the page. In this layout that is where the film's own row of buttons
+     (play, time line, sound) now is, and the arrows covered its two ends. Here they sit lower, at 72% of the
+     height of the page: beside the text, in the 48px kept free for them, and clear of the title on a title page. */
+  .mag-arrow { top: 72%; }
+}
+/* SHORT SCREENS (up to 688px high: a phone held sideways, a short window). The page of a reel is 82% of the height of
+   the screen and sits in the middle of it. On a short screen that left less than the 56px the top bar needs, so the
+   top of the page slid underneath the bar. Here the page is pushed down, so that it always starts 6px below the bar.
+   • "margin-top" does the pushing. The page is centred together with its margin, so a margin of 124px minus 18% of
+     the height of the screen puts its top edge at 62px. At 688px that margin comes to 0, so nothing jumps there.
+   • On a very short screen (under 478px high: a phone held sideways) a page of 82% would then run off the bottom.
+     There the page is the height of the screen minus 86px: 62px above it for the bar, and 24px below it.
+   "min(a, b)" picks the smaller of two values. "dvh" is the height that is really visible while a phone's own bars
+   are showing; browsers that do not know it skip the second line and use the first. */
+@media (min-width: 601px) and (max-height: 688px) {
+  .mag-stage { height: min(82vh, calc(100vh - 86px)); margin-top: min(38px, calc(124px - 18vh)); }
+  .mag-stage { height: min(82dvh, calc(100dvh - 86px)); margin-top: min(38px, calc(124px - 18dvh)); }
+}
+/* ════════ END OF STAGE 5 ════════ */
+
+/* ════════ RED ACCENTS RESTORED (ADDED 9 October 2026) ════════
+   Stage 4 took the red off everything except the main action of each screen. This block puts the
+   red back where the published site has it. In plain words:
+   • WHAT IT DOES. Each rule below gives one thing its red back: a colour for words, a line,
+     a fill or a glow. The note after each rule says what the thing is.
+   • WHY IT IS AT THE END OF THE STYLE SHEET. When two rules set the same thing, the browser
+     follows the one that comes later. This block comes after Stage 4 and Stage 5, so it has the
+     last word on these colours, and nothing above it had to be rewritten.
+     To undo all of it, delete this block. To undo one thing, delete its line. A few things take
+     three lines; the note above them says so. Delete such lines together: with only one of
+     them gone, a white sign can be left on a white button.
+   • WHAT IT DOES NOT TOUCH. Text sizes, typefaces, the shape of the buttons, the layout, the
+     keyboard outlines, the films and everything the page does. Only colours, tints and glows change.
+   • WHICH RED IS USED WHERE.
+     var(--action)   The red for words that lie on the page itself. In the dark theme it is the red
+                     of the published site (#ff1a3c). In the light theme it is a slightly deeper
+                     red (#c8102e), because the bright one is hard to read on white.
+                     Both values are set in the Stage 4 list of colours; change them there.
+     var(--red)      Always the red of the published site (#ff1a3c), in both themes. Used for drawn
+                     lines, edges and drawn signs (the page arrows, the sun and the moon: they do
+                     not have to be read like words) and on the parts that are dark in both
+                     themes: the film strips and the pages inside a reel.
+     the red fill    "linear-gradient(135deg, var(--action-a), var(--action-b))" is the fill of the
+                     main buttons of the site ("Explore Work" on the home page). Every red button
+                     uses the same fill, so that the red buttons look alike and white lettering
+                     can be read on them.
+     rgba(255,26,60, 0.3) and similar: the red of the published site, see-through. The last
+                     number says how solid it is, from 0 (invisible) to 1 (solid). Tints and glows
+                     are copied from the published site as they are.
+   • NOT CHANGED HERE, ON PURPOSE. "OPEN REEL →" was red already. */
+
+/* ── THE TOP BAR ── */
+.gh-title { color: var(--action); }                                      /* "ANIMATION REELS": red again */
+/* "Back to Portfolio" and "Close Reel": red buttons again.
+   • "background-origin: border-box" lets the fill run under the 1px edge of the button as well,
+     so that no hairline of a different red shows along that edge.
+   • Under the mouse the button turns into a plain panel, as it turns plain on the published site.
+     That needs no rule here: the Stage 4 rule for ".back-link:hover, .mag-back:hover" is more
+     specific than this one, so it still applies. */
+.back-link, .mag-back { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--action-a), var(--action-b)); background-origin: border-box; box-shadow: 0 6px 16px rgba(255,26,60,.32); }
+.theme-toggle:hover { border-color: var(--red); color: var(--red); box-shadow: 0 6px 18px rgba(255,26,60,.28), 0 0 0 1px rgba(255,26,60,.25); }   /* the sun / moon button under the mouse: red edge, red sign, soft red glow */
+
+/* ── THE THREE FILM STRIPS (dark in both themes, so the bright red is used in both) ── */
+.film-header { border-bottom-color: var(--red); }                        /* the two red lines across each film strip */
+.film-meta { border-top-color: var(--red); }
+.film-header-sub { color: var(--red); }                                  /* "Reel 01 · Maya" */
+.film-thumb-cell::after { background: rgba(255,26,60,.03); }             /* a trace of red on the small cells of the strip. The cells have no height at present, so nothing of it shows; it is back because the published site has the same rule */
+
+/* ── THE VIEWER ── */
+.mag-progress-fill { background: var(--red); }                           /* the thin "how far through" line */
+/* the two page arrows: a red arrow; under the mouse the button fills with red and the arrow turns white.
+   (These three lines belong together.) */
+.mag-arrow svg { stroke: var(--red); }
+.mag-arrow:hover { border-color: transparent; background: linear-gradient(135deg, var(--action-a), var(--action-b)); background-origin: border-box; box-shadow: 0 10px 26px rgba(255,26,60,.4), 0 0 0 1px rgba(255,26,60,.3); }
+.mag-arrow:hover svg { stroke: #fff; }
+
+/* ── INSIDE A REEL (these pages are dark in both themes, so the bright red is used in both) ── */
+.p-cover .cover-issue { color: var(--red); }                             /* "REEL 01 · 3D ANIMATION" over the film. It keeps the soft dark edge Stage 4 gave it, so that it reads on a bright film too */
+.p-showcase .sh-kicker { color: var(--red); }                            /* "FEATURED WORK" and "PROCESS" */
+.p-showcase .sh-rule { background: var(--red); }                         /* the short line under a title */
+
+/* ── THE STAND-INS behind each film (a play ring, a small drawing and a file name). They are only seen
+   where a film is missing or a phone has not drawn its first picture: faint red again ── */
+.film-play-btn { border-color: rgba(255,26,60,.4); }
+.film-play-btn::after { border-color: transparent transparent transparent rgba(255,26,60,.6); }   /* the small triangle in the ring: only its left edge has a colour, which is what makes it a triangle */
+.film-frame:hover .film-play-btn { border-color: var(--red); background: rgba(255,26,60,.08); }
+.p-cover .cover-ph svg rect, .p-showcase .sh-ph svg rect { stroke: rgba(255,26,60,.5); }
+.p-cover .cover-ph svg path, .p-showcase .sh-ph svg path { stroke: rgba(255,26,60,.4); }
+.p-cover .cover-ph-file { border-color: rgba(255,26,60,.15); color: rgba(255,26,60,.3); }
+.p-showcase .sh-ph-file { border-color: rgba(255,26,60,.12); color: rgba(255,26,60,.25); }
+
+/* ── PHONES (screens up to 600px wide): the two arrow buttons in the bar under the page ──
+   A red arrow; while a button is pressed it fills with red and its arrow turns white.
+   (The three lines inside the braces belong together.) */
+@media (max-width: 600px) {
+  .mag-mbtn svg { stroke: var(--red); }
+  .mag-mbtn:active { border-color: transparent; background: linear-gradient(135deg, var(--action-a), var(--action-b)); background-origin: border-box; }
+  .mag-mbtn:active svg { stroke: #fff; }
+}
+/* ── KEPT FROM STAGE 5 ──
+   A page arrow reached with the Tab key has a band in the colour of the theme between the button and its
+   keyboard outline, so that the outline shows on any film. The red glow above (".mag-arrow:hover") would
+   take the place of that band whenever the arrow is under the mouse at the same moment. This line repeats
+   the Stage 5 rule after it, so that the band keeps the last word. */
+.mag-arrow:focus-visible { box-shadow: 0 0 0 3px var(--bg), 0 6px 18px rgba(0,0,0,.35); }
+/* ════════ END OF RED ACCENTS RESTORED ════════ */
 </style>
 </head>
 <body class="dark-theme">
@@ -490,7 +1036,7 @@ header.gh{padding-left:84px;}
 <!-- ══════ REEL LIST VIEW ══════ -->
 <div id="gallery-view">
   <header class="gh">
-    <a href="index.html" class="back-link"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to Portfolio</a>
+    <a href="index.html" class="back-link" aria-label="Back to Portfolio"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to Portfolio</a>
     <span class="gh-title">ANIMATION REELS</span>
     <span class="gh-counter" id="galleryCounter"></span>
   </header>
@@ -499,14 +1045,22 @@ header.gh{padding-left:84px;}
       <h1>Motion &amp; 3D Animation Work</h1>
       <p>Click any reel to open the cinematic viewer.</p>
     </div>
-    <div class="gallery-grid" id="galleryGrid" style="height: 520px"></div>
+    <!-- STAGE 4 (CHANGED): the height in the next line was 520px. The lettering on the film strips
+         is larger now, which makes each strip about 40px taller, so the row that holds them is
+         40px taller too. Without this the middle strip covered the sentence above it.
+         (Phones ignore this height: their style rules stack the strips in a column.) -->
+    <div class="gallery-grid" id="galleryGrid" style="height: 560px"></div>
   </div>
 </div>
 
 <!-- ══════ VIEWER OVERLAY ══════ -->
-<div id="mag-overlay">
+<!-- STAGE 5 (CHANGED): three things were added to the next line, for screen readers.
+     role="dialog" and aria-modal="true" say: this is a window on top of the page, and the page
+     behind it does not count while it is open. aria-labelledby names the window after the
+     title in its top bar, for example "3D Animation · Reel 01". Nothing changes on screen. -->
+<div id="mag-overlay" role="dialog" aria-modal="true" aria-labelledby="magIssueLabel">
   <div class="mag-chrome">
-    <button class="mag-back" id="magBack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Close Reel</button>
+    <button class="mag-back" id="magBack" aria-label="Close Reel"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Close Reel</button>
     <span class="mag-issue-label" id="magIssueLabel"></span>
     <div class="mag-progress-wrap">
       <span class="mag-page-num" id="magPageNum"></span>
@@ -523,6 +1077,21 @@ header.gh{padding-left:84px;}
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
   </div>
+
+  <!-- ADDED: phones only. Controls bar under the page: previous, page count, next.
+       On phones this replaces the two side arrows above, which sat on top of the video. -->
+  <div class="mag-mbar" id="magMbar">
+    <button class="mag-mbtn" id="magPrevM" type="button" aria-label="Previous page">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="mag-mcount">
+      <span class="mag-page-num" id="magPageNumM"></span>
+      <div class="mag-progress"><div class="mag-progress-fill" id="magProgressFillM"></div></div>
+    </div>
+    <button class="mag-mbtn" id="magNextM" type="button" aria-label="Next page">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
 </div>
 
 <script>
@@ -537,6 +1106,13 @@ header.gh{padding-left:84px;}
  * For video: set src to your .mp4 path (relative to this file).
  *   e.g. src: 'assets/videos/my_reel.mp4'
  * Drop files into assets/videos/ — if missing, a placeholder shows automatically.
+ *
+ * STAGE 5 (ADDED): every film now has a short description, the "alt" line of its page. A film
+ * cannot be seen by a visitor who uses a screen reader; the screen reader reads this sentence
+ * out instead. Each description stands between "double quotes", so that an apostrophe can be
+ * used inside it. Do not use a double quote inside a description. When you add a page, give
+ * it an alt line too. If a page has none, its title (or its file name) is used instead.
+ * The wording of all of them is yours to correct.
  * ─────────────────────────────────────────────────────────────────
  */
 const reels = [
@@ -551,6 +1127,7 @@ const reels = [
       {
         type: 'cover',
         src: 'assets/videos/animation_001.mp4', file: 'animation_001.mp4',
+        alt: "3D animation of a dark blue hovercraft crossing a choppy sea.",
         issue: 'REEL 01 · 3D ANIMATION',
         title: '3D Object and Mechanical Animation',
         sub: 'Maya · Arnold · Keyframe · Dynamics',
@@ -558,6 +1135,7 @@ const reels = [
       {
         type: 'showcase',
         src: 'assets/videos/animation_002.mp4', file: 'animation_002.mp4',
+        alt: "3D animation of a red helicopter landing on a rooftop helipad, with a city of tower blocks behind it.",
         kicker: 'Featured Work',
         title: 'Object & Mechanical Animation',
         body: 'Precision keyframe animation of mechanical assemblies and training props for Defence simulation content. Built in Blender with Cycles rendering, optimised for training media delivery.',
@@ -571,13 +1149,17 @@ const reels = [
       {
         type: 'cover',
         src: 'assets/videos/frame_001.mp4', file: 'frame_001.mp4',
-        issue: 'REEL 02 · 3D ANIMATION',
+        alt: "3D animation of a wooden ship with a Union Jack sail on a mirror-calm sea at sunset; the camera sweeps in over its deck and back out.",
+        /* STAGE 2 (CHANGED): the next line said 'REEL 02 · 3D ANIMATION'. This page belongs
+           to Reel 01, so the small red label on it now says REEL 01, like the first page. */
+        issue: 'REEL 01 · 3D ANIMATION',
         title: 'Key Frames & Breakdowns',
         sub: '3D Animation · Maya',
       },
       {
         type: 'showcase',
         src: 'assets/videos/frame_002.mp4', file: 'frame_002.mp4',
+        alt: "3D animation of an engine's pistons and crankshaft turning, in chrome on a white background.",
         kicker: 'Process',
         title: 'Rigging to Render',
         body: 'The pipeline behind 3D animation for Defence training — from Maya scene setup and rigging through to Arnold rendering. Constraint systems, driven keys and custom attributes drive multiple objects from a single control, ensuring technical accuracy and production efficiency. Final output passes through Premiere Pro for assembly, grade and audio mix before delivery.',
@@ -601,6 +1183,7 @@ const reels = [
       {
         type: 'cover',
         src: 'assets/videos/motion_001.mp4', file: 'motion_001.mp4',
+        alt: "Animated lettering: the names MARIUS and BEJINARIU in white capitals with wavy coloured stripes and sparkles, on black.",
         issue: 'REEL 02 · MOTION GRAPHICS',
         title: 'Motion Graphics & Visual Effects',
         sub: 'After Effects · Premiere Pro · Typography in Motion',
@@ -608,6 +1191,7 @@ const reels = [
       {
         type: 'showcase',
         src: 'assets/videos/motion_002.mp4', file: 'motion_002.mp4',
+        alt: "Animation of a weather app on a phone: orange-to-crimson bands for morning, day, evening and night open in turn to show the forecast.",
         kicker: 'Featured Work',
         title: '2D UI / motion-graphics ',
         body: 'A motion-design concept for an animated weather-app interface. The device mockup and screen layout were built in 2D, with a layered composition driving the gradient panels, iconography and type hierarchy. The interface was animated using keyframed transforms, opacity and masking to handle the expanding and collapsing state transitions, with the icon set given subtle secondary motion. Eased timing curves keep the loop fluid, while a soft reflection and screen highlight establish the lighting. The sequence was then composited, graded and rendered out as a seamless loop.',
@@ -621,6 +1205,7 @@ const reels = [
       {
         type: 'cover',
         src: 'assets/videos/motion_frame_001.mp4', file: 'motion_frame_001.mp4',
+        alt: "Animated lettering: the word WAVY in white capitals, with rippling red and pink layers behind it.",
         issue: 'REEL 02 · MOTION FRAMES',
         title: 'Motion Frames & Key Moments',
         sub: 'Title Cards · Transitions · Lower Thirds · End Cards',
@@ -628,6 +1213,7 @@ const reels = [
       {
         type: 'showcase',
         src: 'assets/videos/motion_frame_002.mp4', file: 'motion_frame_002.mp4',
+        alt: "Logo animation: a chrome MB monogram comes together and lights up, then the name Marius Bejinariu appears beneath it.",
         kicker: 'Process',
         title: 'Designing in Time',
         body: 'A 3D logo reveal and title sequence. The monogram and wordmark were modelled as 2D geometry, then UV\'d and assigned a polished chrome material with reflective and specular maps to catch the light. The build was rigged and keyframe-animated as a fragmented assembly — pieces converging and settling into the final form — with eased timing and a bloom-driven light hit at the resolve. A dark-to-warm gradient environment with controlled key and rim lighting establishes the mood and reflections, with depth of field for focus. The sequence was rendered and composited with glow, grade and the wordmark fade for final delivery.',
@@ -651,6 +1237,7 @@ const reels = [
       {
         type: 'cover',
         src: 'assets/videos/training_001.mp4', file: 'training_001.mp4',
+        alt: "Animated diagram of the refrigeration cycle: refrigerant flowing through the compressor, condenser, expansion valve and evaporator.",
         issue: 'REEL 03 · TRAINING VIDEO',
         title: 'Training & Instructional Videos',
         sub: 'After Effects',
@@ -658,6 +1245,7 @@ const reels = [
       {
         type: 'showcase',
         src: 'assets/videos/training_002.mp4', file: 'training_002.mp4',
+        alt: "Animated training diagram, 'The Refrigeration Cycle', following the refrigerant through compression, condensation, expansion and evaporation.",
         kicker: 'Featured Work',
         title: 'Defence Training Media',
         body: 'Instructional and training video content produced for UK Defence clients at RaytheonUK and Babcock. Covers procedure demonstration, equipment familiarisation and eLearning integration — delivered to MoD and DSAT standards.',
@@ -671,6 +1259,7 @@ const reels = [
       {
         type: 'cover',
         src: 'assets/videos/training_003.mp4', file: 'training_003.mp4',
+        alt: "Animated diagram of ozone layer depletion: ultraviolet rays from the sun, a CFC molecule and chlorine breaking down ozone above the Earth.",
         issue: '',
         title: '',
         sub: '',
@@ -678,6 +1267,7 @@ const reels = [
       {
         type: 'showcase',
         src: 'assets/videos/training_004.mp4', file: 'training_004.mp4',
+        alt: "Animated training diagram of ozone layer depletion, in phases from 'Solar radiation reaches Earth' to 'Depleted ozone, exposed surface'.",
         kicker: 'Process',
         title: 'Ozone Layer Depletion',
         body: 'The atmosphere is constructed from nested solids with radial masks defining each concentric band, with the ozone layer isolated in its own pre-composition to drive opacity-based depletion. Earth sits on a masked layer revealing the left-half cross-section. UV radiation is rendered via trim-path strokes, colour-coded by wavelength and staggered through delay expressions. CFC molecules are pre-composed, animated with a gradual positional drift before a sharper scale break on photodissociation. The catalytic cycle is driven by a single looped composition annotated "~100,000×." Eight phases are sequenced on the master timeline using markers and cross-dissolved narration, then exported to ProRes for broadcast and H.264 for social.',
@@ -695,6 +1285,11 @@ const reels = [
 /* ══════════════════════════════════════════
    BUILD GRID
 ══════════════════════════════════════════ */
+/* STAGE 5 (ADDED): asAttr() makes a description safe to put inside aria-label="..." in the HTML that
+   the code below writes. A description may contain the characters & " or <, which have a meaning of
+   their own in HTML; this swaps each of them for its harmless code. */
+const asAttr = text => String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
 const grid = document.getElementById('galleryGrid');
 document.getElementById('galleryCounter').textContent = reels.length + ' reels';
 
@@ -703,10 +1298,47 @@ function sprocketRow(count) {
   return Array(count).fill('<div class="sprocket-hole"></div>').join('');
 }
 
+/* STAGE 1 (ADDED): on a phone, a tap must not start a preview video.
+   Why this is needed: a touch screen has no "hover". But straight after every tap the
+   browser also sends the page the mouse events for that tap, and one of them is
+   "mouseenter", the same event a mouse sends when it moves over a card. Further down,
+   "mouseenter" on a card starts its preview. So on a phone a tap would start the preview
+   playing behind the reel viewer, where nobody can see it, and it would keep downloading.
+   How it works: the three listeners below keep one note up to date, "was the last thing
+   to touch this page a finger?". fingerOnPhone() then answers yes when that note is true
+   AND the screen is up to 700px wide (the stacked phone layout of the cards).
+   A real mouse sets the note back to "no" as soon as it moves, so hovering over a card
+   with a mouse works as it always did, even in a narrow window. */
+const phoneList = window.matchMedia('(max-width: 700px)');   // true while the cards are in the stacked phone layout
+let fingerWasLast = false;                                    // the note: true after a finger touch, false after a mouse move
+document.addEventListener('touchstart', () => { fingerWasLast = true; }, { passive: true, capture: true });       // a finger went down
+document.addEventListener('pointerdown', e => { fingerWasLast = (e.pointerType === 'touch'); }, true);            // a press: finger, mouse or pen
+document.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') fingerWasLast = false; }, true);   // a real mouse moved
+function fingerOnPhone() {
+  return phoneList.matches && fingerWasLast;
+}
+
+/* ══════════════════════════════════════════
+   STAGE 5 (ADDED): REDUCE MOTION
+   Phones and computers have a setting called "Reduce motion". People who get dizzy or
+   distracted by moving pictures switch it on. (iPhone: Settings > Accessibility > Motion.
+   Windows: Settings > Accessibility > Visual effects > Animation effects. Mac: System
+   Settings > Accessibility > Display.) The browser passes the choice on to the page.
+   calmMotion.matches is true for a visitor who asked for less motion, and false for
+   everybody else, for whom nothing changes. Further down it is asked in four places: the
+   preview on a film strip, the page-turn, the films on a reel's title pages, and the
+   "Play film" button. The style sheet has a part for the same visitors: search for
+   "prefers-reduced-motion" there.
+══════════════════════════════════════════ */
+const calmMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
 reels.forEach((reel, ri) => {
   const card = document.createElement('div');
   card.className = 'gallery-card';
 
+  /* STAGE 5 (CHANGED): aria-hidden="true" was added to the <video> line below. The little film on a strip
+     is a preview without a description of its own; the strip as a whole is announced as a button
+     (see "KEYBOARD: THE FILM STRIPS" after this loop), and a screen reader passes over the preview. */
   card.innerHTML = `
     <div class="film-strip">
 
@@ -722,7 +1354,7 @@ reels.forEach((reel, ri) => {
 
       <!-- MAIN FRAME — drop assets/videos/${reel.thumbFile} to display -->
       <div class="film-frame" id="film-frame-${ri}">
-        <video src="${reel.thumbSrc}" muted loop playsinline preload="metadata" onerror="this.style.display='none'"></video>
+        <video src="${reel.thumbSrc}" muted loop playsinline preload="metadata" aria-hidden="true" onerror="this.style.display='none'"></video>
         <div class="film-frame-ph">
           <div class="film-play-btn"></div>
           <div class="film-frame-ph-label">Load</div>
@@ -758,7 +1390,12 @@ reels.forEach((reel, ri) => {
   /* hover video preview */
   const vid = card.querySelector('video');
   if (vid) {
-    card.addEventListener('mouseenter', () => vid.play().catch(()=>{}));
+    /* STAGE 1 (CHANGED): the next line now starts with "if (fingerOnPhone()) return;".
+       A tap on a phone leaves the preview alone (see fingerOnPhone above); the tap still
+       opens the reel through the "click" line below. Hovering with a mouse is unchanged. */
+    /* STAGE 5 (CHANGED): "|| calmMotion.matches" was added to the next line. For a visitor whose device asks
+       for less motion the preview does not start under the mouse; the strip shows the film's first picture. */
+    card.addEventListener('mouseenter', () => { if (fingerOnPhone() || calmMotion.matches) return; vid.play().catch(()=>{}); });
     card.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
   }
 
@@ -767,26 +1404,82 @@ reels.forEach((reel, ri) => {
 });
 
 /* ══════════════════════════════════════════
-   MOBILE: autoplay the film-strip preview videos.
-   On touch there is no hover, so the cards would otherwise sit on the
-   placeholder forever. Play each preview (muted/looping/inline) while it is
-   on screen, pause it when it scrolls away. Desktop keeps hover-to-play.
+   STAGE 5 (ADDED): KEYBOARD: THE FILM STRIPS
+   A film strip opens its reel with a click. A strip is a plain box, and the Tab key only
+   stops at links and buttons, so a visitor who uses the keyboard could not open a reel
+   at all. This block tells the browser that each strip is a button:
+   • tabindex="0"      the Tab key stops on the strip;
+   • role="button"     a screen reader announces it as a button;
+   • a spoken name     ...called, for example, "Open reel: 3D Animation, Reel 01, 4 pages";
+   • aria-haspopup     ...and the note that it opens a window on top of the page.
+   Enter and Space then do the same as a click. Clicking, tapping and the preview that
+   plays under the mouse are not touched.
+   (The outline around the strip the keyboard is on is in the style sheet: search for
+   "THE THREE FILM STRIPS" there.)
+
+   About the spoken name. A button is announced by the words written on it. A film strip
+   carries lettering that is artwork, not a name ("MARIUS BEJINARIU · MEDIA DEV", the tags,
+   the number), and read out one after the other it makes no sense. So the two parts of a
+   strip that can be seen (the strip itself, and the words "OPEN REEL →" under it) are
+   marked aria-hidden="true", which means "for the eye only", and one sentence is added for
+   the ear only: a piece of text with the class "spoken-name", which the style sheet shrinks
+   to a single point so that it takes no room on screen (search for "spoken-name" there).
+   That sentence starts with the same words as the visible label, "Open reel", which is
+   what a visitor who gives spoken commands would say.
+   The block also does one small thing for the eye: it notes when the little film on a
+   strip has a picture to show, so that the style sheet can hide the stand-in behind it
+   (search for "THE STAND-INS BEHIND THE FILMS" there).
 ══════════════════════════════════════════ */
-if (window.matchMedia('(max-width: 700px)').matches) {
-  const previewVids = grid.querySelectorAll('.film-frame video');
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(en => {
-        const v = en.target;
-        if (en.isIntersecting) { v.play().catch(()=>{}); }
-        else { v.pause(); }
-      });
-    }, { threshold: 0.4 });
-    previewVids.forEach(v => io.observe(v));
-  } else {
-    previewVids.forEach(v => v.play().catch(()=>{}));
+Array.from(grid.children).forEach((card, ri) => {
+  const reel  = reels[ri];
+  const pages = reel.pages.length;
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-haspopup', 'dialog');
+  Array.from(card.children).forEach(part => part.setAttribute('aria-hidden', 'true'));   // what can be seen: for the eye only
+  const spokenName = document.createElement('span');                                     // what is announced: for the ear only
+  spokenName.className = 'spoken-name';
+  spokenName.textContent = 'Open reel: ' + reel.title + ', ' + reel.issue + ', ' + pages + (pages === 1 ? ' page' : ' pages');
+  card.appendChild(spokenName);
+  card.addEventListener('keydown', e => {
+    if (e.target !== card) return;
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;   // 'Spacebar' is what some older browsers call the Space key
+    e.preventDefault();                                         // otherwise Space would also scroll the page
+    if (!e.repeat) card.click();                                // do what a click does (once, even if the key is held down)
+  });
+  /* MOUSE AND TOUCH STAY AS THEY WERE. A strip that is a stop for the Tab key would also take the keyboard whenever
+     it is pressed with the mouse or a finger, and the next key would then act on it: after a right-click on a strip,
+     for example, Space would open the reel instead of scrolling the page. So right after such a press the keyboard
+     is taken off the strip again ("blur" = let go). Only the Tab key leaves the keyboard on a strip.
+     (The browser hands the keyboard over just after it has reported the press, which is why the step waits for
+     the shortest possible moment first: setTimeout with 0.) */
+  card.addEventListener('mousedown', () => setTimeout(() => { if (document.activeElement === card) card.blur(); }, 0));
+
+  /* the stand-in behind the little film: mark the frame "has-film" once the film has a picture */
+  const frame   = card.querySelector('.film-frame');
+  const preview = frame ? frame.querySelector('video') : null;
+  if (preview) {
+    const previewHasPicture = () => frame.classList.add('has-film');
+    if (preview.readyState >= 2) previewHasPicture();           // 2 = the browser has at least the first picture of the film
+    else preview.addEventListener('loadeddata', previewHasPicture, { once: true });   // "loadeddata" = it has just arrived
   }
-}
+});
+
+/* ══════════════════════════════════════════
+   STAGE 1 (REMOVED): autoplay of the preview videos on phones.
+   A block of code stood here that started each preview playing (muted and looping)
+   as soon as its card scrolled into view, on screens up to 700px wide. Scrolling the
+   list could download all three previews in full, about 20 MB, before the visitor
+   had chosen anything.
+   Now nothing plays on the list on a phone. Each card shows what the phone itself
+   shows for a video that has not been played: its first frame, or the placeholder
+   underneath if the phone does not draw one. Tapping a card opens the reel exactly
+   as before, and the reel's own video is the first one to play.
+   Desktop and tablet are not affected: this block never ran on screens wider than
+   700px, and hover-to-play (see "hover video preview" above) is unchanged.
+   (A browser window on a computer that is narrowed to 700px or less counted as a
+   phone here too. In such a window the previews now wait for the mouse to hover.)
+══════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════
    VIEWER ENGINE
@@ -829,6 +1522,12 @@ function buildPage(pageData, idx) {
 /* Standardised video fallback SVG */
 const videoFallbackSVG = '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="24" height="20" rx="2" stroke="rgba(255,26,60,0.5)" stroke-width="1.5" fill="none"/><path d="M13 11v10l8-5z" stroke="rgba(255,26,60,0.4)" stroke-width="1.2" stroke-linejoin="round" fill="none"/></svg>';
 
+/* STAGE 5 (CHANGED): each of the two <video> lines in this function gained aria-label="...". That is the
+   description of the film for screen readers: the "alt" sentence of the page in the list of reels at
+   the top of this script. (A page without an alt line gets its title, or failing that its file name.)
+   Also: the stand-in behind each film (a small drawing, the word "Load" and the file name, only seen if
+   a film is missing) was read out on every page. Its box (class "cover-ph" or "sh-ph") is now marked
+   aria-hidden="true", which tells screen readers to pass over it. */
 function renderPage(p) {
   const wrap = document.createElement('div');
 
@@ -836,8 +1535,8 @@ function renderPage(p) {
     wrap.className = 'p-cover';
     wrap.innerHTML = `
       <div class="cover-video-wrap">
-        <video src="${p.src}" autoplay muted loop playsinline style="z-index:1;" onerror="this.style.display='none'"></video>
-        <div class="cover-ph" style="height:100%">
+        <video src="${p.src}" autoplay muted loop playsinline aria-label="${asAttr(p.alt || p.title || p.file)}" style="z-index:1;" onerror="this.style.display='none'"></video>
+        <div class="cover-ph" aria-hidden="true" style="height:100%">
           ${videoFallbackSVG}
           <div class="cover-ph-label">Load</div>
           <div class="cover-ph-file">[ ${p.file} ]</div>
@@ -859,8 +1558,8 @@ function renderPage(p) {
       </div>`).join('');
     wrap.innerHTML = `
       <div class="sh-video">
-        <video src="${p.src}" controls playsinline preload="metadata" style="z-index:1;" onerror="this.style.display='none'"></video>
-        <div class="sh-ph" style="height:100%">
+        <video src="${p.src}" controls playsinline preload="metadata" aria-label="${asAttr(p.alt || p.title || p.file)}" style="z-index:1;" onerror="this.style.display='none'"></video>
+        <div class="sh-ph" aria-hidden="true" style="height:100%">
           ${videoFallbackSVG}
           <div class="sh-ph-label">Load</div>
           <div class="sh-ph-file">[ ${p.file} ]</div>
@@ -873,6 +1572,17 @@ function renderPage(p) {
         <div class="sh-body">${p.body}</div>
         <div class="sh-meta">${metaHtml}</div>
       </div>`;
+
+    /* ADDED: once the browser knows the video's size, pass its shape (wide, square...)
+       to the CSS as "--video-shape". On phones the video box then matches the video,
+       with no wasted black bars, which leaves more room for the text underneath.
+       Desktop does not use this value. */
+    const shVideo = wrap.querySelector('.sh-video video');
+    shVideo.addEventListener('loadedmetadata', () => {
+      if (shVideo.videoWidth && shVideo.videoHeight) {
+        wrap.querySelector('.sh-video').style.setProperty('--video-shape', shVideo.videoWidth + ' / ' + shVideo.videoHeight);
+      }
+    });
   }
 
   return wrap;
@@ -964,11 +1674,27 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape')     closeReel();
 });
 
-let tx = 0;
-overlay.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive:true });
+/* Swipe left / right to turn the page.
+   CHANGED: a swipe used to count as soon as the finger had moved 40px sideways,
+   whatever else it was doing. That turned the page by accident while scrolling a
+   description up and down, or while dragging a video's own seek bar. Now:
+   • the swipe must be clearly sideways (more across than up-and-down), and
+   • it is ignored when it starts on a video's control strip or on the phone controls bar. */
+let tx = 0, ty = 0, swipeArmed = false;
+overlay.addEventListener('touchstart', e => {
+  tx = e.touches[0].clientX;
+  ty = e.touches[0].clientY;
+  swipeArmed = e.touches.length === 1;                       // one finger only
+  const vid = e.target.closest ? e.target.closest('video[controls]') : null;
+  if (vid && ty > vid.getBoundingClientRect().bottom - 64) swipeArmed = false;   // on the video's play / seek strip
+  if (e.target.closest && e.target.closest('.mag-mbar')) swipeArmed = false;     // on the bar's own buttons
+}, { passive:true });
 overlay.addEventListener('touchend', e => {
+  if (!swipeArmed) return;
+  swipeArmed = false;
   const dx = e.changedTouches[0].clientX - tx;
-  if (Math.abs(dx) > 40) goToPage(dx < 0 ? currentPage + 1 : currentPage - 1);
+  const dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) goToPage(dx < 0 ? currentPage + 1 : currentPage - 1);
 });
 
 book.addEventListener('click', e => {
@@ -979,7 +1705,364 @@ book.addEventListener('click', e => {
   if (x < rect.width * 0.2) goToPage(currentPage - 1);
   else if (x > rect.width * 0.8) goToPage(currentPage + 1);
 });
+
+/* ════════════════════════════════════════
+   ADDED: PHONE CONTROLS BAR
+   The bar under the page (previous / page count / next) that phones show
+   instead of the two side arrows. It is hidden on desktop.
+════════════════════════════════════════ */
+const magPrevM = document.getElementById('magPrevM');          // "previous" button in the bar
+const magNextM = document.getElementById('magNextM');          // "next" button in the bar
+const magNumM  = document.getElementById('magPageNumM');       // the "2 / 4" text in the bar
+const magFillM = document.getElementById('magProgressFillM');  // the red progress line in the bar
+
+magPrevM.addEventListener('click', () => goToPage(currentPage - 1));
+magNextM.addEventListener('click', () => goToPage(currentPage + 1));
+
+/* Every time the page changes, copy the page count, the progress line and the
+   "first page / last page" state from the desktop controls into the bar. */
+const _goToPageBeforeBar = goToPage;
+goToPage = function(idx, animate) {
+  _goToPageBeforeBar(idx, animate);
+  magNumM.textContent  = magNum.textContent;
+  magFillM.style.width = magFill.style.width;
+  magPrevM.disabled    = magPrev.disabled;
+  magNextM.disabled    = magNext.disabled;
+};
+
+/* ════════════════════════════════════════
+   STAGE 5 (ADDED): KEYBOARD AND REDUCE MOTION IN THE VIEWER
+   Nothing here changes how the viewer works with a mouse or a finger. The block adds what
+   a visitor needs who uses the keyboard, a screen reader or the "Reduce motion" setting:
+   1. When a reel is opened with the keyboard, the keyboard goes to the "Close Reel" button,
+      and on closing it goes back to the film strip it came from. While the viewer is open,
+      the page behind it is switched off.
+   2. Only the page that is on show can be reached. The other pages of the reel lie
+      underneath it, and the Tab key used to stop on their films although nobody could see them.
+   3. A text panel that is too long for its box can be scrolled with the arrow keys.
+   4. The film on a reel's title pages plays by itself. For a visitor whose device asks for
+      less motion it waits for a "Play film" button instead, and pages change at once
+      (no page-turn).
+   MOUSE AND TOUCH STAY AS THEY WERE. The steps that put the keyboard on a button (in parts
+   1 and 2) are only taken for a visitor who is using the keyboard: someone who opened the
+   reel with Enter or Space, or who has pressed the Tab key inside the viewer. After a click
+   or a tap no button is given the keyboard, so a press of Space or Enter afterwards does not
+   press a button the visitor never chose.
+   The block works the way the phone-bar block above does: it "wraps" a function. It keeps
+   the existing function under a second name, then replaces it with a new one that calls
+   the old one and adds a step before or after.
+════════════════════════════════════════ */
+const listView    = document.getElementById('gallery-view');     // the page behind the viewer: its top bar and the three film strips
+const themeButton = document.getElementById('themeToggle');      // the sun / moon button, which stays usable on top of the viewer
+let openedFromStrip = null;                                       // the film strip that opened the viewer: the keyboard goes back to it on closing
+
+/* ── WHO IS USING THE KEYBOARD? ──
+   lastInputWasKey  true when the last thing the visitor used was a key, false after a click or a tap.
+   keyboardVisitor  true while the open viewer is being used with the keyboard: it was opened with Enter or Space,
+                    or the Tab key has been pressed since it opened.
+   justMovedTo      the thing the keyboard has just been moved to by this script (see moveKeyboardTo below). */
+let lastInputWasKey = false;
+let keyboardVisitor = false;
+let justMovedTo     = null;
+document.addEventListener('keydown', e => {
+  lastInputWasKey = true;
+  /* the Tab key (not Ctrl+Tab or Alt+Tab, which belong to the browser and the computer) pressed inside the open viewer */
+  if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.metaKey && overlay.classList.contains('open')) keyboardVisitor = true;
+  /* a key that is still being held does not press the thing the keyboard has just been moved to (see moveKeyboardTo) */
+  if (e.repeat && e.target === justMovedTo && (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar')) e.preventDefault();
+}, true);
+document.addEventListener('keyup',       () => { justMovedTo = null; }, true);
+document.addEventListener('pointerdown', () => { lastInputWasKey = false; justMovedTo = null; }, true);
+
+/* MOVING THE KEYBOARD. Every step below that puts the keyboard on something goes through this function.
+   "preventScroll" tells the browser not to scroll the page to that thing.
+   It also remembers that thing, for this reason: a key that is held down repeats itself many times a second. If
+   the keyboard is moved to a button while Enter or Space is still down, those repeats would press that button as
+   well, and a reel opened with a long press of Enter would close again at once. So the thing the keyboard has
+   just been moved to ignores a key that is still being held (the line marked above). It answers to the next
+   fresh press. */
+function moveKeyboardTo(element) {
+  element.focus({ preventScroll: true });
+  justMovedTo = element;
+}
+
+/* ── 1. IN AND OUT OF THE VIEWER ── */
+/* The viewer as a whole is made able to hold the keyboard. tabindex="-1" means: only when this script puts it
+   there. It never becomes a stop for the Tab key, and no outline is drawn around it (the style sheet sees to
+   that: search for "THE VIEWER ITSELF" there). */
+overlay.setAttribute('tabindex', '-1');
+/* A closed viewer is switched off as a whole ("inert": it cannot be clicked, reached with the Tab key or read out),
+   from the very moment it closes. The style sheet takes a closed viewer out of reach as well, but only when its
+   fade-out is over, 0.4 seconds later (search for "THE CLOSED VIEWER" there). Without this, the Tab key could still
+   land on the viewer's buttons during that moment. The viewer is switched on again in the first line of the
+   opening step below. */
+overlay.setAttribute('inert', '');
+
+function keyboardIntoViewer(ri) {
+  const here = document.activeElement;                            // what the keyboard is on right now
+  keyboardVisitor = lastInputWasKey;                              // opened with Enter or Space (true), or with a click or a tap (false)
+  openedFromStrip = (here && listView.contains(here)) ? here : grid.children[ri];
+  /* "inert" switches a part of the page off: it cannot be clicked, reached with the Tab key or read out.
+     (Browsers from before 2023 do not know it and ignore the line; the "focusin" guard below covers them.) */
+  listView.setAttribute('inert', '');
+  /* With the keyboard: on to "Close Reel", the first button of the viewer.
+     After a click or a tap: on to the viewer as a whole. No button is given the keyboard and nothing is outlined,
+     so Space and Enter do nothing, exactly as before. (The keyboard cannot stay where it was: a click leaves it
+     on the film strip, and the strip is part of the page that has just been switched off.) */
+  moveKeyboardTo(keyboardVisitor ? magBack : overlay);
+}
+function keyboardOutOfViewer() {
+  listView.removeAttribute('inert');                              // the page behind the viewer is switched on again
+  if (keyboardVisitor && openedFromStrip && document.contains(openedFromStrip)) moveKeyboardTo(openedFromStrip);   // with the keyboard: back to the film strip
+  else if (overlay.contains(document.activeElement)) document.activeElement.blur();   // after a click or a tap: the keyboard is on nothing, as before ("blur" = let go)
+  openedFromStrip = null;
+  keyboardVisitor = false;
+  overlay.setAttribute('inert', '');                              // the closed viewer is switched off
+}
+
+const _openReelBeforeStage5 = openReel;
+openReel = function (ri) {
+  /* While a page is turning, the viewer ignores every other page change for three quarters of a second (it keeps
+     the note "isFlipping" for that). If a reel was closed in the middle of a page-turn and opened again straight
+     away, the note was still set: the page it should open on could not be put in place, and the page on show and
+     the page count disagreed. A reel that is being opened is never in the middle of a turn, so the note is
+     cleared first. */
+  isFlipping = false;
+  overlay.removeAttribute('inert'); // the viewer is switched on (see "A closed viewer is switched off" above)
+  _openReelBeforeStage5(ri);        // builds the pages of the reel and shows the first one
+  prepareTitlePages();              // part 4 below
+  showOnlyCurrentPage();            // part 2 below (once more, now that the "Play film" buttons exist)
+  keyboardIntoViewer(ri);
+};
+
+const _closeReelBeforeStage5 = closeReel;
+closeReel = function () {           // this is what the Escape key calls
+  _closeReelBeforeStage5();
+  keyboardOutOfViewer();
+};
+/* The "Close Reel" button was wired, further up, to the first closeReel, so it does not pass
+   through the wrapper above. It is told separately. */
+magBack.addEventListener('click', keyboardOutOfViewer);
+
+/* For browsers that do not know "inert": if the keyboard lands on something behind the open viewer,
+   it is sent back in. (In current browsers this never happens, and the lines do nothing.) */
+document.addEventListener('focusin', e => {
+  if (!overlay.classList.contains('open')) return;
+  if (overlay.contains(e.target) || e.target === themeButton) return;
+  moveKeyboardTo(magBack);
+});
+
+/* ── 2. ONLY THE PAGE ON SHOW ──
+   All the pages of a reel lie on top of each other. Every page except the one on show is switched off
+   ("inert") and marked aria-hidden ("not there, as far as a screen reader is concerned"). For browsers
+   that do not know "inert", the films and buttons on those pages are also taken out of the Tab order
+   (tabIndex -1) and put back in (0) when their page comes up. */
+function showOnlyCurrentPage() {
+  book.querySelectorAll('.page').forEach((page, i) => {
+    const onShow = i === currentPage;
+    page.inert = !onShow;
+    if (onShow) page.removeAttribute('aria-hidden'); else page.setAttribute('aria-hidden', 'true');
+    page.querySelectorAll('video[controls], .cover-play').forEach(el => { el.tabIndex = onShow ? 0 : -1; });
+    if (!onShow) page.querySelectorAll('.sh-info').forEach(panel => panel.removeAttribute('tabindex'));
+  });
+}
+
+/* ── 3. THE TEXT PANEL AND THE ARROW KEYS ──
+   The arrow keys scroll whatever the keyboard is on. So if the text of the page on show is longer than
+   its panel, the panel is made a stop for the Tab key (tabindex="0") and given a name for screen
+   readers. A panel whose text fits is left alone: stopping on it would serve no purpose. */
+function prepareTextPanel() {
+  const page  = book.querySelectorAll('.page')[currentPage];
+  const panel = page ? page.querySelector('.sh-info') : null;
+  if (!panel) return;                                             // a title page has no text panel
+  if (panel.scrollHeight > panel.clientHeight + 1) {              // the text is taller than the panel
+    panel.setAttribute('tabindex', '0');
+    panel.setAttribute('role', 'region');
+    panel.setAttribute('aria-label', 'About this film');
+  } else {
+    panel.removeAttribute('tabindex');
+    panel.removeAttribute('role');
+    panel.removeAttribute('aria-label');
+  }
+}
+window.addEventListener('resize', () => { if (overlay.classList.contains('open')) prepareTextPanel(); });   // a new window size can change whether the text fits
+/* MOUSE AND TOUCH STAY AS THEY WERE. A panel that is a stop for the Tab key would also take the keyboard whenever it
+   is pressed with the mouse or a finger, and the next key pressed would then draw the keyboard outline around it.
+   So right after such a press the keyboard is taken off the panel again ("blur" = let go). The arrow keys still
+   scroll the text after a click, as they did before. Only the Tab key leaves the keyboard on a panel.
+   (The browser hands the keyboard over just after it has reported the press, which is why the step waits for
+   the shortest possible moment first: setTimeout with 0.) */
+book.addEventListener('mousedown', e => {
+  const panel = e.target.closest ? e.target.closest('.sh-info') : null;
+  if (panel) setTimeout(() => { if (document.activeElement === panel) panel.blur(); }, 0);
+});
+
+const _goToPageBeforeStage5 = goToPage;
+goToPage = function (idx, animate) {
+  const keyboardWasOn     = document.activeElement;            // what the keyboard is on before the page changes
+  const keyboardWasOnPage = book.contains(keyboardWasOn);       // ...and whether that is something on a page of the reel
+  /* less motion asked for: "false" means "change the page at once, without the page-turn" */
+  _goToPageBeforeStage5(idx, calmMotion.matches ? false : animate);
+  showOnlyCurrentPage();
+  prepareTextPanel();
+  /* If the keyboard was on the film or the text of a page that has just been turned away, it cannot stay there.
+     For a visitor who is using the keyboard it goes to "Close Reel". After a click or a tap (a film takes the
+     keyboard when it is clicked) it goes to the viewer as a whole, where no key presses anything. */
+  const page = book.querySelectorAll('.page')[currentPage];
+  if (keyboardWasOnPage && page && !page.contains(keyboardWasOn)) moveKeyboardTo(keyboardVisitor ? magBack : overlay);
+  if (!keyboardVisitor) return;                                 // after a click or a tap the keyboard is not moved any further
+  /* On the first and on the last page one of the two arrow buttons is switched off. If the keyboard was on
+     that button it would be left on nothing, so it moves to the arrow that still works.
+     (The first two pairs are the arrows beside the page, the last two the arrows in the bar on phones.) */
+  [[magNext, magPrev], [magPrev, magNext], [magNextM, magPrevM], [magPrevM, magNextM]].forEach(([off, other]) => {
+    if (keyboardWasOn === off && off.disabled && !other.disabled) moveKeyboardTo(other);
+  });
+};
+
+/* The left and right arrow keys turn the page. A film with its own buttons (play, time line, volume) also
+   uses them, to move backwards and forwards in the film. When the keyboard has been moved onto such a film
+   with the Tab key, the film gets the two keys and the page stays where it is. (After a mouse click on a
+   film the keys turn the page, as they always did. The on-screen arrows and the Escape key work in both cases.)
+   How it is told apart: the first line below writes a note onto a film at the moment the film gets the keyboard
+   ("focusin"): was the last thing the visitor used a key, yes or no?
+   How the page-turn is held back: a key press travels from the film outwards, first to the viewer and then to
+   the whole page, where the page-turn listener waits. The listener below sits on the viewer and stops the key
+   press from travelling any further. */
+book.addEventListener('focusin', e => { if (e.target.tagName === 'VIDEO') e.target.dataset.reachedByKey = lastInputWasKey ? 'yes' : 'no'; });
+overlay.addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  const film = e.target;
+  if (!film || film.tagName !== 'VIDEO' || !film.controls || film.dataset.reachedByKey !== 'yes') return;
+  e.stopPropagation();                                           // the page stays where it is
+  /* Chrome and Firefox now move the film by themselves. Safari does nothing with the two keys, so there the page
+     moves the film: 5 seconds back or forward. How the two cases are told apart: a browser that moves the film
+     (or changes its volume, when the keyboard is on the film's volume control) reports it at once ("seeking",
+     "volumechange"). If neither report has come in a moment later, the browser has left the key alone. */
+  const forward = e.key === 'ArrowRight';
+  let browserActed = false;
+  const noteIt = () => { browserActed = true; };
+  film.addEventListener('seeking', noteIt);
+  film.addEventListener('volumechange', noteIt);
+  setTimeout(() => {
+    film.removeEventListener('seeking', noteIt);
+    film.removeEventListener('volumechange', noteIt);
+    if (browserActed || !(film.duration > 0)) return;            // the browser did it, or the film has not loaded far enough for its length to be known
+    film.currentTime = Math.min(film.duration, Math.max(0, film.currentTime + (forward ? 5 : -5)));
+  }, 120);
+});
+
+/* ── 4. THE FILMS ON THE TITLE PAGES ──
+   For every title page of the reel that has just been opened, this does two things.
+   (a) It notes when the film has a picture to show, so that the style sheet can hide the stand-in behind
+       it (search for "THE STAND-INS BEHIND THE FILMS" there).
+   (b) It adds a "Play film" / "Pause film" button. The style sheet shows that button only to visitors whose
+       device asks for less motion. For them the film does not start by itself: it waits for the button. */
+const PLAY_ICON  = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>';                 // a small triangle
+const PAUSE_ICON = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h3v10H2zM7 1h3v10H7z"/></svg>';     // two small bars
+function prepareTitlePages() {
+  book.querySelectorAll('.p-cover').forEach(cover => {
+    const wrap = cover.querySelector('.cover-video-wrap');
+    const film = cover.querySelector('video');
+    if (!wrap || !film || wrap.querySelector('.cover-play')) return;
+
+    /* (a) */
+    const filmHasPicture = () => wrap.classList.add('has-film');
+    if (film.readyState >= 2) filmHasPicture();                   // 2 = the browser has at least the first picture of the film
+    else film.addEventListener('loadeddata', filmHasPicture, { once: true });   // "loadeddata" = it has just arrived
+
+    /* (b) */
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'cover-play';
+    const filmName = film.getAttribute('aria-label') || '';       // the description of the film (the "alt" line in the list of reels)
+    const relabel = () => {                                       // the button always says what a press will do next
+      const playing = !film.paused;
+      button.innerHTML = playing ? PAUSE_ICON + 'Pause film' : PLAY_ICON + 'Play film';
+      button.setAttribute('aria-label', (playing ? 'Pause film' : 'Play film') + (filmName ? ': ' + filmName : ''));
+    };
+    relabel();
+    film.addEventListener('play', relabel);
+    film.addEventListener('pause', relabel);
+    button.addEventListener('click', e => {
+      e.stopPropagation();                                        // a click near the edge of a page turns the page; not when it lands on this button
+      if (film.paused) film.play().catch(() => {}); else film.pause();
+    });
+    wrap.appendChild(button);
+    /* "waits-for-play" marks a title page that has the button. An iPhone does not fetch a film that waits for a
+       press on play, so the film would have no picture, and the stand-in behind it (the word "Load" and the
+       file name) would look like a missing film. For visitors who see the button, the style sheet hides the
+       stand-in on a marked page (search for "waits-for-play" there). */
+    wrap.classList.add('waits-for-play');
+    film.addEventListener('error', () => {                        // the film really is missing: no button, and the stand-in shows
+      button.remove();
+      wrap.classList.remove('waits-for-play');
+    });
+
+    if (calmMotion.matches) { film.removeAttribute('autoplay'); film.pause(); }   // less motion asked for: the film waits for the button
+  });
+}
+
+/* the films on the title pages are started by playCurrentVideo() each time their page comes up.
+   For a visitor whose device asks for less motion, that step is skipped. */
+const _playCurrentVideoBeforeStage5 = playCurrentVideo;
+playCurrentVideo = function () {
+  if (calmMotion.matches) return;
+  _playCurrentVideoBeforeStage5();
+};
+/* The visitor switches "Reduce motion" off while a reel is open: the film on the title page in view starts, as
+   it would have done by itself. (Switched on while a film is playing, nothing is stopped: the "Pause film"
+   button appears, and the visitor decides.) */
+const motionSettingChanged = () => { if (!calmMotion.matches && overlay.classList.contains('open')) playCurrentVideo(); };
+if (calmMotion.addEventListener) calmMotion.addEventListener('change', motionSettingChanged);
+else if (calmMotion.addListener) calmMotion.addListener(motionSettingChanged);   // older Safari uses addListener
+
+/* ════════════════════════════════════════
+   ADDED: "Back to Portfolio" returns to where the visitor was
+   Projects now open in the same tab. If this page was reached from the
+   portfolio's home page, the back button steps back in the browser's history,
+   which lands on the same spot of the home page instead of reloading it from
+   the top. Reached any other way (a shared link, a bookmark), it works as a
+   normal link.
+════════════════════════════════════════ */
+(function () {
+  var back = document.querySelector('.back-link');
+  if (!back) return;
+  back.addEventListener('click', function (e) {
+    /* leave "open in new tab" clicks (Ctrl / Cmd / middle button) alone */
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    var cameFromHome = false;
+    try {
+      var from = new URL(document.referrer);                               // the page the visitor came from
+      var home = new URL(back.getAttribute('href'), window.location.href); // the home page this button points to
+      var folder = home.pathname.replace(/index\.html$/, '');              // the same address without "index.html"
+      cameFromHome = from.origin === window.location.origin && (from.pathname === home.pathname || from.pathname === folder);
+    } catch (err) { /* no previous page: fall through to the normal link */ }
+    if (cameFromHome && window.history.length > 1) {
+      e.preventDefault();          // do not load a fresh copy of the home page...
+      window.history.back();       // ...go back to the one the visitor was on
+    }
+  });
+})();
 </script>
 <script>(function(){var b=document.getElementById('themeToggle');if(!b)return;function s(){var d=document.body.classList.contains('dark-theme');var l=d?'Switch to light mode':'Switch to dark mode';b.setAttribute('aria-label',l);b.title=l;}s();b.addEventListener('click',function(){document.body.classList.toggle('dark-theme');var d=document.body.classList.contains('dark-theme');try{localStorage.setItem('mb-theme',d?'dark':'light');}catch(e){}s();window.dispatchEvent(new Event('mb-theme-change'));});})();</script>
+<script>
+/* ADDED: keep the colour theme in step after "Back".
+   Projects now open in the same tab. When the visitor returns with "Back to Portfolio"
+   or the browser's Back button, the browser often shows this page straight from its
+   memory, exactly as it was left. If the light / dark theme was switched on another
+   page in the meantime, this applies the same choice here. A normal page load already
+   picks the right theme, so in that case this does nothing. */
+window.addEventListener('pageshow', function (e) {
+  if (!e.persisted) return;                                   // not restored from memory: nothing to do
+  try {
+    var wantDark = localStorage.getItem('mb-theme') !== 'light';
+    if (document.body.classList.contains('dark-theme') === wantDark) return;   // already showing the right theme
+    document.body.classList.toggle('dark-theme', wantDark);
+    var btn = document.getElementById('themeToggle');
+    if (btn) { var label = wantDark ? 'Switch to light mode' : 'Switch to dark mode'; btn.setAttribute('aria-label', label); btn.title = label; }
+    window.dispatchEvent(new Event('mb-theme-change'));       // lets other scripts on the page react to the change
+  } catch (err) {}
+});
+</script>
 </body>
 </html>

@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Graphics Gallery — Marius Bejinariu</title>
 <meta name="description" content="Graphics gallery by Marius Bejinariu — graphic design, photography and digital media work."/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<!-- STAGE 4 (CHANGED): the list of typefaces this page asks Google Fonts for.
+     • Space Grotesk gained its bold weight (the 700 at the end): the headings use it now.
+     • Playfair Display used to be asked for in five styles. Only its heaviest one (900) is
+       still used, for the titles on the magazine covers, so the other four are no longer downloaded. -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 /* ══════════════════════════════════════════
    BASE
@@ -601,6 +605,524 @@ body.dark-theme .theme-toggle .ic-moon{display:none;}
 header.gh{padding-left:84px;}
 @media (max-width:560px){header.gh{padding-left:66px;}}
 @media (max-width:560px){.mag-chrome{padding-left:66px;}}
+
+/* ════════ PHONE LAYOUT v2 (added) ════════
+   In plain words, this block does four things on phones:
+   1. Tidies the top bars: an arrow-only back/close button, a one-line title, no counter.
+   2. Lets the magazine page use the whole height of the screen, so a spread can be
+      zoomed into properly with two fingers (pinch) or a double-tap.
+   3. Moves the arrows and the page count into a bar under the page. The arrows used
+      to sit on top of the artwork.
+   4. Shows a one-line tip the first time a magazine is opened.
+   It also keeps the viewer usable when a phone is held sideways.
+   None of it applies to desktop-sized screens. */
+
+/* — the phone controls bar and the tip exist only for phones; hidden everywhere else — */
+.mag-mbar, .mag-hint { display: none; }
+
+/* — inside the page area every touch gesture (swipe, pinch, double-tap, drag) is handled by the
+     page script, so the browser is told not to add its own scrolling or zooming on top.
+     This only affects touch screens; a mouse is not affected. — */
+.mag-stage { touch-action: none; }
+
+@media (max-width: 600px) {
+  /* — LIST PAGE HEADER: arrow-only back button, one-line title, no counter —
+     "font-size: 0" hides the words "Back to Portfolio" but keeps the arrow;
+     the link still carries the full name for screen readers (aria-label in the HTML). */
+  header.gh { justify-content: flex-start; gap: 12px; padding: 0 16px 0 66px; }
+  .back-link { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; gap: 0; justify-content: center; font-size: 0; letter-spacing: 0; border-radius: 12px; }
+  .back-link svg { width: 18px; height: 18px; }
+  .gh-title { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gh-counter { display: none; }
+
+  /* — VIEWER TOP BAR: arrow-only close button and a one-line title — */
+  .mag-chrome { justify-content: flex-start; gap: 12px; padding: 0 16px 0 66px; }
+  .mag-back { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; gap: 0; justify-content: center; font-size: 0; letter-spacing: 0; border-radius: 12px; }
+  .mag-back svg { width: 18px; height: 18px; }
+  .mag-issue-label { flex: 1 1 auto; min-width: 0; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mag-progress-wrap { display: none; }            /* the page count moves to the bar under the page */
+
+  /* — VIEWER LAYOUT: top bar (56px), the page fills the middle, controls bar (76px) at the bottom —
+     The page box is now as tall as the space allows. At normal size the spread sits in the
+     middle of it; zoomed in, it can grow to fill the whole box. */
+  #mag-overlay { justify-content: flex-start; }
+  .mag-stage { width: 100vw; height: calc(100% - 132px); margin-top: 56px; }
+  .page-front, .page-back { box-shadow: none; }    /* the page box now spans the screen, so its edge shadow is not needed */
+  .mag-arrow { display: none; }                    /* the side arrows are replaced by the bar below */
+  .page-num-corner { display: none; }              /* the small page number in the corner is repeated in the bar below */
+
+  /* — CONTROLS BAR under the page — */
+  .mag-mbar { display: flex; position: absolute; left: 0; right: 0; bottom: 0; height: 76px; padding: 0 16px; align-items: center; justify-content: space-between; z-index: 20; }
+  .mag-mbtn { width: 52px; height: 52px; padding: 0; border-radius: 14px; border: 1px solid var(--bar-border); background: var(--bar-bg); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.35); -webkit-tap-highlight-color: transparent; }
+  .mag-mbtn svg { width: 20px; height: 20px; stroke: var(--red); fill: none; }
+  .mag-mbtn:active { background: linear-gradient(135deg, var(--pink), var(--red)); border-color: transparent; }   /* lights up while pressed */
+  .mag-mbtn:active svg { stroke: #fff; }
+  .mag-mbtn:disabled { opacity: .25; }             /* first / last page */
+  .mag-mcount { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+  .mag-mcount .mag-page-num { font-size: 12px; letter-spacing: 1px; }
+  .mag-mcount .mag-progress { width: 120px; }
+
+  /* — THE TIP: a small label just above the controls bar (the page script adds "show") — */
+  .mag-hint { display: block; position: absolute; left: 50%; bottom: 90px; transform: translate(-50%, 6px); width: max-content; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 12px; background: rgba(28,28,33,0.95); border: 1px solid #3a3a42; color: #f2f2f2; font-family: var(--sans); font-size: 13px; line-height: 1.45; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .35s ease, transform .35s ease; z-index: 30; }
+  .mag-hint.show { opacity: 1; transform: translate(-50%, 0); }
+  .mag-hint-dot { display: none; }                 /* upright phone: two short lines, so the dot between them is not needed */
+}
+
+/* — PHONE HELD SIDEWAYS (a short, wide touch screen) —
+     Without this the desktop viewer was used: the spread was cropped to fit a very wide box,
+     and the mouse-only zoom toolbar covered part of it. Here the whole spread is shown, the
+     touch gestures are used for zooming, and the arrows sit at the screen edges beside the page. — */
+@media (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  #mag-overlay { justify-content: flex-start; }
+  .mag-chrome { height: 48px; }
+  .mag-stage { width: 100vw; height: calc(100% - 48px); margin-top: 48px; }
+  .p-image { background: #000; }
+  .p-image img { object-fit: contain !important; }      /* show the whole spread, no cropping */
+  .p-image-fallback { display: none !important; }
+  .page-front, .page-back { box-shadow: none; }
+  .page-num-corner { display: none; }
+  .mag-zoom-bar, .zoom-bubble { display: none; }         /* mouse-only tools */
+  #lensCanvas, .zoom-help { display: none !important; }
+  .mag-arrow.prev { left: 12px; }
+  .mag-arrow.next { right: 12px; }
+  /* a touch screen has no "hover", so a tapped arrow must not stay lit */
+  .mag-arrow:hover { border-color: var(--bar-border); background: var(--bar-bg); box-shadow: 0 6px 18px rgba(0,0,0,.35); transform: translateY(-50%); }
+  .mag-arrow:hover svg { stroke: var(--red); transform: none; }
+  .mag-arrow:active { border-color: transparent; background: linear-gradient(135deg, var(--pink), var(--red)); }
+  .mag-arrow:active svg { stroke: #fff; }
+  .mag-hint { display: block; position: absolute; left: 50%; bottom: 14px; transform: translate(-50%, 6px); width: max-content; max-width: calc(100vw - 32px); padding: 8px 14px; border-radius: 12px; background: rgba(28,28,33,0.95); border: 1px solid #3a3a42; color: #f2f2f2; font-family: var(--sans); font-size: 12px; line-height: 1.45; text-align: center; opacity: 0; pointer-events: none; transition: opacity .35s ease, transform .35s ease; z-index: 30; }
+  .mag-hint.show { opacity: 1; transform: translate(-50%, 0); }
+  .mag-hint br { display: none; }                        /* one line when there is room */
+}
+
+/* ════════ STAGE 4 (ADDED): VISUAL POLISH ════════
+   This block is the whole of Stage 4 for the look of this page. In plain words it does five things:
+   1. LARGER TEXT. Running text is at least 16px, supporting text at least 14px, and no label
+      is smaller than 12px. (Before, running text was 13 to 15px and some labels were 7px.)
+   2. ONE HEADING STYLE. Every heading uses Space Grotesk in bold, the typeface of the body text.
+   3. ONE BUTTON STYLE. Rounded corners and soft shadows on every page. There is one look for
+      the MAIN button of a screen (filled red, white label) and one for PLAIN buttons (a soft panel).
+   4. RED ON THE MAIN ACTION ONLY. Red now marks the one thing a visitor is meant to press on
+      each screen. Everything else that used to be red is black, white or grey.
+   5. LIGHT THEME FINISHED. Colours that were too faint on a white page are darker there.
+   WHY THE BLOCK IS AT THE END OF THE STYLE SHEET: when two rules set the same thing, the browser
+   follows the one that comes later. So the rules here replace the older ones above them, and
+   the older ones did not have to be rewritten. To undo a part of Stage 4, delete that part of
+   this block. The same block, with the same colours, is at the end of all five pages. */
+
+/* — THE COLOURS AND THE TYPEFACE used by the rules below. The first list is for the light theme,
+     the second for the dark theme. Changing a colour here changes it everywhere on this page. — */
+:root {
+  --heading: 'Space Grotesk', sans-serif;          /* the typeface of every heading */
+  --action: #c8102e;                               /* red for the WORDS of a main action; deep enough to read on white */
+  --action-a: #e6103a;                             /* the fill of a main button runs from this red... */
+  --action-b: #c40027;                             /* ...to this one. Both are dark enough for a white label. */
+  --action-glow: rgba(200,16,46,.26);              /* the soft glow under a main button */
+  --panel: #ffffff;                                /* the fill of a plain button */
+  --panel-edge: #d3d3d9;                           /* its outline */
+  --panel-shadow: 0 4px 14px rgba(20,20,30,.10);   /* its soft shadow */
+  --line: #85858c;                                 /* a stronger outline, for example a plain button under the mouse */
+  --quiet: #6a6a71;                                /* grey for small secondary words */
+  --ring: #15151a;                                 /* the outline around a button or box reached with the Tab key */
+  --text-faint: #6a6a71;                           /* was #74747c, slightly too faint to read on the grey sections */
+}
+body.dark-theme {
+  --action: #ff1a3c;
+  --action-glow: rgba(255,26,60,.30);
+  --panel: #151517;
+  --panel-edge: #303034;
+  --panel-shadow: 0 6px 18px rgba(0,0,0,.35);
+  --line: #6a6a6a;
+  --quiet: #aaaaaa;
+  --ring: #ffffff;
+  --text-faint: #888888;                           /* unchanged in the dark theme */
+}
+
+/* ── 1. LARGER TEXT ── (the old size is given after each new one) */
+.gh-title { font-size: 14px; }                                          /* "GRAPHICS GALLERY" in the top bar: was 13px */
+.gh-counter { font-size: 13px; }                                        /* "3 issues": was 12px */
+.gallery-intro p { max-width: 560px; font-size: 16px; }                 /* the line under the page title: was 14px */
+.mag-cover-open { padding-top: 12px; font-size: 12px; }                 /* "OPEN MAGAZINE →" under each cover: was 9px */
+.mag-issue-label { font-size: 15px; }                                   /* the magazine's name in the viewer's top bar: was 13px */
+.mag-page-num { font-size: 13px; }                                      /* "1 / 4": was 11px */
+.mag-zoom-level { font-size: 12px; }                                    /* "100%" in the zoom tools: was 10px */
+/* the page number in the corner of a page: was 9px, in a pale grey that could hardly be seen on a white page (1.8 to 1).
+   It is now dark grey on a small, almost white patch. On a white page the patch cannot be seen; on a dark picture
+   it shows as a small tag. Either way the number can be read (at least 10 to 1 on any picture).
+   "pointer-events: none" = clicks go straight through it to the page underneath. */
+.page-num-corner { right: 8px; bottom: 7px; padding: 0 7px; border-radius: 7px; background: rgba(255,255,255,.86); color: #2b2b30; font-size: 12px; line-height: 20px; pointer-events: none; }
+.zoom-help { width: min(410px, 92vw); }                                 /* the help pop-up is 50px wider, for its larger text */
+.zoom-help-title { font-size: 20px; }                                   /* its title: was 18px */
+.zoom-help-txt { font-size: 15px; }                                     /* its three instructions: was 12.5px */
+.zoom-help-txt kbd { font-size: 12px; }                                 /* the key names inside them: was 10px */
+.zoom-bubble::after { font-size: 12px; }                                /* the small label of the help button: was 10px */
+/* the lettering on the three magazine covers (their typefaces are part of the artwork and stay as they were) */
+.mag-cover-subtitle { font-size: 12px; letter-spacing: 2px; opacity: 1; color: #333; }   /* "ISSUE 01 · ILLUSTRATOR": was 9px, and black at 70% strength. A solid dark grey now: where the middle cover's shadow falls on its neighbours (dark theme) the old grey came to only 3.2 to 1 */
+.mag-cover-footer-title { font-size: 13px; }                            /* "Illustrator · Photoshop · Branding": was 11px */
+.mag-cover-footer-tag { font-size: 12px; letter-spacing: 0; color: #a8a8a8; }   /* "MARIUS BEJINARIU · MEDIA DEV": was 7px, in a grey too dark to read */
+.mag-cover-barcode { display: none; }                                   /* the barcode beside that line was drawn in the same dark grey as the band behind it, so it could not be seen; without it the line has the full width */
+.gallery-grid { height: 466px; }                                        /* the row of covers is 6px taller, for the larger "OPEN MAGAZINE" label: was 460px */
+
+/* ── 2. ONE HEADING STYLE ── */
+.gallery-intro h1 { font-family: var(--heading); font-style: normal; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05; text-wrap: balance; }   /* the page title was in Playfair Display italic; "balance" = lines of similar length when it wraps */
+.mag-issue-label { font-family: var(--heading); font-style: normal; font-weight: 500; }   /* the magazine's name in the viewer's top bar */
+.zoom-help-title { font-family: var(--heading); font-weight: 700; letter-spacing: -0.02em; }
+
+/* ── 3. ONE BUTTON STYLE ──
+   PLAIN buttons: "Back to Portfolio" and "Close Magazine" used to be filled red, although neither
+   is the main action of its screen. They are soft panels now. */
+.back-link, .mag-back { color: var(--text); background: var(--panel); border-color: var(--panel-edge); border-radius: 12px; box-shadow: var(--panel-shadow); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.back-link:hover, .mag-back:hover { color: var(--text-strong); background: var(--panel); border-color: var(--line); box-shadow: var(--panel-shadow); }
+/* their lettering, on screens wider than a phone. (On phones these two buttons show only an arrow:
+   the older phone rules hide the words by setting their size to 0, and that must not be undone here.) */
+@media (min-width: 601px) {
+  .back-link, .mag-back { min-height: 38px; padding: 9px 16px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }   /* was 11px */
+  /* the viewer's top bar must stay on one line: the button and the page count never break in two,
+     and if the window is too narrow for the magazine's name, the name is shortened with "…" */
+  .back-link, .mag-back, .mag-progress-wrap { flex: 0 0 auto; white-space: nowrap; }
+  .mag-issue-label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+/* NARROW WINDOWS AND SMALL TABLETS (601 to 760px wide). The larger lettering needs more room than the
+   viewer's top bar has at this width: "Close Magazine", the magazine's name and "1 / 4" each broke onto
+   two lines. So here the same three things are a little more compact. Nothing is left out. */
+@media (min-width: 601px) and (max-width: 760px) {
+  .mag-chrome { gap: 12px; padding-right: 20px; }                       /* the bar's right-hand margin: was 32px */
+  .mag-back { padding: 9px 12px; font-size: 12px; }                     /* 1px smaller than on wider screens, still larger than the old 11px */
+  .mag-issue-label { font-size: 13px; }                                 /* the old size */
+  .mag-progress-wrap { gap: 10px; }
+  .mag-progress { width: 56px; }                                        /* the thin "how far through" line: was 100px wide */
+}
+/* the MAIN button: "Got it" in the help pop-up. Filled red, white label, soft glow, like every main button of the site. */
+.zoom-help-btn { min-height: 46px; padding: 13px 0; border: 1px solid transparent; border-radius: 12px; color: #fff; background: linear-gradient(135deg, var(--action-a), var(--action-b)); box-shadow: 0 8px 20px var(--action-glow); font-family: var(--mono); font-size: 14px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }
+.zoom-help-btn:hover { background: linear-gradient(135deg, #d80a33, #b00022); }
+/* a button reached with the Tab key gets a clear outline, in black or white */
+.back-link:focus-visible, .mag-back:focus-visible, .zoom-help-btn:focus-visible, .mag-arrow:focus-visible, .mag-mbtn:focus-visible, .mag-zoom-btn:focus-visible, .zoom-bubble:focus-visible, .zoom-help-x:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+.zoom-help-btn:focus-visible, .zoom-help-x:focus-visible { outline-color: #fff; }   /* the pop-up is dark in both themes */
+
+/* NOTE (9 October 2026): PART 4 BELOW IS REVERSED FURTHER DOWN. The block "RED ACCENTS RESTORED" at the end of
+   this style sheet puts the red back on the things listed in part 4, and on the headings and buttons that
+   parts 2 and 3 had turned black, white or grey. The rules of part 4 are still here, but wherever that later
+   block names the same thing it has the last word. The other parts of Stage 4 (larger text, the heading
+   typeface, the shape of the buttons, the light theme) are not affected. */
+/* ── 4. RED ON THE MAIN ACTION ONLY ──
+   What stays red on this page: "OPEN MAGAZINE →" under each cover (the main action of the list)
+   and "Got it" in the help pop-up. The pictures of your work are untouched.
+   Everything below used to be red or pink and is now black, white or grey. */
+.gh-title { color: var(--text-strong); }                                 /* "GRAPHICS GALLERY" in the top bar */
+.theme-toggle:hover { border-color: var(--line); color: var(--text-strong); box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+.mag-cover-open, .gallery-card:hover .mag-cover-open { color: var(--action); }   /* STAYS RED, and is now full strength instead of half see-through */
+.gallery-card:hover .mag-cover-open { text-decoration: underline; text-underline-offset: 4px; }
+.mag-cover-footer { border-top-color: #fff; }                            /* the line across each cover */
+.mag-progress-fill { background: var(--text-strong); }                   /* the thin "how far through" line */
+/* the two page arrows: a white or black arrow; the button turns to that colour under the mouse */
+.mag-arrow svg { stroke: var(--text-strong); }
+.mag-arrow:hover { border-color: transparent; background: var(--text-strong); box-shadow: 0 10px 26px rgba(0,0,0,.35); }
+.mag-arrow:hover svg { stroke: var(--bg); }
+/* the zoom tools: the tool under the mouse, and the lens tool while it is switched on */
+.mag-zoom-btn:hover:not(:disabled), .mag-lens-toggle.lens-active { color: var(--bg); background: var(--text-strong); box-shadow: none; }
+/* the magnifying lens: a white ring with a dark edge, readable on any picture */
+#lensCanvas { border-color: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.45), 0 8px 32px rgba(0,0,0,.8); filter: none; }
+/* the round help button in the corner: a plain soft panel */
+.zoom-bubble { border: 1px solid var(--panel-edge); background: var(--panel); box-shadow: var(--panel-shadow); }
+.zoom-bubble:hover { border-color: var(--line); background: var(--panel); box-shadow: var(--panel-shadow); }
+.zoom-bubble svg { stroke: var(--text-strong); color: var(--text-strong); }
+/* the ripple around that button when the pop-up folds into it (it replaces the older red ripple of the same name) */
+@keyframes bubblePulse {
+  0%   { box-shadow: var(--panel-shadow), 0 0 0 0 var(--line); }
+  70%  { box-shadow: var(--panel-shadow), 0 0 0 18px transparent; }
+  100% { box-shadow: var(--panel-shadow), 0 0 0 0 transparent; }
+}
+/* inside the help pop-up (dark in both themes) */
+.zoom-help-x:hover { color: #fff; }
+.zoom-help-hero svg, .zoom-help-title { color: #fff; }
+.zoom-help-ic { background: #3a3a42; box-shadow: none; }
+.zoom-help-timer { background: #8a8a90; }
+/* the stand-ins that only show if a picture is missing (a small drawing and a file name): the same faint look as before, in grey instead of red */
+.mag-cover-ph-upload, .mag-cover-photo:hover .mag-cover-ph-upload { border-color: rgba(255,255,255,.3); background: none; }
+.mag-cover-ph-upload svg, .mag-cover-photo:hover .mag-cover-ph-upload svg { stroke: rgba(255,255,255,.4); }
+.p-image-fallback svg * { stroke: rgba(255,255,255,.4); }
+.p-image-file { border-color: rgba(255,255,255,.16); color: rgba(255,255,255,.3); }
+
+/* ── 5. LIGHT THEME ──
+   The shadows under the three covers were made for a black page. On a white page they were a
+   heavy black cloud that hid the "OPEN MAGAZINE" labels. In the light theme they are lighter and
+   stay close to the covers, so that each label stands on a clean white background. */
+body:not(.dark-theme) .gallery-card:nth-child(1) { filter: drop-shadow(-4px 5px 8px rgba(20,20,30,.20)); }
+body:not(.dark-theme) .gallery-card:nth-child(1):hover { filter: drop-shadow(-5px 7px 11px rgba(20,20,30,.22)); }
+body:not(.dark-theme) .gallery-card:nth-child(2) { filter: drop-shadow(0 5px 9px rgba(20,20,30,.22)); }
+body:not(.dark-theme) .gallery-card:nth-child(2):hover { filter: drop-shadow(0 8px 12px rgba(20,20,30,.24)); }
+body:not(.dark-theme) .gallery-card:nth-child(3) { filter: drop-shadow(4px 5px 8px rgba(20,20,30,.20)); }
+body:not(.dark-theme) .gallery-card:nth-child(3):hover { filter: drop-shadow(5px 7px 11px rgba(20,20,30,.22)); }
+/* The OPENED magazine had the same kind of shadow: a black glow all round the page, made for the black
+   backdrop of the dark theme. On the pale backdrop of the light theme it is now a soft grey shadow under
+   the page. "min-width: 601px" = screens wider than a phone (on a phone the page fills the screen and
+   has no shadow at all). */
+@media (min-width: 601px) {
+  body:not(.dark-theme) .page-front, body:not(.dark-theme) .page-back { box-shadow: 0 8px 24px rgba(20,20,30,.20); }
+}
+
+/* ── DARK THEME: THE TWO OUTER COVERS ──
+   The middle cover throws its shadow over the inner half of its two neighbours. That shadow also
+   dims their "OPEN MAGAZINE" labels: measured on the finished picture they came to 4.1 to 1, just
+   under the 4.5 that small text needs. Their red is a little lighter to make up for it, so under
+   the shadow all three labels look alike and read at least 4.5 to 1.
+   "min-width: 701px" = the fanned-out layout; on phones the covers are stacked and nothing overlaps. */
+@media (min-width: 701px) {
+  body.dark-theme .gallery-card:nth-child(1) .mag-cover-open,
+  body.dark-theme .gallery-card:nth-child(3) .mag-cover-open { color: #ff5572; }
+}
+
+/* ── PHONES AND TOUCH SCREENS ──
+   The older phone rules sit higher up in this style sheet, so the new rules above would win over
+   them. Where a phone needs its own value, it is given again here. */
+@media (max-width: 700px) {
+  /* the stacked covers: one lighter shadow in the light theme ("!important" because the older rule it replaces uses it) */
+  body:not(.dark-theme) .gallery-card,
+  body:not(.dark-theme) .gallery-card:hover,
+  body:not(.dark-theme) .gallery-card:nth-child(1), body:not(.dark-theme) .gallery-card:nth-child(2), body:not(.dark-theme) .gallery-card:nth-child(3),
+  body:not(.dark-theme) .gallery-card:nth-child(1):hover, body:not(.dark-theme) .gallery-card:nth-child(2):hover, body:not(.dark-theme) .gallery-card:nth-child(3):hover {
+    filter: drop-shadow(0 5px 9px rgba(20,20,30,.22)) !important;
+  }
+}
+@media (max-width: 600px) {
+  .mag-mcount .mag-page-num { font-size: 13px; }                         /* "1 / 4" in the bar under the page: was 12px */
+  /* the two arrow buttons in that bar: a white or black arrow; the button lights up in that colour while pressed */
+  .mag-mbtn svg { stroke: var(--text-strong); }
+  .mag-mbtn:active { border-color: transparent; background: var(--text-strong); }
+  .mag-mbtn:active svg { stroke: var(--bg); }
+}
+/* a phone held sideways: a touch screen has no "hover", so a tapped arrow must not stay lit (same idea as before, new colours) */
+@media (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  .mag-arrow:hover { border-color: var(--bar-border); background: var(--bar-bg); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+  .mag-arrow:hover svg { stroke: var(--text-strong); }
+  .mag-arrow:active { border-color: transparent; background: var(--text-strong); }
+  .mag-arrow:active svg { stroke: var(--bg); }
+  /* here the page fills the screen and has no shadow; that must stay so in the light theme too
+     (it switches the soft shadow of part 5 off again) */
+  body:not(.dark-theme) .page-front, body:not(.dark-theme) .page-back { box-shadow: none; }
+}
+/* ════════ END OF STAGE 4 ════════ */
+
+/* ════════ STAGE 5 (ADDED): ACCESSIBILITY ════════
+   This block is the style-sheet part of Stage 5 for this page. In plain words:
+   • KEYBOARD. Whatever can be pressed gets a clear outline when it is reached with the Tab key.
+     The outline is near-black in the light theme and white in the dark theme, so it always
+     stands out. A mouse click or a tap does not show it.
+   • REDUCE MOTION. Phones and computers have a setting called "Reduce motion" (people who get
+     dizzy or distracted by moving pictures switch it on). Every rule inside
+     "@media (prefers-reduced-motion: reduce) { ... }" applies only to those visitors.
+     Everybody else sees the page exactly as before.
+   Like the Stage 4 block, this one sits at the end of the style sheet so that its rules win over
+   the older ones above them. To undo a part of Stage 5, delete that part of this block. */
+
+/* ── 1. KEYBOARD ──
+   ":focus-visible" means: the link, button or cover the keyboard is on right now.
+   var(--ring) is the outline colour from the Stage 4 list above: near-black in the light theme, white in the dark theme. */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+/* THE VIEWER ITSELF. After a click or a tap on a cover, the page script puts the keyboard on the viewer as a whole and
+   not on one of its buttons (search for "IN AND OUT OF THE VIEWER" there). The viewer fills the screen, so an outline
+   around it would only be a stray line along the edges. This rule makes sure none is drawn. */
+#mag-overlay:focus { outline: none; }
+
+/* THE THREE COVERS. The page script makes each cover a stop for the Tab key (search for "KEYBOARD: THE COVERS" there).
+   The outline is drawn around the cover picture itself, 4px away from it. The gap between the two is filled with the
+   colour of the page (the "box-shadow" line), so the outline can be told apart even where it crosses a neighbouring cover. */
+.gallery-card:focus-visible { outline: none; }
+.gallery-card:focus-visible .mag-cover-wrap { outline: 2px solid var(--ring); outline-offset: 4px; box-shadow: 0 0 0 4px var(--bg); }
+/* when the list has to scroll to show the cover the keyboard has moved to (a small window), the cover stops clear
+   of the top bar, which stays in place over the top 60px of the list */
+.gallery-card:focus-visible { scroll-margin-top: 76px; scroll-margin-bottom: 16px; }
+.gallery-card:focus-visible .mag-cover-open { text-decoration: underline; text-underline-offset: 4px; }   /* "OPEN MAGAZINE" is underlined, as it is under the mouse */
+/* the spoken name of a cover: one sentence that only a screen reader gets (the page script writes it into each cover:
+   search for "spoken name" there). These lines shrink it to a single point and cut off everything outside that point,
+   so it takes no room and cannot be seen. It must not be "display: none": a screen reader skips text that is switched off. */
+.spoken-name { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+/* the cover the keyboard is on also comes forward, exactly as a cover does under the mouse (the same three positions as
+   the ":hover" rules near the top of this style sheet). "min-width: 701px" = the fanned-out layout; phones stack the covers. */
+@media (min-width: 701px) {
+  .gallery-card:nth-child(1):focus-visible { transform: translateX(-170px) translateY(8px) rotateY(18deg) rotateZ(-4deg) scale(0.93); z-index: 4; }
+  .gallery-card:nth-child(2):focus-visible { transform: translateX(0px) translateY(-18px) rotateY(0deg) rotateZ(0deg) scale(1.05); z-index: 4; }
+  .gallery-card:nth-child(3):focus-visible { transform: translateX(170px) translateY(8px) rotateY(-18deg) rotateZ(4deg) scale(0.93); z-index: 4; }
+}
+
+/* the two page arrows of the viewer. On tablets and small windows they lie over the edges of the page, where a white
+   outline could vanish against a white magazine page. A 3px band in the colour of the theme is put between the
+   button and its outline (the first part of "box-shadow"; the second part is the button's usual shadow), so the
+   outline always has a contrasting edge. */
+.mag-arrow:focus-visible { box-shadow: 0 0 0 3px var(--bg), 0 6px 18px rgba(0,0,0,.35); }
+
+/* THE CLOSED VIEWER AND THE CLOSED HELP POP-UP. Both used to be only see-through while closed ("opacity: 0"), so their
+   buttons were still there: the Tab key walked through about ten buttons nobody could see, and a screen reader read
+   them out. "visibility: hidden" takes a closed box out of reach completely. The last part of each "transition" line
+   (visibility 0s linear ...) delays that until the fade-out has finished, so opening and closing look exactly as before. */
+#mag-overlay { visibility: hidden; transition: opacity .4s, background-color .35s ease, visibility 0s linear .4s; }
+#mag-overlay.open { visibility: visible; transition: opacity .4s, background-color .35s ease, visibility 0s; }
+.zoom-help { visibility: hidden; transition: opacity .35s ease, transform .35s cubic-bezier(.23,1,.32,1), visibility 0s linear .35s; }
+.zoom-help.show { visibility: visible; transition: opacity .35s ease, transform .35s cubic-bezier(.23,1,.32,1), visibility 0s; }
+#mag-overlay:not(.open) .zoom-help.show { visibility: hidden; }   /* a pop-up inside a closed viewer stays out of reach too */
+/* when the help pop-up was opened with the keyboard it stays until it is closed (see "THE HELP POP-UP" in the page script),
+   so the thin line that counts down its 15 seconds is not shown */
+.zoom-help.no-timer .zoom-help-timer { display: none; }
+
+/* ── 2. REDUCE MOTION ──
+   Only for visitors whose phone or computer asks for less motion (see the note at the top of this block).
+   The page script has its own part for the same visitors: search for "calmMotion" there. */
+@media (prefers-reduced-motion: reduce) {
+  /* a cover under the mouse (or reached with the Tab key) stays where it is: it still comes to the front, but it does not
+     slide up or grow. The three lines repeat the resting position of each cover. Phones are not affected: their covers never move. */
+  .gallery-card:nth-child(1):hover, .gallery-card:nth-child(1):focus-visible { transform: translateX(-170px) translateY(28px) rotateY(18deg) rotateZ(-4deg) scale(0.88); }
+  .gallery-card:nth-child(2):hover, .gallery-card:nth-child(2):focus-visible { transform: translateX(0px) translateY(0px) rotateY(0deg) rotateZ(0deg) scale(1.0); }
+  .gallery-card:nth-child(3):hover, .gallery-card:nth-child(3):focus-visible { transform: translateX(170px) translateY(28px) rotateY(-18deg) rotateZ(4deg) scale(0.88); }
+  .gallery-card:hover .mag-cover-photo img { transform: none; }           /* the cover picture does not zoom either */
+  .page { transition: none; }                                             /* no page-turn: the next page simply appears (the page script does the same) */
+  /* buttons no longer grow, nudge or spin under the mouse */
+  .mag-arrow:hover { transform: translateY(-50%); }
+  .mag-arrow.prev:hover svg, .mag-arrow.next:hover svg, .back-link:hover svg, .mag-back:hover svg { transform: none; }
+  .theme-toggle:hover, .zoom-bubble:hover, .zoom-help-x:hover { transform: none; }
+  /* the help pop-up fades in and out where it stands. It used to grow into place, and to shrink and fly into the round
+     help button when closed. "!important" is needed because the page script writes that flight straight onto the pop-up. */
+  .zoom-help, .zoom-help.show { transform: translate(-50%, -50%) !important; }
+  .zoom-bubble.pulse { animation: none; }                                 /* no ripple around the help button */
+  .mag-hint, .mag-hint.show { transform: translate(-50%, 0); }            /* the one-line tip on phones fades in without sliding up */
+}
+
+/* ── 3. THE WHOLE PAGE, CLEAR OF THE ZOOM TOOLS ──
+   A magazine page is a picture 900 wide and 620 high. The box it is shown in used to be "as wide as fits" and
+   "as high as fits", worked out separately. Whenever the two did not match the shape of the picture, the picture
+   was cut off to fill the box: on an upright tablet it lost almost 90px on each side. And in a window about
+   720px high the box reached down behind the zoom tools at the bottom of the screen.
+   Now the box always has the shape of the picture ("aspect-ratio"), so nothing is cut off, and it is never taller
+   than the height of the screen minus 172px: room for the top bar above it and for the zoom tools below it.
+   On a large screen (at least 958px wide and 792px high) the result is the same 900 by 620 as before.
+   • "@supports" = only in browsers that know "aspect-ratio" (all current ones; older ones keep the old box).
+   • "min-width: 601px" = not on phones, which have their own full-screen layout.
+   • width is given twice: "vh" is the height of the screen; "dvh" is the height that is really visible on a tablet
+     while the browser's own bars are showing. Browsers that do not know "dvh" skip the second line and use the first. */
+@supports (aspect-ratio: 1 / 1) {
+  @media (min-width: 601px) {
+    .mag-stage { width: min(900px, 94vw, calc(max(100vh - 172px, 240px) * 900 / 620)); height: auto; aspect-ratio: 900 / 620; }
+    .mag-stage { width: min(900px, 94vw, calc(max(100dvh - 172px, 240px) * 900 / 620)); }
+  }
+  /* a phone held sideways keeps its own layout, in which the page fills the screen under the top bar */
+  @media (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+    .mag-stage { width: 100vw; height: calc(100% - 48px); aspect-ratio: auto; }
+  }
+}
+/* ════════ END OF STAGE 5 ════════ */
+
+/* ════════ RED ACCENTS RESTORED (ADDED 9 October 2026) ════════
+   Stage 4 took the red off everything except the main action of each screen. This block puts the
+   red back where the published site has it. In plain words:
+   • WHAT IT DOES. Each rule below gives one thing its red back: a colour for words, an outline,
+     a fill or a glow. The note after each rule says what the thing is.
+   • WHY IT IS AT THE END OF THE STYLE SHEET. When two rules set the same thing, the browser
+     follows the one that comes later. This block comes after Stage 4 and Stage 5, so it has the
+     last word on these colours, and nothing above it had to be rewritten.
+     To undo all of it, delete this block. (The cross, ring and figure inside the lens then stay
+     red: their colours are in the page script, see below.) To undo one thing, delete its line. A
+     few things take three or four lines; the note above them says so. Delete such lines together:
+     with only one of them gone, a white sign can be left on a white button.
+   • WHAT IT DOES NOT TOUCH. Text sizes, typefaces, the shape of the buttons, the layout, the
+     keyboard outlines and everything the page does. Only colours, tints and glows change.
+     (The cross, ring and figure drawn inside the magnifying lens are not style rules: their three
+     colours are in the page script. Search for "RED ACCENTS RESTORED" there.)
+   • WHICH RED IS USED WHERE.
+     var(--action)   The red for words that lie on the page itself. In the dark theme it is the red
+                     of the published site (#ff1a3c). In the light theme it is a slightly deeper
+                     red (#c8102e), because the bright one is hard to read on white.
+                     Both values are set in the Stage 4 list of colours; change them there.
+     var(--red)      Always the red of the published site (#ff1a3c), in both themes. Used for drawn
+                     lines, edges and drawn signs (the page arrows, the sun and the moon: they do
+                     not have to be read like words), on the parts that are dark in both themes
+                     (the covers, the help pop-up) and on the lens.
+     the red fill    "linear-gradient(135deg, var(--action-a), var(--action-b))" is the fill of the
+                     main button ("Got it"). Every red button uses the same fill, so that the red
+                     buttons of the site look alike and white lettering can be read on them.
+     rgba(255,26,60, 0.3) and similar: the red of the published site, see-through. The last
+                     number says how solid it is, from 0 (invisible) to 1 (solid). Tints and glows
+                     are copied from the published site as they are.
+   • NOT CHANGED HERE, ON PURPOSE. "OPEN MAGAZINE →" and "Got it" were red already. */
+
+/* ── THE TOP BAR ── */
+.gh-title { color: var(--action); }                                      /* "GRAPHICS GALLERY": red again */
+/* "Back to Portfolio" and "Close Magazine": red buttons again.
+   • "background-origin: border-box" lets the fill run under the 1px edge of the button as well,
+     so that no hairline of a different red shows along that edge.
+   • Under the mouse the button turns into a plain panel, as it turns plain on the published site.
+     That needs no rule here: the Stage 4 rule for ".back-link:hover, .mag-back:hover" is more
+     specific than this one, so it still applies. */
+.back-link, .mag-back { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--action-a), var(--action-b)); background-origin: border-box; box-shadow: 0 6px 16px rgba(255,26,60,.32); }
+.theme-toggle:hover { border-color: var(--red); color: var(--red); box-shadow: 0 6px 18px rgba(255,26,60,.28), 0 0 0 1px rgba(255,26,60,.25); }   /* the sun / moon button under the mouse: red edge, red sign, soft red glow */
+
+/* ── THE THREE COVERS ── */
+.mag-cover-footer { border-top-color: var(--red); }                      /* the red line across each cover (the band it sits on is dark in both themes) */
+
+/* ── THE VIEWER ── */
+.mag-progress-fill { background: var(--red); }                           /* the thin "how far through" line */
+/* the two page arrows: a red arrow; under the mouse the button fills with red and the arrow turns white.
+   (These three lines belong together.) */
+.mag-arrow svg { stroke: var(--red); }
+.mag-arrow:hover { border-color: transparent; background: linear-gradient(135deg, var(--action-a), var(--action-b)); background-origin: border-box; box-shadow: 0 10px 26px rgba(255,26,60,.4), 0 0 0 1px rgba(255,26,60,.3); }
+.mag-arrow:hover svg { stroke: #fff; }
+/* the zoom tools: the tool under the mouse, and the lens tool while it is switched on, fill with red */
+.mag-zoom-btn:hover:not(:disabled), .mag-lens-toggle.lens-active { color: #fff; background: linear-gradient(135deg, var(--action-a), var(--action-b)); box-shadow: 0 4px 12px rgba(255,26,60,.35); }
+.mag-lens-toggle.lens-active { box-shadow: 0 4px 12px rgba(255,26,60,.4), inset 0 0 0 1px rgba(255,255,255,.15); }   /* while the lens is on, its tool also has a fine light edge inside */
+/* the magnifying lens: a red ring with a soft red glow */
+#lensCanvas { border-color: var(--red); box-shadow: 0 0 0 1px rgba(255,26,60,.25), 0 8px 32px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.04); filter: drop-shadow(0 0 8px rgba(255,26,60,.35)); }
+
+/* ── THE ROUND HELP BUTTON in the corner: red, with a white sign. (The next three lines belong together.) ── */
+.zoom-bubble { border-color: transparent; background: linear-gradient(135deg, var(--action-a), var(--action-b)); background-origin: border-box; box-shadow: 0 8px 24px rgba(0,0,0,.5), 0 0 0 1px rgba(255,26,60,.25); }
+.zoom-bubble:hover { border-color: transparent; background: linear-gradient(135deg, var(--action-b), var(--action-a)); background-origin: border-box; box-shadow: 0 10px 30px rgba(0,0,0,.6), 0 0 16px rgba(255,26,60,.55); }   /* under the mouse the fill runs the other way round and the button glows */
+.zoom-bubble svg { stroke: #fff; color: #fff; }
+/* the red ripple around that button when the pop-up folds into it. A "@keyframes" list with the same
+   name stands in the Stage 4 block; where two lists have the same name the browser uses the later one, which is this one. */
+@keyframes bubblePulse {
+  0%   { box-shadow: 0 8px 24px rgba(0,0,0,.5), 0 0 0 0 rgba(255,26,60,.55); }
+  70%  { box-shadow: 0 8px 24px rgba(0,0,0,.5), 0 0 0 18px rgba(255,26,60,0); }
+  100% { box-shadow: 0 8px 24px rgba(0,0,0,.5), 0 0 0 0 rgba(255,26,60,0); }
+}
+
+/* ── INSIDE THE HELP POP-UP (dark in both themes, so the bright red is used in both) ── */
+.zoom-help-x:hover { color: var(--red); }                                /* the X in its corner, under the mouse */
+.zoom-help-hero svg, .zoom-help-title { color: var(--red); }             /* the large magnifying glass and the title "How to Explore the Pages" */
+.zoom-help-ic { background: var(--red); box-shadow: 0 4px 12px rgba(255,26,60,.3); }   /* the three small squares that hold the white signs */
+.zoom-help-timer { background: var(--red); }                             /* the thin line that counts down the 15 seconds */
+
+/* ── THE STAND-INS that only show if a picture is missing (a small drawing and a file name): faint red again ── */
+.mag-cover-ph-upload { border-color: rgba(255,26,60,.4); }
+.mag-cover-photo:hover .mag-cover-ph-upload { border-color: var(--red); background: rgba(255,26,60,.06); }
+.mag-cover-ph-upload svg { stroke: rgba(255,26,60,.5); }
+.mag-cover-photo:hover .mag-cover-ph-upload svg { stroke: var(--red); }
+.p-image-fallback svg rect { stroke: rgba(255,26,60,.5); }
+.p-image-fallback svg circle, .p-image-fallback svg path { stroke: rgba(255,26,60,.4); }
+.p-image-file { border-color: rgba(255,26,60,.2); color: rgba(255,26,60,.35); }
+
+/* ── PHONES (screens up to 600px wide): the two arrow buttons in the bar under the page ──
+   A red arrow; while a button is pressed it fills with red and its arrow turns white.
+   (The three lines inside the braces belong together.) */
+@media (max-width: 600px) {
+  .mag-mbtn svg { stroke: var(--red); }
+  .mag-mbtn:active { border-color: transparent; background: linear-gradient(135deg, var(--action-a), var(--action-b)); background-origin: border-box; }
+  .mag-mbtn:active svg { stroke: #fff; }
+}
+/* ── A PHONE HELD SIDEWAYS ──
+   A touch screen has no "hover": the phone goes on treating the arrow that was tapped last as "under the
+   mouse". So here an arrow keeps its resting look (the first two lines repeat it) and only fills with red
+   for the moment it is pressed. The same four lines stand in the Stage 4 block with white or black in
+   place of red. (The four lines inside the braces belong together.) */
+@media (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  .mag-arrow:hover { border-color: var(--bar-border); background: var(--bar-bg); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+  .mag-arrow:hover svg { stroke: var(--red); }
+  .mag-arrow:active { border-color: transparent; background: linear-gradient(135deg, var(--action-a), var(--action-b)); background-origin: border-box; }
+  .mag-arrow:active svg { stroke: #fff; }
+}
+/* ── KEPT FROM STAGE 5 ──
+   A page arrow reached with the Tab key has a band in the colour of the theme between the button and its
+   keyboard outline, so that the outline shows on any picture. The red glow above (".mag-arrow:hover") would
+   take the place of that band whenever the arrow is under the mouse at the same moment. This line repeats
+   the Stage 5 rule after it, so that the band keeps the last word. */
+.mag-arrow:focus-visible { box-shadow: 0 0 0 3px var(--bg), 0 6px 18px rgba(0,0,0,.35); }
+/* ════════ END OF RED ACCENTS RESTORED ════════ */
 </style>
 </head>
 <body class="dark-theme">
@@ -614,7 +1136,7 @@ header.gh{padding-left:84px;}
 <!-- ══════ GALLERY LIST VIEW ══════ -->
 <div id="gallery-view">
   <header class="gh">
-    <a href="index.html" class="back-link"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to Portfolio</a>
+    <a href="index.html" class="back-link" aria-label="Back to Portfolio"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to Portfolio</a>
     <span class="gh-title">GRAPHICS GALLERY</span>
     <span class="gh-counter" id="galleryCounter">3 issues</span>
   </header>
@@ -628,9 +1150,13 @@ header.gh{padding-left:84px;}
 </div>
 
 <!-- ══════ MAGAZINE OVERLAY ══════ -->
-<div id="mag-overlay">
+<!-- STAGE 5 (CHANGED): three things were added to the next line, for screen readers.
+     role="dialog" and aria-modal="true" say: this is a window on top of the page, and the page
+     behind it does not count while it is open. aria-labelledby names the window after the
+     title in its top bar, for example "Graphic Design · Issue 01". Nothing changes on screen. -->
+<div id="mag-overlay" role="dialog" aria-modal="true" aria-labelledby="magIssueLabel">
   <div class="mag-chrome">
-    <button class="mag-back" id="magBack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Close Magazine</button>
+    <button class="mag-back" id="magBack" aria-label="Close Magazine"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Close Magazine</button>
     <span class="mag-issue-label" id="magIssueLabel"></span>
     <div class="mag-progress-wrap">
       <span class="mag-page-num" id="magPageNum"></span>
@@ -647,6 +1173,24 @@ header.gh{padding-left:84px;}
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
     </button>
   </div>
+
+  <!-- ADDED: phones only. Controls bar under the page: previous, page count, next.
+       On phones this replaces the two side arrows above, which sat on top of the artwork. -->
+  <div class="mag-mbar" id="magMbar">
+    <button class="mag-mbtn" id="magPrevM" type="button" aria-label="Previous page">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="mag-mcount">
+      <span class="mag-page-num" id="magPageNumM"></span>
+      <div class="mag-progress"><div class="mag-progress-fill" id="magProgressFillM"></div></div>
+    </div>
+    <button class="mag-mbtn" id="magNextM" type="button" aria-label="Next page">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+  <!-- ADDED: phones only. A short tip shown the first time a magazine is opened. -->
+  <div class="mag-hint" id="magHint">Pinch or double-tap to zoom<span class="mag-hint-dot"> &middot; </span><br>Swipe to turn the page</div>
 
   <!-- ZOOM TOOLBAR -->
   <div class="mag-zoom-bar">
@@ -678,7 +1222,9 @@ header.gh{padding-left:84px;}
   </div>
 
   <!-- MAGNIFIER LENS CANVAS -->
-  <canvas id="lensCanvas"></canvas>
+  <!-- STAGE 5 (CHANGED): aria-hidden="true" was added. The lens is a second view of a picture that
+       already has its description, so a screen reader passes over it. -->
+  <canvas id="lensCanvas" aria-hidden="true"></canvas>
 
   <!-- ══════ ZOOM HELP POP-UP ══════ -->
   <div class="zoom-help" id="zoomHelp" role="dialog" aria-label="How to zoom">
@@ -747,6 +1293,15 @@ header.gh{padding-left:84px;}
 
    For images: set src to your file path (relative to this file).
    Drop files into assets/images/gallery/ — if missing, a placeholder shows automatically.
+
+   STAGE 5 (ADDED): every picture now has a description. A screen reader reads it out to a
+   visitor who cannot see the picture:
+     coverAlt   one sentence about the cover picture of the magazine;
+     alt        one sentence about each page.
+   Each description stands between "double quotes", so that an apostrophe (as in St George's)
+   can be used inside it. Do not use a double quote inside a description. When you add a page,
+   give it an alt line too. If a page has none, its file name is read out instead, as before.
+   The wording of all of them is yours to correct.
 ══════════════════════════════════════════ */
 const magazines = [
   {
@@ -756,27 +1311,43 @@ const magazines = [
     tags: ['Illustrator','Photoshop','Branding'],
     thumb: 'assets/images/gallery/graphic_cover_01.jpg',
     thumbFile: 'graphic_cover_01.jpg',
+    coverAlt: "Poster for the NavyFit Festival, September 2024: an aircraft carrier at sea in front of a red sunset, with the Royal Navy logo.",
     pages: [
-        { type: 'image', src: 'assets/images/gallery/graphic_001.jpg', file: 'graphic_001.jpg' },
-        { type: 'image', src: 'assets/images/gallery/graphic_002.jpg', file: 'graphic_002.jpg' },
-        { type: 'image', src: 'assets/images/gallery/graphic_003.jpg', file: 'graphic_003.jpg' },
-        { type: 'image', src: 'assets/images/gallery/graphic_004.jpg', file: 'graphic_004.jpg' }
+        { type: 'image', src: 'assets/images/gallery/graphic_001.jpg', file: 'graphic_001.jpg',
+          alt: "Visual style sheet for the Graduate Guide 2021 of the University of Bedfordshire Careers & Employability Service: the cover artwork (a red title panel set at a slant across a blue-tinted photo of graduates), its red, teal and charcoal colours, typefaces, layout grid and design principles." },
+        { type: 'image', src: 'assets/images/gallery/graphic_002.jpg', file: 'graphic_002.jpg',
+          alt: "Logo breakdown for the University of Bedfordshire Career Development Award: how the round badge with its trophy is built, the clear space around it, colour variations, minimum size, typeface and its red, black and white colours." },
+        { type: 'image', src: 'assets/images/gallery/graphic_003.jpg', file: 'graphic_003.jpg',
+          alt: "Visual style sheet for a Royal Navy road safety poster: the yellow poster headed 'Tiredness is a killer', with a skull and a red car on a coast road, and its colours, typefaces, layout and design principles." },
+        { type: 'image', src: 'assets/images/gallery/graphic_004.jpg', file: 'graphic_004.jpg',
+          alt: "Visual style sheet for the Research Aware event poster of St George's, University of London: the dark teal poster of nested frames listing three training sessions, and its colours, typefaces, layout and design principles." }
       ],
   },
   {
 
     id: 'social-media',
-    title: 'Social Media &amp; Digital',
+    /* FIXED: this title was written with "&amp;" in place of the & sign. "&amp;" is the HTML
+       code for &, and it only turns into & when the text is read as HTML. The title bar of
+       the magazine viewer writes the title as plain text (see "magLabel.textContent" in
+       openMagazine), so visitors saw the letters "&amp;" there. A plain & is right in all
+       three places this title is used: the card on this page, the cover picture's
+       description, and the viewer's title bar. */
+    title: 'Social Media & Digital',
     issue: 'Issue 02',
     tags: ['Photoshop','Social Media','Digital'],
     tags: ['Illustrator','Vectors','Retouching'],
     thumb: 'assets/images/gallery/photo_cover_01.jpg',
     thumbFile: 'photo_cover_01.jpg',
+    coverAlt: "Recruitment graphic for Response Personnel Limited: two torches light up the company logo on a dark green background, beside icons for machining, warehouse and office work.",
     pages: [
-        { type: 'image', src: 'assets/images/gallery/photo_001.jpg', file: 'photo_001.jpg' },
-        { type: 'image', src: 'assets/images/gallery/photo_002.jpg', file: 'photo_002.jpg' },
-        { type: 'image', src: 'assets/images/gallery/photo_003.jpg', file: 'photo_003.jpg' },
-        { type: 'image', src: 'assets/images/gallery/photo_004.jpg', file: 'photo_004.jpg' }
+        { type: 'image', src: 'assets/images/gallery/photo_001.jpg', file: 'photo_001.jpg',
+          alt: "Social media work for Response Personnel Limited: a phone showing the company's Instagram profile and its grid of posts, beside three square posts: a Christmas greeting, the torch-and-logo graphic and a post asking 'Are you following us on all social media platforms?'." },
+        { type: 'image', src: 'assets/images/gallery/photo_002.jpg', file: 'photo_002.jpg',
+          alt: "Social media work for the University of Bedfordshire Careers & Employability Service: a phone showing the @uobcareers Instagram profile, beside three posts: 'What options do you have as a graduate in 2021?', a welcome card and a notice asking people to wear a face mask and keep a safe distance." },
+        { type: 'image', src: 'assets/images/gallery/photo_003.jpg', file: 'photo_003.jpg',
+          alt: "Email campaign banner for the University of Bedfordshire, with the words 'Supporting You. From Now. For a Lifetime.': a chess pawn casting the shadow of a queen, followed by notes on the idea, composition, lighting, colours, mood and finishing." },
+        { type: 'image', src: 'assets/images/gallery/photo_004.jpg', file: 'photo_004.jpg',
+          alt: "GAT Newsletter collage: covers and inside pages of the St George's Academic Training (GAT) handbook and newsletters for St George's, University of London, laid out on an orange background." }
       ],
   },
   {
@@ -786,9 +1357,12 @@ const magazines = [
     tags: ['Illustrator','Lightroom','Retouching'],
     thumb: 'assets/images/gallery/social_cover_01.jpg',
     thumbFile: 'social_cover_01.jpg',
+    coverAlt: "Career Development Award graphic for the University of Bedfordshire Careers & Employability Service: a smiling graduate in a mortarboard beside the award's round logo.",
     pages: [
-        { type: 'image', src: 'assets/images/gallery/social_001.jpg', file: 'social_001.jpg' },
-        { type: 'image', src: 'assets/images/gallery/social_002.jpg', file: 'social_002.jpg' }
+        { type: 'image', src: 'assets/images/gallery/social_001.jpg', file: 'social_001.jpg',
+          alt: "UOB Marketing Print Collage: a fan of posters, handbooks, banners and flyers made for the University of Bedfordshire Careers & Employability Service, among them 'Update us!', 'Make your graduate voice count' and 'Looking for part-time work?'." },
+        { type: 'image', src: 'assets/images/gallery/social_002.jpg', file: 'social_002.jpg',
+          alt: "Career Development Award banners: two pull-up banners for the University of Bedfordshire, each with a smiling graduate, the award's round logo and an invitation to take part, beside notes on subject, composition, lighting, colours, mood and finishing." }
       ],
   },
 ];
@@ -796,6 +1370,11 @@ const magazines = [
 /* ══════════════════════════════════════════
    BUILD GALLERY GRID
 ══════════════════════════════════════════ */
+/* STAGE 5 (ADDED): asAttr() makes a description safe to put inside alt="..." in the HTML that the
+   code below writes. A description may contain the characters & " or <, which have a meaning of
+   their own in HTML; this swaps each of them for its harmless code. */
+const asAttr = text => String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
 const grid = document.getElementById('galleryGrid');
 document.getElementById('galleryCounter').textContent = magazines.length + ' issues';
 
@@ -816,6 +1395,9 @@ magazines.forEach((mag, mi) => {
   card.className = 'gallery-card';
 
   /* Build magazine cover HTML */
+  /* STAGE 5 (CHANGED): the description of the cover picture (alt="..." in the <img> line below) used to be
+     just the title of the magazine. It is now the "coverAlt" sentence from the list above. (A magazine
+     without a coverAlt line still gets its title.) */
   card.innerHTML = `
     <div class="mag-cover-wrap">
       <!-- TOP HEADER BAND -->
@@ -826,7 +1408,7 @@ magazines.forEach((mag, mi) => {
 
       <!-- PHOTO ZONE — drop assets/images/gallery/${mag.thumbFile} to display -->
       <div class="mag-cover-photo" id="photo-zone-${mi}">
-        <img src="${mag.thumb}" alt="${mag.title}" onerror="this.style.display='none'" />
+        <img src="${mag.thumb}" alt="${asAttr(mag.coverAlt || mag.title)}" onerror="this.style.display='none'" />
         <div class="mag-cover-ph">
           <div class="mag-cover-ph-upload">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -857,6 +1439,73 @@ magazines.forEach((mag, mi) => {
   /* clicking card opens magazine */
   card.addEventListener('click', () => openMagazine(mi));
   grid.appendChild(card);
+});
+
+/* ══════════════════════════════════════════
+   STAGE 5 (ADDED): KEYBOARD: THE COVERS
+   A cover opens its magazine with a click. A cover is a plain box, and the Tab key only
+   stops at links and buttons, so a visitor who uses the keyboard could not open a
+   magazine at all. This block tells the browser that each cover is a button:
+   • tabindex="0"       the Tab key stops on the cover;
+   • role="button"      a screen reader announces it as a button;
+   • a spoken name      ...called, for example, "Open magazine: Graphic Design, Issue 01, 4 pages";
+   • aria-describedby   ...followed by the description of the cover picture (the "coverAlt"
+                        sentence from the list of magazines at the top of this script);
+   • aria-haspopup      ...and the note that it opens a window on top of the page.
+   Enter and Space then do the same as a click. Clicking and tapping are not touched.
+   (The outline around the cover the keyboard is on is in the style sheet: search for
+   "THE THREE COVERS" there.)
+
+   About the spoken name. A button is announced by the words written on it. A cover carries
+   a lot of lettering that is artwork, not a name ("MARIUS BEJINARIU · MEDIA DEV", the tags,
+   the number), and read out one after the other it makes no sense. So the two parts of a
+   cover that can be seen (the cover itself, and the words "OPEN MAGAZINE →" under it) are
+   marked aria-hidden="true", which means "for the eye only", and one sentence is added for
+   the ear only: a piece of text with the class "spoken-name", which the style sheet shrinks
+   to a single point so that it takes no room on screen (search for "spoken-name" there).
+   That sentence starts with the same words as the visible label, "Open magazine", which is
+   what a visitor who gives spoken commands would say.
+══════════════════════════════════════════ */
+/* The descriptions of the three cover pictures, for the ear. They are kept in a box of their own that stands after the
+   row of covers and is switched off on screen ("display: none"). Each cover points to its sentence with aria-describedby,
+   and a screen reader reads it out after the cover's name. (Text that is switched off is still read out when something
+   points to it this way. The sentences are not put inside the covers, because everything inside a button counts as part
+   of its name.) */
+const coverDescriptions = document.createElement('div');
+coverDescriptions.style.display = 'none';
+grid.insertAdjacentElement('afterend', coverDescriptions);
+
+Array.from(grid.children).forEach((card, mi) => {
+  const mag   = magazines[mi];
+  const pages = mag.pages.length;
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-haspopup', 'dialog');
+  Array.from(card.children).forEach(part => part.setAttribute('aria-hidden', 'true'));   // what can be seen: for the eye only
+  const spokenName = document.createElement('span');                                     // what is announced: for the ear only
+  spokenName.className = 'spoken-name';
+  spokenName.textContent = 'Open magazine: ' + mag.title + ', ' + mag.issue + ', ' + pages + (pages === 1 ? ' page' : ' pages');
+  card.appendChild(spokenName);
+  if (mag.coverAlt) {
+    const description = document.createElement('span');
+    description.id = 'cover-description-' + (mi + 1);            // a name for the sentence, so that the cover can point to it
+    description.textContent = mag.coverAlt;
+    coverDescriptions.appendChild(description);
+    card.setAttribute('aria-describedby', description.id);
+  }
+  card.addEventListener('keydown', e => {
+    if (e.target !== card) return;
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;   // 'Spacebar' is what some older browsers call the Space key
+    e.preventDefault();                                         // otherwise Space would also scroll the page
+    if (!e.repeat) card.click();                                // do what a click does (once, even if the key is held down)
+  });
+  /* MOUSE AND TOUCH STAY AS THEY WERE. A cover that is a stop for the Tab key would also take the keyboard whenever
+     it is pressed with the mouse or a finger, and the next key would then act on it: after a right-click on a cover,
+     for example, Space would open the magazine instead of scrolling the page. So right after such a press the
+     keyboard is taken off the cover again ("blur" = let go). Only the Tab key leaves the keyboard on a cover.
+     (The browser hands the keyboard over just after it has reported the press, which is why the step waits for
+     the shortest possible moment first: setTimeout with 0.) */
+  card.addEventListener('mousedown', () => setTimeout(() => { if (document.activeElement === card) card.blur(); }, 0));
 });
 
 /* ══════════════════════════════════════════
@@ -905,9 +1554,16 @@ function renderPageContent(p) {
   const wrap = document.createElement('div');
   wrap.className = 'p-image';
   wrap.style.height = '100%';
+  /* STAGE 5 (CHANGED): the description of the page (alt="..." in the <img> line below) used to be the file
+     name of the picture, for example "graphic_001.jpg", and that is what a screen reader read out. It is
+     now the "alt" sentence of the page from the list at the top of this script. (A page without an alt
+     line still gets its file name.)
+     Also: the stand-in behind the picture (a small drawing, the file name and "900 × 620 px", only seen
+     if a picture is missing) was read out after every page. It is now marked aria-hidden="true", which
+     tells screen readers to pass over it. */
   wrap.innerHTML = `
-    <img src="${p.src}" alt="${p.file}" onerror="this.style.display='none'" />
-    <div class="p-image-fallback">
+    <img src="${p.src}" alt="${asAttr(p.alt || p.file)}" onerror="this.style.display='none'" />
+    <div class="p-image-fallback" aria-hidden="true">
       ${imgFallbackSVG}
       <span class="p-image-file">[ ${p.file} ]</span>
       <span class="p-image-size">900 × 620 px</span>
@@ -1053,15 +1709,28 @@ function getActiveImg() {
 
 /* Rect of the image's rendered content.
    With object-fit:cover the image fills the entire container,
-   so the rendered rect is simply the container itself.          */
+   so the rendered rect is simply the container itself.
+   CHANGED: on phones the picture is shown whole (object-fit:contain), so it can be
+   smaller than the page box, with empty bands above and below. In that case this
+   now returns where the picture itself sits inside the box. On desktop (cover)
+   the result is exactly what it was before: the whole box.                        */
 function getRenderedRect(img) {
   const wrap = img.closest('.p-image');
   const cW   = wrap.clientWidth;
   const cH   = wrap.clientHeight;
+  if (img.naturalWidth && img.naturalHeight && getComputedStyle(img).objectFit === 'contain') {
+    const fit = Math.min(cW / img.naturalWidth, cH / img.naturalHeight);   // how much the picture is shrunk to fit
+    const w = img.naturalWidth * fit;
+    const h = img.naturalHeight * fit;
+    return { x: (cW - w) / 2, y: (cH - h) / 2, w: w, h: h };              // centred in the box
+  }
   return { x: 0, y: 0, w: cW, h: cH };
 }
 
-/* Clamp pan so the scaled image always covers the full container */
+/* Clamp pan so the scaled image always covers the full container
+   CHANGED: the picture's offset inside the box (r.x, r.y) now grows with the zoom
+   level, which is needed when the picture does not start at the corner of the box
+   (phones). On desktop r.x and r.y are 0, so nothing changes there.              */
 function clampPan(img, s) {
   const wrap = img.closest('.p-image');
   const cW   = wrap.clientWidth;
@@ -1069,11 +1738,13 @@ function clampPan(img, s) {
   const r    = getRenderedRect(img);
   const sW   = r.w * s;
   const sH   = r.h * s;
+  const oX   = r.x * s;   // where the picture starts, at this zoom level
+  const oY   = r.y * s;
   // if scaled dimension < container: centre; else clamp
-  if (sW <= cW) { panX = (cW - sW) / 2 - r.x; }
-  else { panX = Math.max(cW - r.x - sW, Math.min(-r.x, panX)); }
-  if (sH <= cH) { panY = (cH - sH) / 2 - r.y; }
-  else { panY = Math.max(cH - r.y - sH, Math.min(-r.y, panY)); }
+  if (sW <= cW) { panX = (cW - sW) / 2 - oX; }
+  else { panX = Math.max(cW - oX - sW, Math.min(-oX, panX)); }
+  if (sH <= cH) { panY = (cH - sH) / 2 - oY; }
+  else { panY = Math.max(cH - oY - sH, Math.min(-oY, panY)); }
 }
 
 /* Write transform to DOM */
@@ -1085,6 +1756,10 @@ function commitZoom() {
   img.closest('.p-image').classList.toggle('zoomed', zoomScale > 1.005);
 }
 
+/* ADDED: true when the phone version of the viewer is showing: a narrow screen, or a
+   phone held sideways (a short, wide touch screen). Matches the CSS in "PHONE LAYOUT v2". */
+const phoneViewer = window.matchMedia('(max-width: 600px), (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse)');
+
 /* Update toolbar chrome */
 function updateZoomChrome() {
   zoomLevelEl.textContent = Math.round(zoomTarget * 100) + '%';
@@ -1094,7 +1769,7 @@ function updateZoomChrome() {
   /* Desktop hides the arrows while zoomed; on mobile we KEEP them tappable so
      there's always a way to change pages during zoom (the toolbar is hidden on
      phones, and panning no longer flips pages). */
-  const hideArrows = zoomed && !window.matchMedia('(max-width: 600px)').matches;
+  const hideArrows = zoomed && !phoneViewer.matches;   // CHANGED: also keeps the arrows on a phone held sideways
   magPrev.style.pointerEvents = hideArrows ? 'none' : '';
   magNext.style.pointerEvents = hideArrows ? 'none' : '';
   magPrev.style.opacity       = hideArrows ? '0'    : '';
@@ -1232,18 +1907,74 @@ document.addEventListener('mouseup', () => {
   if (wrap) wrap.classList.remove('dragging');
 });
 
-/* Touch pinch + single-finger pan */
-let lastTouchDist = 0, lastPinchScale = 1;
+/* Touch pinch + single-finger pan
+   CHANGED (phone layout v2): pinch-to-zoom now follows the fingers.
+   Before, a pinch only nudged a "target" zoom level, and the picture then eased
+   towards it around the middle of the page. It lagged behind and drifted away from
+   where the fingers were. Now the point of the picture that is under the fingers
+   when the pinch starts stays under them for the whole gesture, and the two fingers
+   can slide the picture around as well. A double-tap zooms in and out.
+   The mouse wheel, the toolbar buttons and the keyboard shortcuts are untouched. */
+let pinch = null;                                  // set while two fingers are down
 let touchPanStartX = 0, touchPanStartY = 0;
 let touchOriginPanX = 0, touchOriginPanY = 0;
 
+/* helper: how far apart two fingers are, and the point half-way between them */
+function twoFingers(e) {
+  const a = e.touches[0], b = e.touches[1];
+  return {
+    dist: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+    midX: (a.clientX + b.clientX) / 2,
+    midY: (a.clientY + b.clientY) / 2
+  };
+}
+
+/* helper: set the zoom straight away (no easing) so that the picture point
+   (imgX, imgY) sits at the position (boxX, boxY) inside the page box */
+function zoomDirect(scale, imgX, imgY, boxX, boxY) {
+  if (zoomRAF) { cancelAnimationFrame(zoomRAF); zoomRAF = null; }   // stop any easing still running
+  zoomScale  = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, scale));
+  zoomTarget = zoomScale;
+  panX = boxX - imgX * zoomScale;
+  panY = boxY - imgY * zoomScale;
+  commitZoom();          // draws it, and keeps the picture inside the page box
+  updateZoomChrome();
+}
+
+/* helper: glide to a zoom level over a quarter of a second, keeping the picture point
+   that is at (clientX, clientY) on the screen in place. Used by double-tap. */
+let glideRAF = null;
+function glideZoomTo(target, clientX, clientY) {
+  const img = getActiveImg();
+  if (!img) return;
+  const rect = img.closest('.p-image').getBoundingClientRect();
+  const boxX = clientX - rect.left, boxY = clientY - rect.top;
+  const imgX = (boxX - panX) / zoomScale;          // the point of the picture under the finger
+  const imgY = (boxY - panY) / zoomScale;
+  const from = zoomScale, startedAt = performance.now(), pageAtStart = currentPage;
+  cancelAnimationFrame(glideRAF);
+  (function step() {
+    if (currentPage !== pageAtStart || !overlay.classList.contains('open')) return;   // page turned or viewer closed: stop
+    const k = Math.min(1, (performance.now() - startedAt) / 250);
+    const eased = 1 - Math.pow(1 - k, 3);          // quick at first, gentle at the end
+    zoomDirect(from + (target - from) * eased, imgX, imgY, boxX, boxY);
+    if (k < 1) glideRAF = requestAnimationFrame(step);
+  })();
+}
+
 overlay.addEventListener('touchstart', e => {
   if (e.touches.length === 2) {
-    lastTouchDist  = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
-    lastPinchScale = zoomScale;
+    const img = getActiveImg();
+    if (!img) return;
+    cancelAnimationFrame(glideRAF);
+    const rect = img.closest('.p-image').getBoundingClientRect();
+    const f = twoFingers(e);
+    pinch = {
+      startDist:  f.dist || 1,
+      startScale: zoomScale,
+      imgX: (f.midX - rect.left - panX) / zoomScale,   // which point of the picture is under the fingers
+      imgY: (f.midY - rect.top  - panY) / zoomScale
+    };
   } else if (e.touches.length === 1 && zoomScale > 1.005) {
     touchPanStartX  = e.touches[0].clientX;
     touchPanStartY  = e.touches[0].clientY;
@@ -1253,22 +1984,74 @@ overlay.addEventListener('touchstart', e => {
 }, { passive: true });
 
 overlay.addEventListener('touchmove', e => {
-  if (e.touches.length === 2) {
+  if (e.touches.length === 2 && pinch) {
     e.preventDefault();
-    const dist = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
-    const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-    const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-    setZoomTarget(lastPinchScale * (dist / lastTouchDist), midX, midY);
-  } else if (e.touches.length === 1 && zoomScale > 1.005) {
+    const img = getActiveImg();
+    if (!img) return;
+    const rect = img.closest('.p-image').getBoundingClientRect();
+    const f = twoFingers(e);
+    zoomDirect(pinch.startScale * (f.dist / pinch.startDist), pinch.imgX, pinch.imgY, f.midX - rect.left, f.midY - rect.top);
+  } else if (e.touches.length === 1 && zoomScale > 1.005 && !pinch) {
     e.preventDefault();
     panX = touchOriginPanX + (e.touches[0].clientX - touchPanStartX);
     panY = touchOriginPanY + (e.touches[0].clientY - touchPanStartY);
     commitZoom();
   }
 }, { passive: false });
+
+/* ADDED: when a finger lifts at the end of a pinch */
+overlay.addEventListener('touchend', e => {
+  if (!pinch || e.touches.length >= 2) return;
+  pinch = null;
+  if (zoomScale < 1.04) resetZoom();               // almost back to normal size: settle at exactly 100%
+  if (e.touches.length === 1) {                    // one finger is still down: carry on as a one-finger drag from here
+    touchPanStartX  = e.touches[0].clientX;
+    touchPanStartY  = e.touches[0].clientY;
+    touchOriginPanX = panX;
+    touchOriginPanY = panY;
+  }
+}, { passive: true });
+overlay.addEventListener('touchcancel', () => { pinch = null; }, { passive: true });
+
+/* ADDED: double-tap to zoom (touch screens)
+   • Zoomed out: a double-tap in the middle half of the page zooms in to 2.5x at that spot.
+     (The outer quarters of the page are the existing "tap to turn the page" areas,
+     so a double-tap there is left alone.)
+   • Zoomed in: a double-tap anywhere on the page goes back to normal size. */
+const DOUBLE_TAP_ZOOM = 2.5;
+let tapStartTime = 0, tapStartX = 0, tapStartY = 0, tapMoved = true;
+let lastTapTime = 0, lastTapX = 0, lastTapY = 0;
+
+overlay.addEventListener('touchstart', e => {
+  if (e.touches.length !== 1) { tapMoved = true; return; }           // two fingers: not a tap
+  tapStartTime = Date.now();
+  tapStartX = e.touches[0].clientX;
+  tapStartY = e.touches[0].clientY;
+  tapMoved = false;
+}, { passive: true });
+overlay.addEventListener('touchmove', e => {
+  if (e.touches.length !== 1 || Math.hypot(e.touches[0].clientX - tapStartX, e.touches[0].clientY - tapStartY) > 12) tapMoved = true;
+}, { passive: true });
+overlay.addEventListener('touchend', e => {
+  if (e.touches.length !== 0 || tapMoved || Date.now() - tapStartTime > 300) return;   // a drag or a long press, not a tap
+  if (!e.target.closest || !e.target.closest('#book')) { lastTapTime = 0; return; }     // only taps on the page count
+  const now = Date.now();
+  const isDouble = (now - lastTapTime < 320) && Math.hypot(tapStartX - lastTapX, tapStartY - lastTapY) < 40;
+  lastTapTime = isDouble ? 0 : now;
+  lastTapX = tapStartX;
+  lastTapY = tapStartY;
+  if (!isDouble) return;
+  const img = getActiveImg();
+  if (!img) return;
+  const rect = img.closest('.p-image').getBoundingClientRect();
+  if (zoomScale > 1.005) {
+    glideZoomTo(1, tapStartX, tapStartY);                              // zoomed in: back to normal size
+  } else {
+    const across = (tapStartX - rect.left) / rect.width;               // 0 = left edge of the page, 1 = right edge
+    if (across < 0.25 || across > 0.75) return;                        // the page-turn areas
+    glideZoomTo(DOUBLE_TAP_ZOOM, tapStartX, tapStartY);
+  }
+});
 
 /* Silent reset on page-change / close */
 function resetZoomSilent() {
@@ -1438,19 +2221,29 @@ function drawLens() {
     LENS_DIAMETER      /* dest height */
   );
 
-  /* Crosshair — red, thin, subtle */
-  lensCtx.strokeStyle = 'rgba(255,26,60,0.55)';
-  lensCtx.lineWidth   = 1;
+  /* Crosshair.
+     RED ACCENTS RESTORED (CHANGED, 9 October 2026): the small cross in the middle of the lens is red
+     again, as on the published site: one thin, see-through red line. (In Stage 4 it was drawn twice:
+     a soft dark line, 3px wide, with a thin white line on top of it.)
+     The line below that starts with [[ is a list. It holds one entry for each time the cross is drawn,
+     and an entry is [colour, width of the line in px]. If the red cross ever needs a dark edge to show
+     on a very busy picture, put the entry ['rgba(0,0,0,0.45)', 3] in front of the red one, with a comma
+     between them. */
   lensCtx.setLineDash([4, 4]);
-  lensCtx.beginPath();
-  lensCtx.moveTo(LENS_RADIUS, LENS_RADIUS - 12);
-  lensCtx.lineTo(LENS_RADIUS, LENS_RADIUS + 12);
-  lensCtx.moveTo(LENS_RADIUS - 12, LENS_RADIUS);
-  lensCtx.lineTo(LENS_RADIUS + 12, LENS_RADIUS);
-  lensCtx.stroke();
+  [['rgba(255,26,60,0.55)', 1]].forEach(([colour, width]) => {
+    lensCtx.strokeStyle = colour;
+    lensCtx.lineWidth   = width;
+    lensCtx.beginPath();
+    lensCtx.moveTo(LENS_RADIUS, LENS_RADIUS - 12);
+    lensCtx.lineTo(LENS_RADIUS, LENS_RADIUS + 12);
+    lensCtx.moveTo(LENS_RADIUS - 12, LENS_RADIUS);
+    lensCtx.lineTo(LENS_RADIUS + 12, LENS_RADIUS);
+    lensCtx.stroke();
+  });
   lensCtx.setLineDash([]);
 
-  /* Inner ring accent */
+  /* Inner ring accent. RED ACCENTS RESTORED (CHANGED): a faint red ring again, as on the published
+     site. (In Stage 4 it was a faint white one.) */
   lensCtx.strokeStyle = 'rgba(255,26,60,0.18)';
   lensCtx.lineWidth = 1;
   lensCtx.beginPath();
@@ -1459,12 +2252,23 @@ function drawLens() {
 
   lensCtx.restore();
 
-  /* Magnification label — bottom of lens */
+  /* Magnification label — bottom of lens.
+     STAGE 4 (CHANGED): it was 9px. It is 12px now.
+     RED ACCENTS RESTORED (CHANGED, 9 October 2026): the figure is red again, in the slightly see-through
+     red it has on the published site: 'rgba(255,26,60,0.7)'. The last number says how solid the red is,
+     from 0 (invisible) to 1 (solid). For a solid red figure write '#ff1a3c' in the "fillStyle" line.
+     In Stage 4 the figure was white, and a white figure needed a dark edge drawn around it to show on a
+     white page. A red figure shows on a white page and on a dark picture without one, and the dark
+     edge made the red look muddy. So the four lines that drew the edge were taken out. They stood
+     between the "textAlign" line and the "fillStyle" line below:
+       lensCtx.lineJoin = 'round';   lensCtx.lineWidth = 3;   lensCtx.strokeStyle = 'rgba(0,0,0,0.6)';
+       lensCtx.strokeText(LENS_MAGNIFY + '×', LENS_RADIUS, LENS_DIAMETER - 12);
+     Put them back there if the figure ever needs an edge again. */
   lensCtx.save();
-  lensCtx.font = '700 9px "Space Mono", monospace';
-  lensCtx.fillStyle = 'rgba(255,26,60,0.7)';
+  lensCtx.font = '700 12px "Space Mono", monospace';
   lensCtx.textAlign = 'center';
-  lensCtx.fillText(LENS_MAGNIFY + '×', LENS_RADIUS, LENS_DIAMETER - 10);
+  lensCtx.fillStyle = 'rgba(255,26,60,0.7)';
+  lensCtx.fillText(LENS_MAGNIFY + '×', LENS_RADIUS, LENS_DIAMETER - 12);
   lensCtx.restore();
 }
 
@@ -1600,8 +2404,334 @@ closeMagazine = function() {
   hideZoomHelp(false);
   _origCloseForHelp();
 };
+
+/* ══════════════════════════════════════════
+   ADDED: PHONE CONTROLS BAR
+   The bar under the page (previous / page count / next) that phones show
+   instead of the two side arrows. It is hidden on desktop.
+══════════════════════════════════════════ */
+const magPrevM = document.getElementById('magPrevM');          // "previous" button in the bar
+const magNextM = document.getElementById('magNextM');          // "next" button in the bar
+const magNumM  = document.getElementById('magPageNumM');       // the "2 / 4" text in the bar
+const magFillM = document.getElementById('magProgressFillM');  // the red progress line in the bar
+
+magPrevM.addEventListener('click', () => goToPage(currentPage - 1));
+magNextM.addEventListener('click', () => goToPage(currentPage + 1));
+
+/* Every time the page changes, copy the page count, the progress line and the
+   "first page / last page" state from the desktop controls into the bar. */
+const _goToPageBeforeBar = goToPage;
+goToPage = function(idx, animate) {
+  _goToPageBeforeBar(idx, animate);
+  magNumM.textContent  = magNum.textContent;
+  magFillM.style.width = magFill.style.width;
+  magPrevM.disabled    = magPrev.disabled;
+  magNextM.disabled    = magNext.disabled;
+};
+
+/* ══════════════════════════════════════════
+   ADDED: THE ONE-LINE TIP FOR PHONES
+   "Pinch or double-tap to zoom · Swipe to turn the page"
+   Shown once per visit, the first time a magazine is opened on a phone.
+   It fades away after five seconds, or as soon as the page is touched.
+══════════════════════════════════════════ */
+const magHint = document.getElementById('magHint');
+const HINT_SEEN_KEY = 'magTouchHintSeen';
+let magHintTimer = null, magHintShownAt = 0;
+
+function hideMagHint() {
+  clearTimeout(magHintTimer);
+  magHint.classList.remove('show');
+}
+
+const _openBeforeHint = openMagazine;
+openMagazine = function(mi) {
+  _openBeforeHint(mi);
+  if (!phoneViewer.matches) return;                // desktop has its own pop-up guide
+  let seen = false;
+  try { seen = sessionStorage.getItem(HINT_SEEN_KEY) === '1'; sessionStorage.setItem(HINT_SEEN_KEY, '1'); } catch (err) {}
+  if (seen) return;
+  clearTimeout(magHintTimer);
+  magHintTimer = setTimeout(() => {
+    magHint.classList.add('show');
+    magHintShownAt = Date.now();
+    magHintTimer = setTimeout(hideMagHint, 5000);   // fade away after five seconds
+  }, 500);
+};
+
+/* touching the page once the tip has been up for a moment also dismisses it */
+overlay.addEventListener('touchstart', () => {
+  if (magHint.classList.contains('show') && Date.now() - magHintShownAt > 1200) hideMagHint();
+}, { passive: true });
+
+const _closeBeforeHint = closeMagazine;
+closeMagazine = function() {
+  hideMagHint();
+  _closeBeforeHint();
+};
+magBack.addEventListener('click', hideMagHint);   // the close button too
+
+/* ══════════════════════════════════════════
+   STAGE 5 (ADDED): KEYBOARD AND REDUCE MOTION IN THE VIEWER
+   Nothing here changes how the viewer works with a mouse or a finger. The block adds what
+   a visitor needs who uses the keyboard, a screen reader or the "Reduce motion" setting:
+   1. When a magazine is opened with the keyboard, the keyboard goes to the "Close Magazine"
+      button, and on closing it goes back to the cover it came from. While the viewer is
+      open, the page behind it is switched off.
+   2. Only the page that is on show is read out by a screen reader, not the ones stacked
+      underneath it.
+   3. The help pop-up takes the keyboard when it opens and gives it back when it closes.
+   4. For a visitor whose device asks for less motion, a page changes at once (no page-turn)
+      and the picture jumps to a new zoom level instead of gliding there.
+   MOUSE AND TOUCH STAY AS THEY WERE. The steps that put the keyboard on a button (in parts
+   1, 2 and 3) are only taken for a visitor who is using the keyboard: someone who opened the
+   magazine with Enter or Space, or who has pressed the Tab key inside the viewer. After a
+   click or a tap no button is given the keyboard, so a press of Space or Enter afterwards
+   does not press a button the visitor never chose.
+   The block works the way the older blocks above it do: it "wraps" a function. It keeps the
+   existing function under a second name, then replaces it with a new one that calls the
+   old one and adds a step before or after.
+══════════════════════════════════════════ */
+const calmMotion  = window.matchMedia('(prefers-reduced-motion: reduce)');   // calmMotion.matches is true when the visitor's device asks for less motion
+const listView    = document.getElementById('gallery-view');                 // the page behind the viewer: its top bar and the three covers
+const themeButton = document.getElementById('themeToggle');                  // the sun / moon button, which stays usable on top of the viewer
+const helpGotIt   = document.getElementById('zoomHelpGotIt');                // "Got it" in the help pop-up
+const helpButtons = zoomHelp.querySelectorAll('button');                     // both buttons of the help pop-up: the X and "Got it"
+let openedFromCover = null;     // the cover that opened the viewer: the keyboard goes back to it on closing
+let helpOpenedFrom  = null;     // where the keyboard was when the help pop-up opened
+
+/* ── WHO IS USING THE KEYBOARD? ──
+   keyboardInUse    true when the last thing the visitor used was a key, false after a click or a tap.
+   keyboardVisitor  true while the open viewer is being used with the keyboard: it was opened with Enter or Space,
+                    or the Tab key has been pressed since it opened.
+   justMovedTo      the thing the keyboard has just been moved to by this script (see moveKeyboardTo below). */
+let keyboardInUse   = false;
+let keyboardVisitor = false;
+let justMovedTo     = null;
+document.addEventListener('keydown', e => {
+  keyboardInUse = true;
+  /* the Tab key (not Ctrl+Tab or Alt+Tab, which belong to the browser and the computer) pressed inside the open viewer */
+  if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.metaKey && overlay.classList.contains('open')) keyboardVisitor = true;
+  /* a key that is still being held does not press the thing the keyboard has just been moved to (see moveKeyboardTo) */
+  if (e.repeat && e.target === justMovedTo && (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar')) e.preventDefault();
+}, true);
+document.addEventListener('keyup',       () => { justMovedTo = null; }, true);
+document.addEventListener('pointerdown', () => { keyboardInUse = false; justMovedTo = null; }, true);
+
+/* MOVING THE KEYBOARD. Every step below that puts the keyboard on something goes through this function.
+   "preventScroll" tells the browser not to scroll the page to that thing.
+   It also remembers that thing, for this reason: a key that is held down repeats itself many times a second. If
+   the keyboard is moved to a button while Enter or Space is still down, those repeats would press that button as
+   well, and a cover opened with a long press of Enter would close again at once. So the thing the keyboard has
+   just been moved to ignores a key that is still being held (the line marked above). It answers to the next
+   fresh press. */
+function moveKeyboardTo(element) {
+  element.focus({ preventScroll: true });
+  justMovedTo = element;
+}
+
+/* ── 1. IN AND OUT OF THE VIEWER ── */
+/* The viewer as a whole is made able to hold the keyboard. tabindex="-1" means: only when this script puts it
+   there. It never becomes a stop for the Tab key, and no outline is drawn around it (the style sheet sees to
+   that: search for "THE VIEWER ITSELF" there). */
+overlay.setAttribute('tabindex', '-1');
+/* A closed viewer is switched off as a whole ("inert": it cannot be clicked, reached with the Tab key or read out),
+   from the very moment it closes. The style sheet takes a closed viewer out of reach as well, but only when its
+   fade-out is over, 0.4 seconds later (search for "THE CLOSED VIEWER" there). Without this, the Tab key could still
+   land on the viewer's buttons during that moment. The viewer is switched on again in the first line of the
+   opening step below. */
+overlay.setAttribute('inert', '');
+
+function keyboardIntoViewer(mi) {
+  const here = document.activeElement;                                       // what the keyboard is on right now
+  keyboardVisitor = keyboardInUse;                                           // opened with Enter or Space (true), or with a click or a tap (false)
+  openedFromCover = (here && listView.contains(here)) ? here : grid.children[mi];
+  /* "inert" switches a part of the page off: it cannot be clicked, reached with the Tab key or read out.
+     (Browsers from before 2023 do not know it and ignore the line; the "focusin" guard below covers them.) */
+  listView.setAttribute('inert', '');
+  /* With the keyboard: on to "Close Magazine", the first button of the viewer.
+     After a click or a tap: on to the viewer as a whole. No button is given the keyboard and nothing is outlined,
+     so Space and Enter do nothing, exactly as before. (The keyboard cannot stay where it was: a click leaves it
+     on the cover, and the cover is part of the page that has just been switched off.) */
+  moveKeyboardTo(keyboardVisitor ? magBack : overlay);
+}
+function keyboardOutOfViewer() {
+  listView.removeAttribute('inert');                                         // the page behind the viewer is switched on again
+  if (keyboardVisitor && openedFromCover && document.contains(openedFromCover)) moveKeyboardTo(openedFromCover);   // with the keyboard: back to the cover
+  else if (overlay.contains(document.activeElement)) document.activeElement.blur();   // after a click or a tap: the keyboard is on nothing, as before ("blur" = let go)
+  openedFromCover = null;
+  keyboardVisitor = false;
+  overlay.setAttribute('inert', '');                                         // the closed viewer is switched off
+}
+
+const _openMagazineBeforeStage5 = openMagazine;
+openMagazine = function (mi) {
+  /* While a page is turning, the viewer ignores every other page change for three quarters of a second (it keeps
+     the note "isFlipping" for that). If a magazine was closed in the middle of a page-turn and opened again
+     straight away, the note was still set: the page it should open on could not be put in place, and the page on
+     show and the page count disagreed. A magazine that is being opened is never in the middle of a turn, so the
+     note is cleared first. */
+  isFlipping = false;
+  overlay.removeAttribute('inert');      // the viewer is switched on (see "A closed viewer is switched off" above)
+  _openMagazineBeforeStage5(mi);
+  keyboardIntoViewer(mi);
+};
+
+const _closeMagazineBeforeStage5 = closeMagazine;
+closeMagazine = function () {            // this is what the Escape key calls
+  _closeMagazineBeforeStage5();
+  keyboardOutOfViewer();
+};
+/* The "Close Magazine" button was wired, near the top of this script, to the very first closeMagazine,
+   so it does not pass through the wrapper above. It is told separately. */
+magBack.addEventListener('click', keyboardOutOfViewer);
+
+/* For browsers that do not know "inert": if the keyboard lands on something behind the open viewer,
+   it is sent back in. (In current browsers this never happens, and the lines do nothing.) */
+document.addEventListener('focusin', e => {
+  if (!overlay.classList.contains('open')) return;
+  if (overlay.contains(e.target) || e.target === themeButton) return;
+  moveKeyboardTo(magBack);
+});
+
+/* ── 2. ONLY THE PAGE ON SHOW ──
+   All the pages of a magazine lie on top of each other, so a screen reader read out the descriptions
+   of all of them, one after the other. Now every page except the one on show is marked aria-hidden
+   ("not there, as far as a screen reader is concerned"). The mark moves each time the page changes. */
+function showOnlyCurrentPage() {
+  book.querySelectorAll('.page').forEach((page, i) => {
+    if (i === currentPage) page.removeAttribute('aria-hidden'); else page.setAttribute('aria-hidden', 'true');
+  });
+}
+
+const _goToPageBeforeStage5 = goToPage;
+goToPage = function (idx, animate) {
+  const keyboardWasOn = document.activeElement;             // what the keyboard is on before the page changes
+  /* less motion asked for: "false" means "change the page at once, without the page-turn" */
+  _goToPageBeforeStage5(idx, calmMotion.matches ? false : animate);
+  showOnlyCurrentPage();
+  if (!keyboardVisitor) return;                             // after a click or a tap the keyboard is not moved
+  /* On the first and on the last page one of the two arrow buttons is switched off. If the keyboard was on
+     that button it would be left on nothing, so it moves to the arrow that still works.
+     (The first two pairs are the arrows beside the page, the last two the arrows in the bar on phones.) */
+  [[magNext, magPrev], [magPrev, magNext], [magNextM, magPrevM], [magPrevM, magNextM]].forEach(([off, other]) => {
+    if (keyboardWasOn === off && off.disabled && !other.disabled) moveKeyboardTo(other);
+  });
+};
+
+/* ── 3. THE HELP POP-UP ── */
+const _showZoomHelpBeforeStage5 = showZoomHelp;
+showZoomHelp = function () {
+  _showZoomHelpBeforeStage5();
+  helpButtons.forEach(button => button.removeAttribute('tabindex'));         // its two buttons are stops for the Tab key again (see hideZoomHelp below)
+  if (getComputedStyle(zoomHelp).display === 'none') return;                 // phones do not show this pop-up at all
+  /* The very first time a magazine is opened, the pop-up comes up by itself after half a second. If the viewer was
+     closed again within that half second there is nothing to move the keyboard into, so the steps below are left out.
+     (The style sheet keeps a pop-up inside a closed viewer out of reach: search for "CLOSED HELP POP-UP" there.) */
+  if (!overlay.classList.contains('open')) return;
+  if (!zoomHelp.contains(document.activeElement)) helpOpenedFrom = document.activeElement;
+  /* The pop-up closes by itself after 15 seconds. That is fine for someone who glances at it, but not for
+     someone who is working through it with the keyboard. So for a visitor who is using the keyboard the
+     countdown is switched off, the pop-up stays until it is closed ("Got it", the X, or the Escape key),
+     and the keyboard goes to "Got it". After a click or a tap it counts down as before and the keyboard
+     is not moved. */
+  zoomHelp.classList.toggle('no-timer', keyboardVisitor);                    // the style sheet hides the countdown line for "no-timer"
+  if (!keyboardVisitor) return;
+  clearTimeout(zoomHelpTO); zoomHelpTO = null;
+  moveKeyboardTo(helpGotIt);
+};
+
+const _hideZoomHelpBeforeStage5 = hideZoomHelp;
+hideZoomHelp = function (collapse) {
+  const wasShowing     = zoomHelp.classList.contains('show');
+  const keyboardInside = zoomHelp.contains(document.activeElement);
+  _hideZoomHelpBeforeStage5(collapse);
+  /* The pop-up takes a moment to shrink away and fade. Its two buttons stop being stops for the Tab key at once
+     (tabindex="-1"), so the keyboard cannot land on them while the pop-up is on its way out. They can still be
+     clicked during that moment, as before: a second click on the X must not fall through to the magazine page
+     underneath, where it would turn the page. */
+  helpButtons.forEach(button => button.setAttribute('tabindex', '-1'));
+  if (!wasShowing || !keyboardInside) return;
+  /* The keyboard was on one of the two buttons, and they are about to disappear.
+     With the keyboard: back to where it was before the pop-up opened (or to "Close Magazine" if that is not known,
+     or can no longer be pressed). After a click on one of the buttons: on to the viewer as a whole, where no key
+     presses anything, as before. */
+  let cameFrom = helpOpenedFrom;
+  if (!cameFrom || cameFrom === overlay || !overlay.contains(cameFrom) || zoomHelp.contains(cameFrom) || cameFrom.disabled) cameFrom = magBack;
+  moveKeyboardTo(keyboardVisitor ? cameFrom : overlay);
+  helpOpenedFrom = null;
+};
+
+/* ── 4. REDUCE MOTION: ZOOMING WITHOUT THE GLIDE ──
+   Normally a zoom step glides: the picture grows or shrinks over a moment. For a visitor whose device
+   asks for less motion it jumps straight to the new size. Zooming itself works exactly as before:
+   the mouse wheel, the + and - buttons and keys, 0 to reset, and a double-tap on touch screens. */
+const _setZoomTargetBeforeStage5 = setZoomTarget;
+setZoomTarget = function (t, focalClientX, focalClientY) {
+  const img = calmMotion.matches ? getActiveImg() : null;
+  if (!img) { _setZoomTargetBeforeStage5(t, focalClientX, focalClientY); return; }   // everybody else: the usual glide
+  const box = img.closest('.p-image').getBoundingClientRect();
+  /* the spot of the page that must stay where it is: the one under the mouse (wheel), or the middle of the page (buttons and keys) */
+  const boxX = focalClientX !== undefined ? focalClientX - box.left : box.width / 2;
+  const boxY = focalClientX !== undefined ? focalClientY - box.top  : box.height / 2;
+  const wanted = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(t * 100) / 100));    // the same limits and rounding as the usual zoom
+  zoomDirect(wanted, (boxX - panX) / zoomScale, (boxY - panY) / zoomScale, boxX, boxY);   // zoomDirect (further up) sets a zoom level at once
+};
+
+const _glideZoomToBeforeStage5 = glideZoomTo;
+glideZoomTo = function (target, clientX, clientY) {         // the double-tap zoom on touch screens
+  if (!calmMotion.matches) { _glideZoomToBeforeStage5(target, clientX, clientY); return; }
+  setZoomTarget(target, clientX, clientY);                  // the jump above, around the spot that was tapped
+};
+
+/* ══════════════════════════════════════════
+   ADDED: "Back to Portfolio" returns to where the visitor was
+   Projects now open in the same tab. If this page was reached from the
+   portfolio's home page, the back button steps back in the browser's history,
+   which lands on the same spot of the home page instead of reloading it from
+   the top. Reached any other way (a shared link, a bookmark), it works as a
+   normal link.
+══════════════════════════════════════════ */
+(function () {
+  var back = document.querySelector('.back-link');
+  if (!back) return;
+  back.addEventListener('click', function (e) {
+    /* leave "open in new tab" clicks (Ctrl / Cmd / middle button) alone */
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    var cameFromHome = false;
+    try {
+      var from = new URL(document.referrer);                               // the page the visitor came from
+      var home = new URL(back.getAttribute('href'), window.location.href); // the home page this button points to
+      var folder = home.pathname.replace(/index\.html$/, '');              // the same address without "index.html"
+      cameFromHome = from.origin === window.location.origin && (from.pathname === home.pathname || from.pathname === folder);
+    } catch (err) { /* no previous page: fall through to the normal link */ }
+    if (cameFromHome && window.history.length > 1) {
+      e.preventDefault();          // do not load a fresh copy of the home page...
+      window.history.back();       // ...go back to the one the visitor was on
+    }
+  });
+})();
 </script>
 
 
 <script>(function(){var b=document.getElementById('themeToggle');if(!b)return;function s(){var d=document.body.classList.contains('dark-theme');var l=d?'Switch to light mode':'Switch to dark mode';b.setAttribute('aria-label',l);b.title=l;}s();b.addEventListener('click',function(){document.body.classList.toggle('dark-theme');var d=document.body.classList.contains('dark-theme');try{localStorage.setItem('mb-theme',d?'dark':'light');}catch(e){}s();window.dispatchEvent(new Event('mb-theme-change'));});})();</script>
+<script>
+/* ADDED: keep the colour theme in step after "Back".
+   Projects now open in the same tab. When the visitor returns with "Back to Portfolio"
+   or the browser's Back button, the browser often shows this page straight from its
+   memory, exactly as it was left. If the light / dark theme was switched on another
+   page in the meantime, this applies the same choice here. A normal page load already
+   picks the right theme, so in that case this does nothing. */
+window.addEventListener('pageshow', function (e) {
+  if (!e.persisted) return;                                   // not restored from memory: nothing to do
+  try {
+    var wantDark = localStorage.getItem('mb-theme') !== 'light';
+    if (document.body.classList.contains('dark-theme') === wantDark) return;   // already showing the right theme
+    document.body.classList.toggle('dark-theme', wantDark);
+    var btn = document.getElementById('themeToggle');
+    if (btn) { var label = wantDark ? 'Switch to light mode' : 'Switch to dark mode'; btn.setAttribute('aria-label', label); btn.title = label; }
+    window.dispatchEvent(new Event('mb-theme-change'));       // lets other scripts on the page react to the change
+  } catch (err) {}
+});
+</script>
 </body></html>

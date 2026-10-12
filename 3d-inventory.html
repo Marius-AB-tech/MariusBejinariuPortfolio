@@ -13,8 +13,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);height:100vh
 
 /* ── HEADER ── */
 header{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:56px;border-bottom:1px solid var(--border);background:var(--nav-bg);flex-shrink:0;z-index:10;}
-.back-link{font-family:var(--mono);font-size:12px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color 0.2s;}
-.back-link:hover{color:var(--red);}
+.back-link{font-family:var(--mono);font-size:11px;letter-spacing:.5px;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:11px;border:1px solid transparent;background:linear-gradient(135deg,var(--pink),var(--red));box-shadow:0 6px 16px rgba(255,26,60,.32);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:color .2s,border-color .2s,background .25s,transform .2s,box-shadow .25s;}
+.back-link svg{width:14px;height:14px;stroke:currentColor;fill:none;transition:transform .2s;}
+.back-link:hover{color:var(--muted);border-color:var(--border);background:var(--panel-bg);box-shadow:none;transform:translateY(0);}
+.back-link:hover svg{transform:translateX(-3px);}
 .proj-title{font-family:var(--mono);font-size:13px;color:var(--red);letter-spacing:1px;}
 .tags{display:flex;gap:8px;}
 .tag{padding:3px 10px;border:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--muted);border-radius:2px;}
@@ -31,15 +33,16 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 4
 /* Right panel — WebGL container */
 .webgl-container{flex:1;background:var(--surf);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;position:relative;overflow:hidden;}
 .webgl-placeholder{text-align:center;padding:32px;}
-.webgl-icon{width:72px;height:72px;border:2px solid rgba(255,26,60,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px;}
+.webgl-icon{width:72px;height:72px;border:2px solid rgba(255,26,60,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px;color:var(--red);background:radial-gradient(circle at 50% 50%,rgba(255,26,60,0.08),transparent 70%);box-shadow:0 0 28px rgba(255,26,60,0.15),inset 0 0 18px rgba(255,26,60,0.06);}
 .webgl-label{font-family:var(--mono);font-size:11px;color:var(--text-faint);letter-spacing:1px;margin-bottom:8px;}
 iframe.webgl-frame{width:100%;height:100%;border:none;position:absolute;inset:0;display:none;z-index:1;}
-.load-btn{font-family:var(--mono);font-size:12px;color:var(--red);border:1.5px solid var(--red);background:transparent;padding:10px 24px;cursor:pointer;letter-spacing:1px;transition:all 0.2s;margin-top:4px;}
-.load-btn:hover{background:rgba(255,26,60,0.08);}
+.load-btn{font-family:var(--mono);font-size:12px;color:var(--red);border:1.5px solid var(--red);background:transparent;padding:11px 26px;cursor:pointer;letter-spacing:1px;border-radius:12px;transition:color .2s,background .25s,border-color .2s,box-shadow .25s,transform .2s;margin-top:4px;}
+.load-btn:hover{color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--pink),var(--red));box-shadow:0 8px 22px rgba(255,26,60,.38);transform:translateY(-2px);}
+.load-btn:active{transform:translateY(0);}
 
 /* Fullscreen button — visible after project loads */
-.fs-btn{position:absolute;top:12px;right:12px;z-index:5;font-family:var(--mono);font-size:10px;color:var(--muted);background:var(--panel-bg);border:1px solid var(--border);padding:6px 12px;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;display:none;backdrop-filter:blur(4px);}
-.fs-btn:hover{color:var(--red);border-color:rgba(255,26,60,0.4);}
+.fs-btn{position:absolute;top:12px;right:12px;z-index:5;font-family:var(--mono);font-size:10px;color:var(--muted);background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:7px 13px;cursor:pointer;letter-spacing:0.5px;transition:color .2s,border-color .2s,background .2s,box-shadow .2s,transform .15s;display:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 4px 14px rgba(0,0,0,.3);}
+.fs-btn:hover{color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--pink),var(--red));box-shadow:0 6px 18px rgba(255,26,60,.35);transform:translateY(-1px);}
 
 /* CSS fullscreen fallback */
 .webgl-container.is-fullscreen{position:fixed;inset:0;z-index:1000;border-radius:0;}
@@ -81,8 +84,8 @@ body.dark-theme{
   --border-2:#444444; --nav-bg:rgba(7,7,7,0.92); --panel-bg:rgba(7,7,7,0.75);
 }
 *,*::before,*::after{transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease,stroke .35s ease;}
-.theme-toggle{position:fixed;top:12px;left:14px;z-index:1000;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;background:var(--panel-bg);border:1px solid var(--border);color:var(--text);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:background-color .35s ease,color .2s ease,border-color .2s ease,transform .2s ease;}
-.theme-toggle:hover{border-color:var(--red);color:var(--red);transform:scale(1.06);}
+.theme-toggle{position:fixed;top:12px;left:14px;z-index:1000;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;background:var(--panel-bg);border:1px solid var(--border);color:var(--text);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.3);transition:background-color .35s ease,color .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease;}
+.theme-toggle:hover{border-color:var(--red);color:var(--red);transform:scale(1.08);box-shadow:0 6px 18px rgba(255,26,60,.28),0 0 0 1px rgba(255,26,60,.25);}
 .theme-toggle svg{width:17px;height:17px;display:block;}
 .theme-toggle .ic-sun{display:none;}
 body.dark-theme .theme-toggle .ic-sun{display:block;}
@@ -106,6 +109,286 @@ header{padding-left:84px;}
   /* a little more breathing room in the stacked info panel */
   .project-info { padding: 22px 20px; }
 }
+
+/* ════════ PHONE LAYOUT v2 (added) ════════
+   In plain words, this block does three things:
+   1. Tidies the header on phones: an arrow-only back button and a one-line title.
+   2. Shows the size of the 3D download, and asks before starting it, on phones.
+   3. Keeps the page usable when a phone is held sideways.
+   None of it applies to a desktop-sized screen with a mouse. */
+
+/* — the size note and the warning pop-up exist only for phones; hidden everywhere else — */
+.load-size, .load-warn { display: none; }
+
+@media (max-width: 600px) {
+  /* — HEADER: arrow-only back button and a one-line title —
+     "font-size: 0" hides the words "Back to Portfolio" but keeps the arrow;
+     the link still carries the full name for screen readers (aria-label in the HTML). */
+  header { justify-content: flex-start; gap: 12px; padding-right: 16px; }
+  .back-link { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; gap: 0; justify-content: center; font-size: 0; letter-spacing: 0; border-radius: 12px; }
+  .back-link svg { width: 18px; height: 18px; }
+  .proj-title { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* — SIZE WARNING: phones only. "Phone" here means a screen up to 600px wide, or a phone held
+     sideways (a short, wide touch screen). Tablets and desktops are not affected. — */
+@media (max-width: 600px), (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  /* the small line under the "Load Project" button */
+  .load-size { display: block; margin-top: 14px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.5px; color: var(--text-faint); }
+
+  /* the pop-up that appears after "Load Project" is tapped (the page script adds "show").
+     ".load-warn" is the dark sheet covering the whole screen; ".load-warn-card" is the box in the middle.
+     Covering the screen means the box always fits, however small the 3D area is. */
+  .load-warn.show { display: flex; }
+  .load-warn { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1500; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,0.6); }
+  .load-warn-card { width: 100%; max-width: 340px; max-height: 100%; overflow-y: auto; padding: 22px 20px 14px; text-align: center; background: var(--bg); border: 1px solid var(--border-2); border-radius: 16px; box-shadow: 0 18px 44px rgba(0,0,0,.45); }
+  .load-warn-title { font-family: var(--sans); font-weight: 600; font-size: 17px; color: var(--red); margin-bottom: 10px; }
+  .load-warn-text { font-size: 13px; line-height: 1.6; color: var(--text-2); margin-bottom: 18px; }
+  .load-warn-go { display: block; width: 100%; min-height: 48px; border: none; border-radius: 11px; cursor: pointer; background: var(--red); color: #fff; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+  .load-warn-go:active { background: var(--pink); }
+  .load-warn-cancel { display: block; width: 100%; min-height: 44px; margin-top: 4px; border: none; background: none; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: 1px; }
+}
+
+/* — PHONE HELD SIDEWAYS: put the text beside the 3D area instead of above it.
+     Stacked, the 3D area was squeezed into a thin strip and its button was cut off. — */
+@media (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  .main { flex-direction: row; }
+  .project-info { width: 40%; max-width: 320px; padding: 16px 20px; border-bottom: none; border-right: 1px solid var(--border); justify-content: flex-start; overflow-y: auto; }
+  .webgl-placeholder { padding: 12px; }
+  .webgl-icon { width: 52px; height: 52px; font-size: 20px; margin-bottom: 10px; }
+  .load-warn-card { padding: 14px 18px 8px; max-width: 420px; }
+  .load-warn-title { font-size: 15px; margin-bottom: 6px; }
+  .load-warn-text { font-size: 12px; line-height: 1.5; margin-bottom: 10px; }
+  .load-warn-go { min-height: 44px; }
+  .load-warn-cancel { min-height: 40px; margin-top: 0; }
+}
+
+/* ════════ STAGE 4 (ADDED): VISUAL POLISH ════════
+   This block is the whole of Stage 4 for the look of this page. In plain words it does five things:
+   1. LARGER TEXT. Running text is at least 16px, supporting text at least 14px, and no label
+      is smaller than 12px. (Before, running text was 13 to 15px and some labels were 7px.)
+   2. ONE HEADING STYLE. Every heading uses Space Grotesk in bold, the typeface of the body text.
+   3. ONE BUTTON STYLE. Rounded corners and soft shadows on every page. There is one look for
+      the MAIN button of a screen (filled red, white label) and one for PLAIN buttons (a soft panel).
+   4. RED ON THE MAIN ACTION ONLY. Red now marks the one thing a visitor is meant to press on
+      each screen. Everything else that used to be red is black, white or grey.
+   5. LIGHT THEME FINISHED. Colours that were too faint on a white page are darker there.
+   WHY THE BLOCK IS AT THE END OF THE STYLE SHEET: when two rules set the same thing, the browser
+   follows the one that comes later. So the rules here replace the older ones above them, and
+   the older ones did not have to be rewritten. To undo a part of Stage 4, delete that part of
+   this block. The same block, with the same colours, is at the end of all five pages. */
+
+/* — THE COLOURS AND THE TYPEFACE used by the rules below. The first list is for the light theme,
+     the second for the dark theme. Changing a colour here changes it everywhere on this page. — */
+:root {
+  --heading: 'Space Grotesk', sans-serif;          /* the typeface of every heading */
+  --action: #c8102e;                               /* red for the WORDS of a main action; deep enough to read on white */
+  --action-a: #e6103a;                             /* the fill of a main button runs from this red... */
+  --action-b: #c40027;                             /* ...to this one. Both are dark enough for a white label. */
+  --action-glow: rgba(200,16,46,.26);              /* the soft glow under a main button */
+  --panel: #ffffff;                                /* the fill of a plain button */
+  --panel-edge: #d3d3d9;                           /* its outline */
+  --panel-shadow: 0 4px 14px rgba(20,20,30,.10);   /* its soft shadow */
+  --line: #85858c;                                 /* a stronger outline, for example a plain button under the mouse */
+  --quiet: #6a6a71;                                /* grey for small secondary words */
+  --ring: #15151a;                                 /* the outline around a button or box reached with the Tab key */
+  --text-faint: #6a6a71;                           /* was #74747c, slightly too faint to read on the grey sections */
+}
+body.dark-theme {
+  --action: #ff1a3c;
+  --action-glow: rgba(255,26,60,.30);
+  --panel: #151517;
+  --panel-edge: #303034;
+  --panel-shadow: 0 6px 18px rgba(0,0,0,.35);
+  --line: #6a6a6a;
+  --quiet: #aaaaaa;
+  --ring: #ffffff;
+  --text-faint: #888888;                           /* unchanged in the dark theme */
+}
+
+/* ── 1. LARGER TEXT ── (the old size is given after each new one) */
+.proj-title { font-size: 14px; }                                        /* the page's name in the top bar: was 13px */
+.tag { padding: 4px 10px; font-size: 12px; }                            /* the small tags: was 10px */
+.project-info .desc { font-size: 16px; }                                /* the description: was 13px */
+.webgl-label { font-size: 13px; }                                       /* "UNITY WEBGL BUILD": was 11px */
+.load-size { font-size: 13px; }                                         /* "Up to ... MB · best on Wi-Fi" (phones): was 11px */
+.load-warn-text { font-size: 15px; }                                    /* the text of the size warning (phones): was 13px */
+/* the panel with the description is 40px wider on a computer, for its larger text ("min-width: 801px" = screens where it sits beside the 3D area) */
+@media (min-width: 801px) { .project-info { width: 400px; } }
+
+/* ── 2. ONE HEADING STYLE ── */
+.project-info h1 { font-family: var(--heading); font-size: clamp(24px, 2.8vw, 34px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; text-wrap: balance; }   /* the page title was in Space Mono; "balance" = lines of similar length when it wraps */
+.load-warn-title { font-family: var(--heading); font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }   /* the title of the size warning (phones) */
+
+/* ── 3. ONE BUTTON STYLE ──
+   The MAIN button of this page is "Load Project" (and "Load anyway" in the size warning on phones):
+   filled red, white label, soft glow, like every main button of the site. */
+.load-btn, .load-warn-go { min-height: 46px; padding: 13px 24px; border: 1px solid transparent; border-radius: 12px; color: #fff; background: linear-gradient(135deg, var(--action-a), var(--action-b)); box-shadow: 0 8px 20px var(--action-glow); font-size: 14px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }
+.load-btn { margin-top: 10px; }
+.load-warn-go { min-height: 48px; }
+.load-btn:hover, .load-warn-go:active { color: #fff; border-color: transparent; background: linear-gradient(135deg, #d80a33, #b00022); box-shadow: 0 10px 26px rgba(255,26,60,.40); transform: none; }   /* a little deeper and brighter under the mouse; it no longer hops up, like the main buttons of the other pages */
+/* PLAIN buttons: "Back to Portfolio" used to be filled red, although it is not the main action
+   of this page. It is a soft panel now, and so is "Fullscreen". */
+.back-link, .fs-btn { color: var(--text); background: var(--panel); border-color: var(--panel-edge); border-radius: 12px; box-shadow: var(--panel-shadow); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.back-link:hover, .fs-btn:hover { color: var(--text-strong); background: var(--panel); border-color: var(--line); box-shadow: var(--panel-shadow); }
+.fs-btn { min-height: 38px; padding: 9px 16px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }   /* was 10px */
+/* the lettering of "Back to Portfolio", on screens wider than a phone. (On phones this button shows only
+   an arrow: the older phone rules hide the words by setting their size to 0, and that must not be undone here.) */
+@media (min-width: 601px) {
+  .back-link { min-height: 38px; padding: 9px 16px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }   /* was 11px */
+  /* the top bar must stay on one line: the button and the three tags never break in two, and if the
+     window is too narrow for the page's name, the name is shortened with "…" */
+  .back-link, header .tags { flex: 0 0 auto; white-space: nowrap; }
+  .proj-title { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+/* NARROW WINDOWS AND SMALL TABLETS (601 to 760px wide). The larger lettering needs more room than the
+   top bar has at this width: "Back to Portfolio" and the page's name each broke onto two lines.
+   So here the button, the name and the three tags are a little more compact. Nothing is left out. */
+@media (min-width: 601px) and (max-width: 760px) {
+  header { gap: 12px; padding-right: 20px; }                            /* the bar's right-hand margin: was 48px */
+  .back-link { padding: 9px 12px; font-size: 12px; }                    /* 1px smaller than on wider screens, still larger than the old 11px */
+  .proj-title { font-size: 13px; letter-spacing: 0.5px; }               /* the old size, with tighter spacing */
+  header .tags { gap: 6px; }
+  header .tag { padding: 3px 7px; }
+}
+/* "Not now" in the size warning (phones): plain words, a little larger */
+.load-warn-cancel { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; color: var(--text); }   /* was 12px */
+/* a button reached with the Tab key gets a clear outline, in black or white */
+.load-btn:focus-visible, .load-warn-go:focus-visible, .load-warn-cancel:focus-visible, .back-link:focus-visible, .fs-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+
+/* NOTE (9 October 2026): PART 4 BELOW IS REVERSED FURTHER DOWN. The block "RED ACCENTS RESTORED" at the end of
+   this style sheet puts the red back on the things listed in part 4, and on the headings and buttons that
+   parts 2 and 3 had turned black, white or grey. The rules of part 4 are still here, but wherever that later
+   block names the same thing it has the last word. The other parts of Stage 4 (larger text, the heading
+   typeface, the shape of the buttons, the light theme) are not affected. */
+/* ── 4. RED ON THE MAIN ACTION ONLY ──
+   What stays red on this page: "Load Project" and "Load anyway" (part 3). Everything below
+   used to be red and is now black, white or grey. */
+.proj-title { color: var(--text-strong); }                               /* the page's name in the top bar */
+.theme-toggle:hover { border-color: var(--line); color: var(--text-strong); box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+.webgl-icon { border-color: var(--line); color: var(--text); background: none; box-shadow: none; }   /* the round badge above the button */
+.load-warn-title { color: var(--text-strong); }                          /* the title of the size warning */
+
+/* ── PHONES ──
+   The older phone rules sit higher up in this style sheet, so the new rules above would win over
+   them. Where a phone needs its own value, it is given again here. */
+@media (max-width: 800px) {
+  .project-info h1 { font-size: 24px; }                                  /* was 22px */
+  /* SHORT SCREENS. Up to 800px wide the description sits above the 3D area, and the two share the height of
+     the screen. On a short phone there was not enough height for both: the 3D area was squeezed, and the note
+     under "Load Project" (with larger text, part of the button too) was cut off with no way to reach it.
+     Now the 3D area always keeps the height its contents need (270px), and when the screen is too short for
+     both parts, this part of the page scrolls. On taller screens nothing changes.
+     ":not(.is-fullscreen)" = not while the 3D view is shown full screen. */
+  .main { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .webgl-container:not(.is-fullscreen) { flex: 1 0 auto; min-height: 270px; }
+}
+@media (max-width: 600px) {
+  .proj-title { font-size: 13px; }                                       /* was 12px */
+  .fs-btn { min-height: 40px; }
+}
+/* a short phone screen (up to 620px high): the round badge and the space around it are smaller, so that
+   "Load Project" is in view without scrolling, as it was before the text grew */
+@media (max-width: 600px) and (max-height: 620px) {
+  .webgl-placeholder { padding: 12px 24px 16px; }                        /* was 32px all round */
+  .webgl-icon { width: 52px; height: 52px; margin-bottom: 10px; font-size: 20px; }   /* was 72px */
+  .webgl-container:not(.is-fullscreen) { min-height: 204px; }
+}
+/* a phone held sideways: the size warning has less height to work with */
+@media (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  /* here the description sits beside the 3D area, not above it, so the "short screens" rule above is switched off again */
+  .main { overflow-y: hidden; }
+  .webgl-container:not(.is-fullscreen) { flex: 1 1 0%; min-height: 0; }
+  .load-warn-title { font-size: 17px; }
+  .load-warn-text { font-size: 14px; }
+  .load-warn-go { min-height: 44px; }
+}
+/* ════════ END OF STAGE 4 ════════ */
+
+/* ════════ STAGE 5 (ADDED): ACCESSIBILITY ════════
+   This block is the style-sheet part of Stage 5 for this page. In plain words:
+   • KEYBOARD. Whatever can be pressed gets a clear outline when it is reached with the Tab key.
+     The outline is near-black in the light theme and white in the dark theme, so it always
+     stands out. A mouse click or a tap does not show it.
+   • REDUCE MOTION. Phones and computers have a setting called "Reduce motion" (people who get
+     dizzy or distracted by moving pictures switch it on). Every rule inside
+     "@media (prefers-reduced-motion: reduce) { ... }" applies only to those visitors.
+     Everybody else sees the page exactly as before.
+   Like the Stage 4 block, this one sits at the end of the style sheet so that its rules win over
+   the older ones above them. To undo a part of Stage 5, delete that part of this block. */
+
+/* ── 1. KEYBOARD: A CLEAR OUTLINE ──
+   ":focus-visible" means: the link or button the keyboard is on right now.
+   var(--ring) is the outline colour from the Stage 4 list above: near-black in the light theme, white in the dark theme.
+   (The buttons of this page already had this outline since Stage 4. This line also gives it to the sun / moon button.) */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+/* "Fullscreen" lies on top of the running 3D view, which can be any colour (a near-black outline would not show on a
+   dark scene). A 3px band in the colour of the theme is put between the button and its outline (the first part of
+   "box-shadow"; the second part is the button's usual shadow), so the outline always has a contrasting edge. */
+.fs-btn:focus-visible { box-shadow: 0 0 0 3px var(--bg), var(--panel-shadow); }
+/* THE WARNING ITSELF. After a tap on "Load Project" (phones), the page script puts the keyboard on the size warning as
+   a whole and not on one of its two buttons (search for "The warning as a whole" there). The warning covers the screen,
+   so an outline around it would only be a stray line along the edges. This rule makes sure none is drawn. */
+#loadWarn:focus { outline: none; }
+
+/* ── 2. REDUCE MOTION ──
+   Only for visitors whose phone or computer asks for less motion (see the note at the top of this block).
+   This page has very little movement of its own: three buttons that grow or nudge under the mouse. They stay still now.
+   (What happens inside the 3D view after "Load Project" belongs to the Unity build and is not changed by this page.) */
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle:hover, .fs-btn:hover, .load-btn:hover, .load-btn:active, .back-link:hover svg { transform: none; }
+}
+/* ════════ END OF STAGE 5 ════════ */
+
+/* ════════ RED ACCENTS RESTORED (ADDED 9 October 2026) ════════
+   Stage 4 took the red off everything except the main button of each screen. This block puts the
+   red back where the published site has it. In plain words:
+   • WHAT IT DOES. Each rule below gives one thing its red back: a colour for words, an outline,
+     a fill or a glow. The note after each rule says what the thing is.
+   • WHY IT IS AT THE END OF THE STYLE SHEET. When two rules set the same thing, the browser
+     follows the one that comes later. This block comes after Stage 4 and Stage 5, so it has the
+     last word on these colours, and nothing above it had to be rewritten.
+     To undo all of it, delete this block. To undo one thing, delete its line.
+   • WHAT IT DOES NOT TOUCH. Text sizes, typefaces, the shape of the buttons, the layout, the
+     keyboard outlines and everything the page does. Only colours, tints and glows change.
+   • WHICH RED IS USED WHERE.
+     var(--action)   The red for words. In the dark theme it is the red of the published site
+                     (#ff1a3c). In the light theme it is a slightly deeper red (#c8102e), because
+                     the bright one is hard to read on white.
+                     Both values are set in the Stage 4 list of colours; change them there.
+     var(--red)      Always the red of the published site (#ff1a3c), in both themes. Used for the
+                     edge and the sign of the sun / moon button.
+     the red fill    "linear-gradient(135deg, var(--action-a), var(--action-b))" is the fill of the
+                     main button ("Load Project"). A red button uses the same fill, so that all
+                     red buttons of the site look alike and their white lettering can be read.
+     rgba(255,26,60, 0.3) and similar: the red of the published site, see-through. The last
+                     number says how solid it is, from 0 (invisible) to 1 (solid). Tints and glows
+                     are copied from the published site as they are. */
+
+/* the page's name in the top bar: red again */
+.proj-title { color: var(--action); }
+
+/* "Back to Portfolio": a red button again, the same as on the gallery and reel pages.
+   (On the published 3D pages it is a plain grey link. Deleting the next rule does not give that link:
+   it gives back the plain button of 8 October.)
+   • "background-origin: border-box" lets the fill run under the 1px edge of the button as well,
+     so that no hairline of a different red shows along that edge.
+   • Under the mouse the button turns into a plain panel. That needs no rule here: the Stage 4
+     rule for ".back-link:hover" is more specific than this one, so it still applies. */
+.back-link { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--action-a), var(--action-b)); background-origin: border-box; box-shadow: 0 6px 16px rgba(255,26,60,.32); }
+
+/* the round badge above "Load Project": its ring is a faint red again (the sign inside keeps the colour of the text) */
+.webgl-icon { border-color: rgba(255,26,60,0.3); }
+
+/* "Fullscreen" under the mouse: red words and a red-tinted edge */
+.fs-btn:hover { color: var(--action); border-color: rgba(255,26,60,0.4); }
+
+/* the sun / moon button under the mouse: red edge and red sign */
+.theme-toggle:hover { border-color: var(--red); color: var(--red); }
+
+/* phones: the title of the size warning ("Large download: up to ... MB") */
+.load-warn-title { color: var(--action); }
+/* ════════ END OF RED ACCENTS RESTORED ════════ */
 </style>
 </head>
 <body class="dark-theme">
@@ -116,7 +399,7 @@ header{padding-left:84px;}
 </button>
 
 <header>
-  <a href="index.html" class="back-link">← Back to Portfolio</a>
+  <a href="index.html" class="back-link" aria-label="Back to Portfolio"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to Portfolio</a>
   <span class="proj-title">3D MODEL INVENTORY</span>
   <div class="tags">
     <span class="tag">Unity</span><span class="tag">WebGL</span><span class="tag">C#</span>
@@ -132,12 +415,30 @@ header{padding-left:84px;}
   </div>
   <div class="webgl-container" id="container">
     <div class="webgl-placeholder" id="placeholder">
-      <div class="webgl-icon">⬡</div>
+      <!-- STAGE 5 (CHANGED): aria-hidden="true" was added to the next line. The six-sided sign is
+           decoration; without this a screen reader would read out the name of the sign. -->
+      <div class="webgl-icon" aria-hidden="true">⬡</div>
       <div class="webgl-label">UNITY WEBGL BUILD</div>
-      <button class="load-btn" onclick="loadWebGL()">▶ Load Project</button>
+      <!-- CHANGED: the button now calls requestLoad(), which shows a size warning on phones first -->
+      <button class="load-btn" onclick="requestLoad()">▶ Load Project</button>
+      <!-- ADDED: phones only. The size of the download, shown under the button. -->
+      <div class="load-size">Up to 118 MB · best on Wi-Fi</div>
     </div>
     <button class="fs-btn" id="fsBtn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
-    <iframe class="webgl-frame" id="webglFrame" src="about:blank" allow="fullscreen" allowfullscreen></iframe>
+    <!-- STAGE 5 (CHANGED): title="..." was added to the next line. The 3D view is a page inside this
+         page (an "iframe"), and a screen reader announces it by this title. Without one it only said "frame". -->
+    <iframe class="webgl-frame" id="webglFrame" src="about:blank" title="3D view: 3D Model Inventory" allow="fullscreen" allowfullscreen></iframe>
+  </div>
+</div>
+<!-- ADDED: phones only. This pop-up appears when "Load Project" is tapped,
+     before anything is downloaded, so the visitor can choose. Tapping the dark area
+     around the box does the same as "Not now". -->
+<div class="load-warn" id="loadWarn" role="alertdialog" aria-modal="true" aria-labelledby="loadWarnTitle" aria-describedby="loadWarnText" onclick="if (event.target === this) cancelLoad()">
+  <div class="load-warn-card">
+    <div class="load-warn-title" id="loadWarnTitle">Large download: up to 118 MB</div>
+    <p class="load-warn-text" id="loadWarnText">This 3D build was made for desktop and tablet. On a phone it can take a while to load and may not run smoothly. If you are not on Wi-Fi it will use your mobile data.</p>
+    <button class="load-warn-go" type="button" onclick="confirmLoad()">Load anyway</button>
+    <button class="load-warn-cancel" type="button" onclick="cancelLoad()">Not now</button>
   </div>
 </div>
 <script>
@@ -151,6 +452,39 @@ function loadWebGL() {
   placeholder.style.display = 'none';
   fsBtn.style.display = 'block';
 }
+
+/* ════ ADDED: size warning before the 3D build downloads ════
+   The Unity files this page downloads add up to about 118 MB on disk (the web
+   server may compress some of them, so the real download can be a little smaller).
+   The figure is written in two places in the HTML above: the small note under the
+   "Load Project" button and the title of the pop-up. Change both if the build changes.
+   • On a desktop or tablet the build loads straight away, exactly as before.
+   • On a phone the visitor first sees the size and chooses whether to continue.
+   "Phone" means a screen up to 600px wide, or a phone held sideways (a short,
+   wide touch screen). This matches the "SIZE WARNING" rule in the CSS. */
+function needsSizeWarning() {
+  return window.matchMedia('(max-width: 600px), (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse)').matches;
+}
+
+/* The "Load Project" button calls this instead of loadWebGL() directly */
+function requestLoad() {
+  if (!needsSizeWarning()) { loadWebGL(); return; }           // desktop and tablet: load immediately, as before
+  document.getElementById('loadWarn').classList.add('show');   // phone: show the pop-up first
+}
+
+/* "Load anyway": hide the warning and start the download */
+function confirmLoad() {
+  document.getElementById('loadWarn').classList.remove('show');
+  loadWebGL();
+}
+
+/* "Not now" (or a tap on the dark area, or the Escape key): just close the pop-up */
+function cancelLoad() {
+  document.getElementById('loadWarn').classList.remove('show');
+}
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && document.getElementById('loadWarn').classList.contains('show')) cancelLoad();
+});
 
 /* True on phones / small touch screens, where requestFullscreen() on a
    <div>/<iframe> is unreliable (iOS Safari doesn't support it at all). */
@@ -216,7 +550,188 @@ document.addEventListener('keydown', e => {
     }
   }
 });
+
+/* ════ STAGE 5 (ADDED): KEYBOARD: the size warning and the 3D view ════
+   Nothing here changes what a click or a tap does. The block looks after the keyboard
+   (and a screen reader, which follows the keyboard) at three moments:
+   1. The size warning opens (phones). The page behind the warning is switched off until
+      the warning closes. For a visitor who is using the keyboard, the keyboard goes to the
+      warning's first button, "Load anyway".
+   2. The warning is closed with "Not now", the Escape key or a tap beside it. For a visitor
+      who is using the keyboard, the keyboard goes back to the "Load Project" button.
+   3. The 3D view starts: the "Load Project" button disappears at that moment, and the
+      keyboard used to be left on nothing. For a visitor who is using the keyboard it now
+      moves to the "Fullscreen" button, the next thing on the page.
+   MOUSE AND TOUCH STAY AS THEY WERE. "A visitor who is using the keyboard" means: someone
+   who pressed the button with a key, or who has pressed the Tab key while the warning was
+   up. After a click or a tap no new button is given the keyboard, so a press of Space or
+   Enter afterwards does not press a button the visitor never chose.
+   The page itself is never scrolled by any of this after a click or a tap: where the
+   keyboard is moved, the browser is told not to scroll to it ("preventScroll").
+   It works by "wrapping" four functions from above: each is kept under a second name and
+   replaced by a new one that calls the old one and adds a step. */
+(function () {
+  const warn     = document.getElementById('loadWarn');             // the size warning
+  const warnGo   = warn.querySelector('.load-warn-go');             // its "Load anyway" button
+  const loadBtn  = document.querySelector('.load-btn');             // "Load Project"
+  const fsBtn    = document.getElementById('fsBtn');                // "Fullscreen"
+  /* everything that lies behind the warning: the sun / moon button, the top bar and the rest of the page */
+  const behind   = [document.getElementById('themeToggle'), document.querySelector('header'), document.querySelector('.main')];
+  /* the screens that get the warning. These are the same words as in needsSizeWarning() above and in the
+     "SIZE WARNING" rule of the style sheet; if one of the three is changed, change the other two as well. */
+  const phoneScreen = window.matchMedia('(max-width: 600px), (max-height: 520px) and (orientation: landscape) and (hover: none) and (pointer: coarse)');
+  let keyboardVisitor       = false;                                // true while the warning on screen is being used with the keyboard (see the note at the top)
+  let lastInputWasKey       = false;                                // true when the last thing the visitor used was a key, false after a click or a tap
+  let keyboardWasOn         = null;                                 // what the keyboard was on at the moment the warning opened
+  let moveKeyboardAfterLoad = false;                                // true when the keyboard should go to "Fullscreen" once the 3D view starts
+  let pressedWithKeyboard   = false;                                // true when the button that started the 3D view was pressed with a key, not clicked or tapped
+  let justMovedTo           = null;                                 // the thing the keyboard has just been moved to by this script (see moveKeyboardTo)
+
+  /* "inert" switches a part of the page off: it cannot be clicked, reached with the Tab key or read out.
+     (Browsers from before 2023 do not know it and ignore it; the "focusin" guard at the end covers them.) */
+  function switchPageBehind(on) {
+    behind.forEach(part => { if (!part) return; if (on) part.removeAttribute('inert'); else part.setAttribute('inert', ''); });
+  }
+
+  /* MOVING THE KEYBOARD. Every step below that puts the keyboard on something goes through this function.
+     "preventScroll" tells the browser not to scroll the page to that thing (left out where "mayScroll" is given).
+     It also remembers that thing, for this reason: a key that is held down repeats itself many times a second.
+     If the keyboard is moved to a button while Enter or Space is still down, those repeats would press that
+     button as well: a long press of Enter on "Load Project" would answer the warning with "Load anyway" before
+     it could be read. So the thing the keyboard has just been moved to ignores a key that is still being held
+     (the last line of the "keydown" listener below). It answers to the next fresh press. */
+  function moveKeyboardTo(element, mayScroll) {
+    element.focus({ preventScroll: !mayScroll });
+    justMovedTo = element;
+  }
+  document.addEventListener('keydown', e => {
+    lastInputWasKey = true;
+    /* the Tab key (not Ctrl+Tab or Alt+Tab, which belong to the browser and the computer) pressed while the warning is up */
+    if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.metaKey && warn.classList.contains('show')) keyboardVisitor = true;
+    if (e.repeat && e.target === justMovedTo && (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar')) e.preventDefault();
+  }, true);
+  document.addEventListener('keyup',       () => { justMovedTo = null; }, true);
+  document.addEventListener('pointerdown', () => { lastInputWasKey = false; justMovedTo = null; }, true);
+
+  /* The warning as a whole is made able to hold the keyboard. tabindex="-1" means: only when this script puts it
+     there. It never becomes a stop for the Tab key, and no outline is drawn around it (the style sheet sees to
+     that: search for "THE WARNING ITSELF" there). */
+  warn.setAttribute('tabindex', '-1');
+
+  const _requestLoad = requestLoad;
+  requestLoad = function () {                                       // "Load Project" was pressed
+    pressedWithKeyboard   = lastInputWasKey;                        // Enter or Space on the button (true), or a click or a tap (false)
+    moveKeyboardAfterLoad = pressedWithKeyboard;
+    const wasOn = document.activeElement;                           // normally the "Load Project" button itself
+    _requestLoad();                                                 // loads at once, or shows the warning first (phones)
+    if (warn.classList.contains('show')) {                          // the warning is up
+      keyboardWasOn = wasOn;
+      switchPageBehind(false);
+      keyboardVisitor = pressedWithKeyboard;
+      /* With the keyboard: on to "Load anyway", the first button of the warning.
+         After a click or a tap: on to the warning as a whole. No button is given the keyboard, so Space and
+         Enter do nothing. */
+      if (keyboardVisitor) moveKeyboardTo(warnGo, true); else moveKeyboardTo(warn);
+    }
+  };
+
+  const _confirmLoad = confirmLoad;
+  confirmLoad = function () {                                       // "Load anyway"
+    switchPageBehind(true);
+    pressedWithKeyboard   = keyboardVisitor && lastInputWasKey;     // "Load anyway" was pressed with a key
+    moveKeyboardAfterLoad = keyboardVisitor;                        // the button that was pressed is about to disappear with the warning
+    keyboardVisitor       = false;
+    _confirmLoad();
+  };
+
+  const _cancelLoad = cancelLoad;
+  cancelLoad = function () {                                        // "Not now", the Escape key, or a tap beside the warning
+    const wasUp = warn.classList.contains('show');
+    _cancelLoad();
+    if (!wasUp) return;
+    switchPageBehind(true);
+    if (keyboardVisitor) moveKeyboardTo(loadBtn);                   // with the keyboard: back to where the visitor was, without scrolling the page
+    /* After a click or a tap, the keyboard ends up where it always did. The warning was closed with the Escape key:
+       it is where the click had left it, in most browsers on "Load Project". Closed with "Not now" or with a click
+       or tap beside the warning: it is on nothing ("blur" = let go). */
+    else if (lastInputWasKey && keyboardWasOn && keyboardWasOn !== document.body && document.contains(keyboardWasOn)) moveKeyboardTo(keyboardWasOn);
+    else if (warn.contains(document.activeElement)) document.activeElement.blur();
+    keyboardVisitor = false;
+    keyboardWasOn   = null;
+  };
+
+  const _loadWebGL = loadWebGL;
+  loadWebGL = function () {                                         // the 3D view starts
+    _loadWebGL();
+    if (moveKeyboardAfterLoad) {
+      moveKeyboardTo(fsBtn);                                        // the keyboard goes to "Fullscreen"; the page stays where it is
+      /* only for a visitor who pressed the button with a key: if "Fullscreen" happens to be off screen, bring it
+         into view, or the outline would be somewhere they cannot see. ('nearest' = scroll no further than needed.) */
+      if (pressedWithKeyboard) fsBtn.scrollIntoView({ block: 'nearest' });
+    }
+    moveKeyboardAfterLoad = false;
+  };
+
+  /* The warning only exists on phone-sized screens: on anything larger the style sheet hides it. If the screen
+     stops being phone-sized while the warning is up (a window made wider, a small tablet turned sideways, a
+     folding phone opened), the warning vanishes with it. Without the lines below the page behind it stayed
+     switched off, and nothing on it could be pressed. Now the warning is closed properly at that moment, the
+     way "Not now" closes it. */
+  const screenChanged = () => { if (!phoneScreen.matches && warn.classList.contains('show')) cancelLoad(); };
+  if (phoneScreen.addEventListener) phoneScreen.addEventListener('change', screenChanged);
+  else if (phoneScreen.addListener) phoneScreen.addListener(screenChanged);   // older Safari uses addListener
+
+  /* For browsers that do not know "inert": if the keyboard lands on something behind the open warning,
+     it is sent back in. (In current browsers this never happens, and the lines do nothing.) */
+  document.addEventListener('focusin', e => {
+    if (warn.classList.contains('show') && !warn.contains(e.target)) moveKeyboardTo(warnGo, true);
+  });
+})();
+
+/* ════ ADDED: "Back to Portfolio" returns to where the visitor was ════
+   Projects now open in the same tab. If this page was reached from the portfolio's
+   home page, the back button steps back in the browser's history, which lands on
+   the same spot of the home page instead of reloading it from the top.
+   Reached any other way (a shared link, a bookmark), it works as a normal link. */
+(function () {
+  var back = document.querySelector('.back-link');
+  if (!back) return;
+  back.addEventListener('click', function (e) {
+    /* leave "open in new tab" clicks (Ctrl / Cmd / middle button) alone */
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    var cameFromHome = false;
+    try {
+      var from = new URL(document.referrer);                               // the page the visitor came from
+      var home = new URL(back.getAttribute('href'), window.location.href); // the home page this button points to
+      var folder = home.pathname.replace(/index\.html$/, '');              // the same address without "index.html"
+      cameFromHome = from.origin === window.location.origin && (from.pathname === home.pathname || from.pathname === folder);
+    } catch (err) { /* no previous page: fall through to the normal link */ }
+    if (cameFromHome && window.history.length > 1) {
+      e.preventDefault();          // do not load a fresh copy of the home page...
+      window.history.back();       // ...go back to the one the visitor was on
+    }
+  });
+})();
 </script>
 <script>(function(){var b=document.getElementById('themeToggle');if(!b)return;function s(){var d=document.body.classList.contains('dark-theme');var l=d?'Switch to light mode':'Switch to dark mode';b.setAttribute('aria-label',l);b.title=l;}s();b.addEventListener('click',function(){document.body.classList.toggle('dark-theme');var d=document.body.classList.contains('dark-theme');try{localStorage.setItem('mb-theme',d?'dark':'light');}catch(e){}s();window.dispatchEvent(new Event('mb-theme-change'));});})();</script>
+<script>
+/* ADDED: keep the colour theme in step after "Back".
+   Projects now open in the same tab. When the visitor returns with "Back to Portfolio"
+   or the browser's Back button, the browser often shows this page straight from its
+   memory, exactly as it was left. If the light / dark theme was switched on another
+   page in the meantime, this applies the same choice here. A normal page load already
+   picks the right theme, so in that case this does nothing. */
+window.addEventListener('pageshow', function (e) {
+  if (!e.persisted) return;                                   // not restored from memory: nothing to do
+  try {
+    var wantDark = localStorage.getItem('mb-theme') !== 'light';
+    if (document.body.classList.contains('dark-theme') === wantDark) return;   // already showing the right theme
+    document.body.classList.toggle('dark-theme', wantDark);
+    var btn = document.getElementById('themeToggle');
+    if (btn) { var label = wantDark ? 'Switch to light mode' : 'Switch to dark mode'; btn.setAttribute('aria-label', label); btn.title = label; }
+    window.dispatchEvent(new Event('mb-theme-change'));       // lets other scripts on the page react to the change
+  } catch (err) {}
+});
+</script>
 </body>
 </html>
