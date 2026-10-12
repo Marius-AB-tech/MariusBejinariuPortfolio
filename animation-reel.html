@@ -725,6 +725,10 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px s
   .mag-mbtn:active svg { stroke: #fff; }
 }
 .mag-arrow:focus-visible { box-shadow: 0 0 0 3px var(--bg), 0 6px 18px rgba(0,0,0,.35); }
+
+@media (max-width: 700px) {
+  .gallery-card.is-previewing .film-frame video { transform: scale(1.04); opacity: 1; }
+}
 </style>
 </head>
 <body class="dark-theme">
@@ -1463,6 +1467,84 @@ else if (calmMotion.addListener) calmMotion.addListener(motionSettingChanged);
       window.history.back();
     }
   });
+})();
+
+(function phonePreviews() {
+  if (!window.matchMedia('(hover: none)').matches) return;
+
+  const fromStart = src => (src && src.indexOf('#') === -1 ? src + '#t=0.001' : src);
+
+  const _renderPageBeforePhonePreviews = renderPage;
+  renderPage = p => _renderPageBeforePhonePreviews(Object.assign({}, p, { src: fromStart(p.src) }));
+
+  const films = Array.from(grid.querySelectorAll('.film-frame video'));
+  films.forEach(film => {
+    const card = film.closest('.gallery-card');
+    film.setAttribute('src', fromStart(film.getAttribute('src')));
+    film.addEventListener('playing', () => {
+      film.parentElement.classList.add('has-film');
+      card.classList.add('is-previewing');
+    });
+    film.addEventListener('pause', () => card.classList.remove('is-previewing'));
+  });
+
+  const header = listView.querySelector('header.gh');
+  let current = null;
+  let queued = false;
+
+  function choose() {
+    if (!phoneList.matches || calmMotion.matches || document.hidden || overlay.classList.contains('open')) return null;
+    const top = header.getBoundingClientRect().bottom;
+    const bottom = listView.getBoundingClientRect().bottom;
+    const middle = (top + bottom) / 2;
+    let pick = null;
+    let nearest = Infinity;
+    films.forEach(film => {
+      const box = film.parentElement.getBoundingClientRect();
+      const shown = Math.min(box.bottom, bottom) - Math.max(box.top, top);
+      const gap = Math.abs((box.top + box.bottom) / 2 - middle);
+      if (shown >= box.height * 0.6 && gap < nearest) {
+        pick = film;
+        nearest = gap;
+      }
+    });
+    return pick;
+  }
+
+  function update() {
+    const pick = choose();
+    if (pick === current) return;
+    if (current) {
+      current.pause();
+      if (current.played.length) current.currentTime = 0;
+    }
+    current = pick;
+    if (current) current.play().catch(() => {});
+  }
+
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      update();
+    });
+  }
+
+  listView.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  window.addEventListener('pageshow', e => {
+    if (!e.persisted) return;
+    current = null;
+    update();
+  });
+  document.addEventListener('visibilitychange', update);
+  new MutationObserver(update).observe(overlay, { attributes: true, attributeFilter: ['class'] });
+  [phoneList, calmMotion].forEach(query => {
+    if (query.addEventListener) query.addEventListener('change', schedule);
+    else if (query.addListener) query.addListener(schedule);
+  });
+  update();
 })();
 </script>
 <script>(function(){var b=document.getElementById('themeToggle');if(!b)return;function s(){var d=document.body.classList.contains('dark-theme');var l=d?'Switch to light mode':'Switch to dark mode';b.setAttribute('aria-label',l);b.title=l;}s();b.addEventListener('click',function(){document.body.classList.toggle('dark-theme');var d=document.body.classList.contains('dark-theme');try{localStorage.setItem('mb-theme',d?'dark':'light');}catch(e){}s();window.dispatchEvent(new Event('mb-theme-change'));});})();</script>
