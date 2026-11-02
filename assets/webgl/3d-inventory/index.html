@@ -240,14 +240,14 @@
       // 2. The build files Unity made (names filled in when you build).
       // ---------------------------------------------------------------
       var buildUrl = "Build";
-      var dataFile = "3D inventory v44 WEbgl export.data.unityweb";
+      var dataFile = "New folder.data.unityweb";
       // The "Build Desktop + Mobile" tool adds the phone textures as "<name>-mobile.data...".
       var mobileDataFile = dataFile.replace(/\.data(\.[A-Za-z0-9]+)?$/, "-mobile.data$1");
 
       var config = {
         dataUrl: buildUrl + "/" + dataFile,
-        frameworkUrl: buildUrl + "/3D inventory v44 WEbgl export.framework.js.unityweb",
-        codeUrl: buildUrl + "/3D inventory v44 WEbgl export.wasm.unityweb",
+        frameworkUrl: buildUrl + "/New folder.framework.js.unityweb",
+        codeUrl: buildUrl + "/New folder.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: productName,
@@ -268,7 +268,7 @@
         config.dataUrl = dataUrl;
 
         var script = document.createElement("script");
-        script.src = buildUrl + "/3D inventory v44 WEbgl export.loader.js";
+        script.src = buildUrl + "/New folder.loader.js";
         script.onload = function () {
           createUnityInstance(canvas, config, showProgress)
             .then(function (unityInstance) {
